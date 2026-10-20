@@ -6,7 +6,7 @@ package:
 
 | Package | Standard | Version implemented |
 |---|---|---|
-| `@common-agent/sow` | [Agent SoW](https://agentsow.com) | 0.29.0-draft |
+| `@common-agent/sow` | [Agent SoW](https://agentsow.com) | 0.30.0-draft |
 | `@common-agent/rfp` | [Agent RFP](https://agentrfp.net) | 0.10.0-draft |
 | `@common-agent/mandate` | [Agent Mandate](https://agentmandate.net) | 0.8.0-draft |
 | `@common-agent/nda` | [Agent NDA](https://agentnda.net) | 0.2.0-draft |

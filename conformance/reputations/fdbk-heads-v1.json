@@ -1,5 +1,5 @@
 {
-  "about": "Test vectors for the chained commitment over every subject's log that a bureau keeping one log per subject publishes (Agent Reputations §4.1.1). The tree is a sparse Merkle tree of height 256: each subject has one slot, at the SHA-256 of the UTF-8 of its canonical caseless form (Unicode D145: NFD, full case folding by casefolding-15.1.0.json, NFD); a slot holds the subject's head or the tombstone of an erased subject, and its digest is SHA-256 over the byte 0x00 and the JCS of what it holds; an empty subtree of height h has the digest EMPTY[h], 32 zero bytes at height 0 and SHA-256 over 0x01 and two copies of EMPTY[h-1] above; a node is SHA-256 over 0x01, its left child and its right child; bit 0 of a key, the highest bit of its first byte, chooses the side at the root. A proof lists the sibling of each level from the slot up, null for an empty subtree. Commitments are signed under the tag fdbk-heads-v1 with the report test key of fdbk-report-v1.json, each names the previous one in prev (SHA-256 over its signed bytes), and every co-signer the key set names co-signs each under fdbk-heads-cosign-v1. The key set's witness list moved from the pinned list by a change that every co-signer on the pinned list signed under fdbk-witnesses-v1. reference.mjs beside this file reproduces every vector.",
+  "about": "Test vectors for the chained commitment over every subject's log that a bureau keeping one log per subject publishes (Agent Reputations §4.1.1). The tree is a sparse Merkle tree of height 256: each subject has one slot, at the SHA-256 of the UTF-8 of its canonical caseless form (Unicode D145: NFD, full case folding by casefolding-15.1.0.json, NFD); a slot holds the subject's head or the tombstone of an erased subject, and its digest is SHA-256 over the byte 0x00 and the JCS of what it holds; an empty subtree of height h has the digest EMPTY[h], 32 zero bytes at height 0 and SHA-256 over 0x01 and two copies of EMPTY[h-1] above; a node is SHA-256 over 0x01, its left child and its right child; bit 0 of a key, the highest bit of its first byte, chooses the side at the root. A proof lists the sibling of each level from the slot up, null for an empty subtree. Commitments are signed under the tag fdbk-heads-v1 with the report test key of fdbk-report-v1.json, each names the previous one in prev (SHA-256 over its signed bytes), and every co-signer the key set names co-signs each under fdbk-heads-cosign-v1. The key set's witness list moved from the pinned list by two changes, each signed under fdbk-witnesses-v1 by every co-signer on the list it changes and naming in after the commitment it takes effect after: the first, after null, adds witness two before the first commitment, and the second, after c2, adds witness three, whose record starts there, so its first co-signature is of c3. Each commitment is co-signed by the witnesses named for its seq. reference.mjs beside this file reproduces every vector.",
   "test_witnesses_warning": "TEST KEY ONLY. Its private part is published so that anyone can reproduce the co-signatures below. No witness may ever sign with it.",
   "test_witnesses": [
     {
@@ -40,6 +40,11 @@
         "id": "https://witness-two.example",
         "key": "bv6AOdcMhmIiHqvw0JIWQcRuNHK2fzSRGFONMwE8a5Y=",
         "kind": "cosigner"
+      },
+      {
+        "id": "https://witness-three.example",
+        "key": "yizvytQAskSkeY9YFPdYQopgZ6S5fQDYXmqRhHp82W4=",
+        "kind": "cosigner"
       }
     ],
     "witness_changes": [
@@ -47,6 +52,7 @@
         "change": {
           "bureau": "https://bureau.example",
           "previous": "78f67c93e3f91630ffcd9cb354854a2dac975ec659535b854d4ab8a19f872e96",
+          "after": null,
           "witnesses": [
             {
               "id": "https://witness-one.example",
@@ -64,7 +70,46 @@
           {
             "witness": "https://witness-one.example",
             "kid": "c044d786bb85",
-            "sig": "njvqlff4Wz9QJNRtRXwHR2PtoG7pAjmfr/4CB8CgOe/L11LPLY0qvN38KWmHS0hpalD0SDAUJ6GfOokuCERSBg=="
+            "sig": "euQf0BEb1nh7Sy0mMagNDxzF9LEdX09ypHEgKnYIA6UEnamTy0u2A/mdhgp1E+1EqWRwip/q3u34tUiuNYoECw=="
+          }
+        ]
+      },
+      {
+        "change": {
+          "bureau": "https://bureau.example",
+          "previous": "64b330b09e05027dc62b36739e4b929f3bfcee26ed80e26984f9afc45c0bb617",
+          "after": {
+            "seq": 2,
+            "commitment": "bbd3c5605384b0f61d926a947ea3fd126c4117c9f5fadfe57ee5e4b8afb38db6"
+          },
+          "witnesses": [
+            {
+              "id": "https://witness-one.example",
+              "key": "6ql/jsmLeOdmFwjupwQqrYysq6shMd5Cfk4FikI4y6Q=",
+              "kind": "cosigner"
+            },
+            {
+              "id": "https://witness-two.example",
+              "key": "bv6AOdcMhmIiHqvw0JIWQcRuNHK2fzSRGFONMwE8a5Y=",
+              "kind": "cosigner"
+            },
+            {
+              "id": "https://witness-three.example",
+              "key": "yizvytQAskSkeY9YFPdYQopgZ6S5fQDYXmqRhHp82W4=",
+              "kind": "cosigner"
+            }
+          ]
+        },
+        "signatures": [
+          {
+            "witness": "https://witness-one.example",
+            "kid": "c044d786bb85",
+            "sig": "HeJdHyQq9Ute/s8bF9YQ7l2Lsdi74fRh8u+6sctB6AziZ/CFB6+uLwj0tv0vXQkaDLXYYdBIHx+HATccy0RxDA=="
+          },
+          {
+            "witness": "https://witness-two.example",
+            "kid": "b441aeececec",
+            "sig": "U8B5r3jXWQMcconYXlDqG0uMBoVe07dWgGlyULZzL7Sc7FSZKBSf8x2ZanLlntTstARjA0wjRHH19mAYfEz+BQ=="
           }
         ]
       }
@@ -272,6 +317,102 @@
           "witness": "https://witness-two.example",
           "kid": "b441aeececec",
           "sig": "V3wm/1oTZ8OPhfxKJSdG2j02OKyIV1QoSAtXDG+s8qSYrT/YNF9biSmGtNftnkPvwUnsoGXGvzhvjAAATxf5CQ=="
+        }
+      ]
+    },
+    {
+      "name": "c3",
+      "heads": [
+        {
+          "subject": "Coder.ana@example.org",
+          "seq": 415,
+          "head_hash": "Hx1txZMJT0tcYrdRbU0zGDcMXX00TiaHB13dObqHNV8="
+        },
+        {
+          "subject": "bot.zed@example.net",
+          "seq": 1,
+          "head_hash": "c0Ea0pNzay3Ue2cOR13+efVXpBNEItRe97gHVW+ATv0="
+        },
+        {
+          "subject": "Ledger.lee@example.com",
+          "seq": 2210,
+          "head_hash": "hZBaxnF1UZdLMjakXc1TaUzFY8KQoXQkkqJaLCKxWkk="
+        },
+        {
+          "subject": "Research.ravi@example.org",
+          "seq": 96,
+          "head_hash": "3bRhb0iAOoAo9SxYx4+sOqumlvefmxgN8yGBiUiBhUo="
+        },
+        {
+          "subject": "Nova.ops@example.org",
+          "seq": 3,
+          "head_hash": "VbN/pYJZyAofrUyjanT6JUyiM8a9/z47KUDy2Ko2ny8="
+        }
+      ],
+      "tombstones": [
+        {
+          "key": "421744dc328debb9d25fb38af48760c604f27b1ab10a716ef25e24f9cac57674",
+          "erased_at": "2026-10-19T18:00:00.000Z"
+        }
+      ],
+      "slots": [
+        {
+          "key": "421744dc328debb9d25fb38af48760c604f27b1ab10a716ef25e24f9cac57674",
+          "digest": "d6f31e132213ee996e889b6c17474b8c3de26e97b80a2a54790557d39b448c94"
+        },
+        {
+          "key": "6eb2e49a1144032a6d33782fe2862a3b3c87214ee2617cbcb244283abe856754",
+          "digest": "c762e7cc48e70881362c47d42464cfcad29e672a87969ac660c3515a1ef663a1"
+        },
+        {
+          "key": "83e1fc71cf2d5556c424b94fa560318617f0ca057507626edb2cd21a2eac3805",
+          "digest": "d9d2296771a35d14f918ee7d3dcbcbe66de8c5a3a755e60c02455c6053b4dd0d"
+        },
+        {
+          "key": "8d45da3ca690e02e0b52dec18aac1cedbe04b64116cc91a22ef2b8b2b546b52d",
+          "digest": "df7a4fbb0acc53412a5bb0f844b683bc16be3aaf71ccf06bd79e3abf77360911"
+        },
+        {
+          "key": "a1449c606442881eaf12484501303e7caf654c23837056e66ad250daae36a95d",
+          "digest": "ab23f39fc2f67a7636ee3a494d3c238ec325446e16c90d2251cc30f9a43ba244"
+        },
+        {
+          "key": "d7eac860346cb47553877cb17e46874b6fa4d03754465f1120c0dc79cd7406b8",
+          "digest": "23b1ad2ed2e27bc838d2958cf214360124749f6a9e6f7afb9926c4776b909d63"
+        }
+      ],
+      "envelope": {
+        "heads": {
+          "bureau": "https://bureau.example",
+          "seq": 3,
+          "issued_at": "2026-10-21T00:00:00.000Z",
+          "prev": "bbd3c5605384b0f61d926a947ea3fd126c4117c9f5fadfe57ee5e4b8afb38db6",
+          "root": "cff315aba91fb6d7f56f40a540ad5446f7ae00e690144e48afcf328637a81d17",
+          "subjects": 5,
+          "tombstones": 1
+        },
+        "bureau_key": "01sCQHvvCb7r6Es5no0VZvHxhYQkGKmKzG5m11P/Bww=",
+        "bureau_kid": "e23eccc4f5cc",
+        "bureau_sig": "UEy2r/6Gd8W0dIbwF/8+e16qie0JKr0vgSd7CZfYWLnhrSI2odKPn7raVL1vo3dN4v05MQjx/y3GBkw7W0beDQ=="
+      },
+      "signed_bytes": "fdbk-heads-v1\n{\"bureau\":\"https://bureau.example\",\"issued_at\":\"2026-10-21T00:00:00.000Z\",\"prev\":\"bbd3c5605384b0f61d926a947ea3fd126c4117c9f5fadfe57ee5e4b8afb38db6\",\"root\":\"cff315aba91fb6d7f56f40a540ad5446f7ae00e690144e48afcf328637a81d17\",\"seq\":3,\"subjects\":5,\"tombstones\":1}",
+      "signed_bytes_sha256": "c308c1626c6d32e683ecf8096584803cfe2cafc67cf9549b59404209b19c15d3",
+      "cosigned_bytes": "fdbk-heads-cosign-v1\n{\"bureau\":\"https://bureau.example\",\"commitment\":\"c308c1626c6d32e683ecf8096584803cfe2cafc67cf9549b59404209b19c15d3\",\"seq\":3}",
+      "cosignatures": [
+        {
+          "witness": "https://witness-one.example",
+          "kid": "c044d786bb85",
+          "sig": "ml5Ywvm8mUKsbePgJhtsod4qzN3uOdGV62yuBb3bsmosMec5QN/+nRivZ0JVdV/u4mexSzsHlYeMDPfR6aXnBg=="
+        },
+        {
+          "witness": "https://witness-two.example",
+          "kid": "b441aeececec",
+          "sig": "kthfRwmfN01AEOzrNQFM8Smi2oavRasVF34jzALJ5oH5gdZd8TR/cZs/NQEOHb0gChR7r2e9cuAkm7RDbIPZBw=="
+        },
+        {
+          "witness": "https://witness-three.example",
+          "kid": "57812592f6ad",
+          "sig": "2esus3G6NP9ip1hqRC9a+WAlpfE7NSd1ZzBCQNk0Sf39+pcrDgAJrbD2g1PYbeT6gtB188/IfC5qDvJOvvfKDw=="
         }
       ]
     }
@@ -1431,7 +1572,11 @@
       "check": "witness_change",
       "change": {
         "bureau": "https://bureau.example",
-        "previous": "64b330b09e05027dc62b36739e4b929f3bfcee26ed80e26984f9afc45c0bb617",
+        "previous": "53e4471442de38cb8185afb09786dcf0d3166a306ab9e9695d3aa1f975f6b31f",
+        "after": {
+          "seq": 3,
+          "commitment": "c308c1626c6d32e683ecf8096584803cfe2cafc67cf9549b59404209b19c15d3"
+        },
         "witnesses": [
           {
             "id": "https://witness-one.example",
@@ -1454,12 +1599,90 @@
         {
           "witness": "https://witness-one.example",
           "kid": "c044d786bb85",
-          "sig": "5AyeCFEmTmb6CrwSYp7VlWuCErwOz3SgEux15mzap8nVcPo/pjjHQnbqw6FGF3q7QPba/DhGpSObw9EbIhZDBQ=="
+          "sig": "hQ0KApY9FJUCC5sGHv+s9vF2r4JxFwe5c05+kr0x8OE3QZdnn1HZDbnsn82i0fCJe6zZ0Qk2yKycKXux5TsFCQ=="
         },
         {
           "witness": "https://witness-three.example",
           "kid": "57812592f6ad",
-          "sig": "vB2h4k+O3F3+WKa1421LWpSrMQIwuM+yYXCz1GITO8wZPNZOA8ixqpm+Emtww1Grits8EGGzWRD9WMv1lPu+CA=="
+          "sig": "AoIS+8rIdF9B7Rrn6I1o9kilEoKX/azK88cAnu4Bmm2YeKJiuJnU94tB/IyUKOqKXdlA7IJ19adaSGexuLwhCg=="
+        }
+      ]
+    },
+    {
+      "name": "a-joining-witness-co-signing-the-commitment-its-change-names",
+      "check": "join",
+      "witness": "https://witness-three.example",
+      "commitment": "c2",
+      "reason": "witness three joined by the change whose after is c2, so its first co-signature is of c3 and it never co-signs c2",
+      "reason_code": "a joining witness never co-signs the commitment its change names or one before it"
+    },
+    {
+      "name": "a-joining-witness-co-signing-an-earlier-commitment",
+      "check": "join",
+      "witness": "https://witness-three.example",
+      "commitment": "c1",
+      "reason": "a joining witness never co-signs a commitment before the one its change names",
+      "reason_code": "a joining witness never co-signs the commitment its change names or one before it"
+    },
+    {
+      "name": "a-joining-witness-skipping-a-commitment",
+      "check": "join",
+      "witness": "https://witness-three.example",
+      "commitment": "c3",
+      "set": {
+        "seq": 4
+      },
+      "reason": "a joining witness's first co-signature is of the commitment right after the one its change names",
+      "reason_code": "a joining witness first co-signs the commitment after the one its change names"
+    },
+    {
+      "name": "a-change-naming-a-commitment-the-bureau-did-not-publish",
+      "check": "witness_change",
+      "from": [
+        "https://witness-one.example",
+        "https://witness-two.example"
+      ],
+      "change": {
+        "bureau": "https://bureau.example",
+        "previous": "64b330b09e05027dc62b36739e4b929f3bfcee26ed80e26984f9afc45c0bb617",
+        "after": {
+          "seq": 2,
+          "commitment": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "witnesses": [
+          {
+            "id": "https://witness-one.example",
+            "key": "6ql/jsmLeOdmFwjupwQqrYysq6shMd5Cfk4FikI4y6Q=",
+            "kind": "cosigner"
+          },
+          {
+            "id": "https://witness-two.example",
+            "key": "bv6AOdcMhmIiHqvw0JIWQcRuNHK2fzSRGFONMwE8a5Y=",
+            "kind": "cosigner"
+          },
+          {
+            "id": "https://witness-three.example",
+            "key": "yizvytQAskSkeY9YFPdYQopgZ6S5fQDYXmqRhHp82W4=",
+            "kind": "cosigner"
+          }
+        ]
+      },
+      "signed_by": [
+        "https://witness-one.example",
+        "https://witness-two.example"
+      ],
+      "reason": "after names the commitment the change takes effect after, which the bureau published and the witnesses before it co-signed",
+      "reason_code": "its after names a commitment the bureau did not publish",
+      "signatures": [
+        {
+          "witness": "https://witness-one.example",
+          "kid": "c044d786bb85",
+          "sig": "VMURuhmQkZEItrNMnr2+my2HpfRu1OQmOlM1RlRQk8SLMMRxZXRsNP8v1kMtsv4vH/Vhw9Qw6mkr4oB3AzFZBg=="
+        },
+        {
+          "witness": "https://witness-two.example",
+          "kid": "b441aeececec",
+          "sig": "OGooxENBuejcjyBoRw344XESUPGWcwxg7/cxtBmMzNfyCtGmVQW22sjCzI+W3LeWgN3oAVX3aXuNG/ytzbX8AQ=="
         }
       ]
     },
