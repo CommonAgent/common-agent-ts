@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+
+      # The conformance files are byte-for-byte copies of the standards
+      # repository's, each at the tag standards-pin.json names.
+      - name: The conformance copies are the files at their pinned tags
+        run: node tools/check-standards-pin.mjs --remote
+
+      - name: Typecheck, sources and tests
+        run: npm run typecheck
+
+      - name: Every package's tests and its standard's conformance vectors
+        run: npm test
+
+      - name: Build every package
+        run: npm run build
+
+      - name: Each package packs, with its build and its notices
+        run: npm pack --workspaces --dry-run

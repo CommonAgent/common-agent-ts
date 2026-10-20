@@ -1,0 +1,513 @@
+{
+  "comment": "Agent Mandate: which power a mutating act through a resource proxy needs (agentmandate.net 0.6.0-draft, 6 rule 4 and 7.1; Agent SoW 0.26.0-draft 5.3.1). A client agent answers a provider's requests against resources it granted via proxy. A read within the grant is answered on the grant alone. An act is mutating unless its operation is declared or known to read and change nothing (read_only: true); an operation with no declaration (read_only: null) is mutating. A mutating act on a resource the grant's writes names needs that power; on any other resource it needs write. The caller presents a mandate, checked as 7 checks it; mandate below is the answer a lookup gives at the instant of the act, with only the members these cases turn on. Where the mandate carries scope.resources, the resource must match one of its patterns (6 rule 9). A mandate that carries scope.offerings and no scope.resources is refused for every mutating act, without matching the resource against the offerings. expected is allow, or refuse with the failing check: mandate (none presented), in_force, powers, or scope. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent Mandate 0.8.0-draft: 6 rules 4 and 9 (powers, resources), 7.1 (the check at a resource proxy); Agent SoW 0.26.0-draft: 5.3.1 (writes)",
+  "grant": {
+    "name": "ledger-and-receipts",
+    "kind": "shared_resource",
+    "access": "read-write",
+    "via": "proxy",
+    "when": "standing",
+    "writes": {
+      "ledger": "amend"
+    }
+  },
+  "cases": [
+    {
+      "case": "read_needs_no_mandate",
+      "act": {
+        "resource": "ledger",
+        "operation": "get_entries",
+        "read_only": true
+      },
+      "mandate": null,
+      "expected": {
+        "allow": true
+      },
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "write_named_power_held",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "amend"
+        ]
+      },
+      "expected": {
+        "allow": true
+      },
+      "why": "writes names amend for the ledger",
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "write_named_power_missing",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ]
+      },
+      "expected": {
+        "allow": false,
+        "check": "powers"
+      },
+      "why": "the grant asks amend for the ledger, and write does not stand in for it",
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "write_unnamed_resource_needs_write",
+      "act": {
+        "resource": "receipts",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ]
+      },
+      "expected": {
+        "allow": true
+      },
+      "why": "writes does not name receipts, so a mutating act on it needs write",
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "write_unnamed_resource_without_write",
+      "act": {
+        "resource": "receipts",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "amend"
+        ]
+      },
+      "expected": {
+        "allow": false,
+        "check": "powers"
+      },
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "write_without_a_mandate",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": null,
+      "expected": {
+        "allow": false,
+        "check": "mandate"
+      },
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "mandate_not_in_force",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2026-09-01T00:00:00Z",
+        "powers": [
+          "amend"
+        ]
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": false,
+        "check": "in_force"
+      }
+    },
+    {
+      "case": "grant_without_writes",
+      "grant": {
+        "name": "ledger-and-receipts",
+        "kind": "shared_resource",
+        "access": "read-write",
+        "via": "proxy",
+        "when": "standing"
+      },
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ]
+      },
+      "expected": {
+        "allow": true
+      },
+      "why": "a grant with no writes asks write for every resource",
+      "at": "2026-10-01T00:00:00Z"
+    },
+    {
+      "case": "undeclared_operation_is_mutating",
+      "act": {
+        "resource": "ledger",
+        "operation": "reconcile",
+        "read_only": null
+      },
+      "mandate": null,
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": false,
+        "check": "mandate"
+      },
+      "why": "an operation that declares nothing is mutating, so it needs a mandate"
+    },
+    {
+      "case": "scope_matches_named_power",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "amend"
+        ],
+        "scope": {
+          "resources": [
+            "ledger*"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": true
+      }
+    },
+    {
+      "case": "scope_excludes_resource",
+      "act": {
+        "resource": "receipts",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ],
+        "scope": {
+          "resources": [
+            "ledger*"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": false,
+        "check": "scope"
+      },
+      "why": "the holder may write, but its organization limited it to the ledger"
+    },
+    {
+      "case": "scope_limits_amend_too",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "amend"
+        ],
+        "scope": {
+          "resources": [
+            "receipts"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": false,
+        "check": "scope"
+      }
+    },
+    {
+      "case": "scope_never_limits_a_read",
+      "act": {
+        "resource": "receipts",
+        "operation": "get_entries",
+        "read_only": true
+      },
+      "mandate": null,
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": true
+      }
+    },
+    {
+      "case": "no_scope_no_limit",
+      "act": {
+        "resource": "receipts",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ]
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": true
+      }
+    },
+    {
+      "case": "offerings_without_resources_refused",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "amend",
+          "write"
+        ],
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": false,
+        "check": "scope"
+      },
+      "why": "the mandate was scoped by offerings and says nothing about resources, so it reaches none"
+    },
+    {
+      "case": "offerings_name_matching_resource_still_refused",
+      "act": {
+        "resource": "audit-freight-ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ],
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": false,
+        "check": "scope"
+      },
+      "why": "the refusal is outright: an offering pattern that happens to match a resource name grants nothing"
+    },
+    {
+      "case": "offerings_and_resources",
+      "act": {
+        "resource": "ledger",
+        "operation": "post_entry",
+        "read_only": false
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "amend"
+        ],
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "resources": [
+            "ledger"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": true
+      }
+    },
+    {
+      "case": "offerings_never_limit_a_read",
+      "act": {
+        "resource": "ledger",
+        "operation": "get_entries",
+        "read_only": true
+      },
+      "mandate": {
+        "organization": "org_stonework",
+        "holder_key": "<the caller's key>",
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "powers": [
+          "write"
+        ],
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ]
+        }
+      },
+      "at": "2026-10-01T00:00:00Z",
+      "expected": {
+        "allow": true
+      }
+    }
+  ],
+  "validation": {
+    "comment": "A grant whose writes names any power but write and amend, or that carries writes without via proxy, does not validate.",
+    "invalid": [
+      {
+        "case": "unknown_power",
+        "grant": {
+          "name": "ledger-and-receipts",
+          "kind": "shared_resource",
+          "access": "read-write",
+          "via": "proxy",
+          "when": "standing",
+          "writes": {
+            "ledger": "admin"
+          }
+        }
+      },
+      {
+        "case": "writes_without_proxy",
+        "grant": {
+          "name": "ledger-and-receipts",
+          "kind": "shared_resource",
+          "access": "read-write",
+          "via": "mcp",
+          "when": "standing",
+          "writes": {
+            "ledger": "amend"
+          }
+        }
+      },
+      {
+        "case": "borrows_nda",
+        "grant": {
+          "name": "ledger-and-receipts",
+          "kind": "shared_resource",
+          "access": "read-write",
+          "via": "proxy",
+          "when": "standing",
+          "writes": {
+            "x": "nda"
+          }
+        }
+      },
+      {
+        "case": "borrows_award",
+        "grant": {
+          "name": "ledger-and-receipts",
+          "kind": "shared_resource",
+          "access": "read-write",
+          "via": "proxy",
+          "when": "standing",
+          "writes": {
+            "x": "award"
+          }
+        }
+      },
+      {
+        "case": "borrows_form",
+        "grant": {
+          "name": "ledger-and-receipts",
+          "kind": "shared_resource",
+          "access": "read-write",
+          "via": "proxy",
+          "when": "standing",
+          "writes": {
+            "x": "form"
+          }
+        }
+      },
+      {
+        "case": "borrows_issue",
+        "grant": {
+          "name": "ledger-and-receipts",
+          "kind": "shared_resource",
+          "access": "read-write",
+          "via": "proxy",
+          "when": "standing",
+          "writes": {
+            "x": "issue"
+          }
+        }
+      }
+    ]
+  },
+  "writes_powers": [
+    "write",
+    "amend"
+  ]
+}

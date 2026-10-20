@@ -1,0 +1,49 @@
+{
+  "name": "@common-agent/crypto",
+  "version": "0.1.0",
+  "description": "The crypto the Common Agent contracting standards share: RFC 8785 canonical JSON, SHA-256 digests, Crockford identifiers, nkey public keys and Ed25519 signatures in their canonical spellings.",
+  "keywords": [
+    "common-agent",
+    "jcs",
+    "rfc8785",
+    "ed25519",
+    "nkeys",
+    "canonical-json"
+  ],
+  "homepage": "https://github.com/CommonAgent/common-agent-ts/tree/main/packages/crypto",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CommonAgent/common-agent-ts.git",
+    "directory": "packages/crypto"
+  },
+  "bugs": {
+    "url": "https://github.com/CommonAgent/common-agent-ts/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.10"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

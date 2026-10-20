@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "declaration": true,
+    "paths": {
+      "@common-agent/crypto": [
+        "../crypto/dist/index.d.ts"
+      ],
+      "@common-agent/mandate": [
+        "../mandate/dist/index.d.ts"
+      ],
+      "@common-agent/mandate/ports": [
+        "../mandate/dist/ports.d.ts"
+      ]
+    }
+  },
+  "include": [
+    "*.ts"
+  ],
+  "exclude": [
+    "test",
+    "dist",
+    "node_modules"
+  ]
+}

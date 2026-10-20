@@ -1,0 +1,54 @@
+{
+  "name": "@common-agent/mandate",
+  "version": "0.1.0",
+  "description": "Reference implementation of Agent Mandate: charters, mandates and resolve acts, the chain to root authority, and the check at approval.",
+  "keywords": [
+    "common-agent",
+    "agent-mandate",
+    "authority",
+    "delegation"
+  ],
+  "homepage": "https://agentmandate.net",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CommonAgent/common-agent-ts.git",
+    "directory": "packages/mandate"
+  },
+  "bugs": {
+    "url": "https://github.com/CommonAgent/common-agent-ts/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./ports": {
+      "types": "./dist/ports.d.ts",
+      "default": "./dist/ports.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@common-agent/crypto": "0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

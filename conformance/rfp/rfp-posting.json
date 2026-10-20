@@ -1,0 +1,713 @@
+{
+  "comment": "Agent RFP conformance file. Pins the identifier (crockford32 over the SHA-256 of the hashed bytes, which leave out id AND signatures), the signed bytes (the agent-rfp-v1 tag, a line feed, and the canonical JSON with signatures removed only), the act signatures (agent-rfp-resolve-v1, with the action inside the signed bytes), the lifecycle of section 9, the rules a response's own document must meet in section 7, the split of a gated posting into a public document and a sealed body with its nonce in section 5.11, and the rule that a gate's body ref never contains the posting's identifier (body_refs). The keys are Ed25519 keys derived from the published test seeds under keys; signatures are padded base64. THE FILE IS THE AUTHORITY: when a test against it fails, fix the implementation; when the file is believed wrong, change it only with a specification change alongside.",
+  "version": 1,
+  "spec": "Agent RFP 0.11.0-draft: 4.1 (identity), 5.11 (gated postings), 6 (signatures), 7 (responses), 9 (lifecycle)",
+  "keys": {
+    "poster": {
+      "label": "Agent RFP conformance test key: poster",
+      "seed_hex": "9d29fe897dfa1f3219cae60941150949dea49bf8768b0d8c803bd76b27bd72be",
+      "public": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP"
+    },
+    "responder": {
+      "label": "Agent RFP conformance test key: responder",
+      "seed_hex": "4c99d87e6da8dad2962e81a779d1dd760beeacda2e7023f38d0c4e304f182839",
+      "public": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+    }
+  },
+  "identity": {
+    "comment": "4.1 and 6. hashed_json is the canonical JSON of the version-1 document without id and signatures; id is rfp_ and the first 16 Crockford base32 characters of its SHA-256; signed_json is the canonical JSON without signatures only, so it contains the id; the poster's signature is over sig_prefix followed by signed_json.",
+    "posting": {
+      "rfp": "v1",
+      "id": "rfp_fhk5e1q3kd73zykb",
+      "version": 1,
+      "language": "en",
+      "posted_at": "2026-08-06T17:00:00Z",
+      "expires_at": "2026-09-20T00:00:00Z",
+      "poster": {
+        "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+        "handle": "Petrel.mari@harborandline.example",
+        "owner": "Harbor & Line Outfitters",
+        "grade": "evidence"
+      },
+      "need": {
+        "summary": "Audit inbound freight invoices against our three carrier contracts and flag overbilling.",
+        "examples": {
+          "in_scope": [
+            "Check this week's 40 invoices from Meridian Freight against the 2026 rate card."
+          ],
+          "out_of_scope": [
+            "Negotiate new carrier rates."
+          ]
+        },
+        "deliverables_wanted": [
+          {
+            "name": "audit-report",
+            "media_type": "application/pdf"
+          },
+          {
+            "name": "flagged-invoices",
+            "media_type": "application/json"
+          }
+        ],
+        "procurement": "rent",
+        "grade": "recorded"
+      },
+      "budget": {
+        "currency": "XCR",
+        "per_task_max": 1500000,
+        "ceiling": {
+          "amount": 30000000,
+          "period": "month"
+        },
+        "grade": "recorded"
+      },
+      "award": {
+        "award_by": "2026-09-10T00:00:00Z",
+        "criteria": "Lowest per-task price among responders demonstrating a correct audit on the sample invoices.",
+        "grade": "recorded"
+      },
+      "signatures": [
+        {
+          "role": "poster",
+          "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+          "signed_at": "2026-08-06T17:00:00Z",
+          "sig": "fUEyKGKUmPh9FdFQCYQYdx3c1mWFp7PaUsdfgaIRneR3BFuDDhHm66N6gCOXj73krFAD/9QSGf5H3JEr0BcpCQ=="
+        }
+      ]
+    },
+    "hashed_json": "{\"award\":{\"award_by\":\"2026-09-10T00:00:00Z\",\"criteria\":\"Lowest per-task price among responders demonstrating a correct audit on the sample invoices.\",\"grade\":\"recorded\"},\"budget\":{\"ceiling\":{\"amount\":30000000,\"period\":\"month\"},\"currency\":\"XCR\",\"grade\":\"recorded\",\"per_task_max\":1500000},\"expires_at\":\"2026-09-20T00:00:00Z\",\"language\":\"en\",\"need\":{\"deliverables_wanted\":[{\"media_type\":\"application/pdf\",\"name\":\"audit-report\"},{\"media_type\":\"application/json\",\"name\":\"flagged-invoices\"}],\"examples\":{\"in_scope\":[\"Check this week's 40 invoices from Meridian Freight against the 2026 rate card.\"],\"out_of_scope\":[\"Negotiate new carrier rates.\"]},\"grade\":\"recorded\",\"procurement\":\"rent\",\"summary\":\"Audit inbound freight invoices against our three carrier contracts and flag overbilling.\"},\"posted_at\":\"2026-08-06T17:00:00Z\",\"poster\":{\"agent\":\"UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP\",\"grade\":\"evidence\",\"handle\":\"Petrel.mari@harborandline.example\",\"owner\":\"Harbor & Line Outfitters\"},\"rfp\":\"v1\",\"version\":1}",
+    "id": "rfp_fhk5e1q3kd73zykb",
+    "sig_prefix": "agent-rfp-v1\n",
+    "signed_json": "{\"award\":{\"award_by\":\"2026-09-10T00:00:00Z\",\"criteria\":\"Lowest per-task price among responders demonstrating a correct audit on the sample invoices.\",\"grade\":\"recorded\"},\"budget\":{\"ceiling\":{\"amount\":30000000,\"period\":\"month\"},\"currency\":\"XCR\",\"grade\":\"recorded\",\"per_task_max\":1500000},\"expires_at\":\"2026-09-20T00:00:00Z\",\"id\":\"rfp_fhk5e1q3kd73zykb\",\"language\":\"en\",\"need\":{\"deliverables_wanted\":[{\"media_type\":\"application/pdf\",\"name\":\"audit-report\"},{\"media_type\":\"application/json\",\"name\":\"flagged-invoices\"}],\"examples\":{\"in_scope\":[\"Check this week's 40 invoices from Meridian Freight against the 2026 rate card.\"],\"out_of_scope\":[\"Negotiate new carrier rates.\"]},\"grade\":\"recorded\",\"procurement\":\"rent\",\"summary\":\"Audit inbound freight invoices against our three carrier contracts and flag overbilling.\"},\"posted_at\":\"2026-08-06T17:00:00Z\",\"poster\":{\"agent\":\"UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP\",\"grade\":\"evidence\",\"handle\":\"Petrel.mari@harborandline.example\",\"owner\":\"Harbor & Line Outfitters\"},\"rfp\":\"v1\",\"version\":1}",
+    "invalid": [
+      {
+        "case": "changed_after_signing",
+        "posting": {
+          "rfp": "v1",
+          "id": "rfp_fhk5e1q3kd73zykb",
+          "version": 1,
+          "language": "en",
+          "posted_at": "2026-08-06T17:00:00Z",
+          "expires_at": "2026-12-31T00:00:00Z",
+          "poster": {
+            "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+            "handle": "Petrel.mari@harborandline.example",
+            "owner": "Harbor & Line Outfitters",
+            "grade": "evidence"
+          },
+          "need": {
+            "summary": "Audit inbound freight invoices against our three carrier contracts and flag overbilling.",
+            "examples": {
+              "in_scope": [
+                "Check this week's 40 invoices from Meridian Freight against the 2026 rate card."
+              ],
+              "out_of_scope": [
+                "Negotiate new carrier rates."
+              ]
+            },
+            "deliverables_wanted": [
+              {
+                "name": "audit-report",
+                "media_type": "application/pdf"
+              },
+              {
+                "name": "flagged-invoices",
+                "media_type": "application/json"
+              }
+            ],
+            "procurement": "rent",
+            "grade": "recorded"
+          },
+          "budget": {
+            "currency": "XCR",
+            "per_task_max": 1500000,
+            "ceiling": {
+              "amount": 30000000,
+              "period": "month"
+            },
+            "grade": "recorded"
+          },
+          "award": {
+            "award_by": "2026-09-10T00:00:00Z",
+            "criteria": "Lowest per-task price among responders demonstrating a correct audit on the sample invoices.",
+            "grade": "recorded"
+          },
+          "signatures": [
+            {
+              "role": "poster",
+              "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "signed_at": "2026-08-06T17:00:00Z",
+              "sig": "fUEyKGKUmPh9FdFQCYQYdx3c1mWFp7PaUsdfgaIRneR3BFuDDhHm66N6gCOXj73krFAD/9QSGf5H3JEr0BcpCQ=="
+            }
+          ]
+        },
+        "why": "the expiry moved after the poster signed: the signature no longer verifies"
+      },
+      {
+        "case": "another_key",
+        "posting": {
+          "rfp": "v1",
+          "id": "rfp_fhk5e1q3kd73zykb",
+          "version": 1,
+          "language": "en",
+          "posted_at": "2026-08-06T17:00:00Z",
+          "expires_at": "2026-09-20T00:00:00Z",
+          "poster": {
+            "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+            "handle": "Petrel.mari@harborandline.example",
+            "owner": "Harbor & Line Outfitters",
+            "grade": "evidence"
+          },
+          "need": {
+            "summary": "Audit inbound freight invoices against our three carrier contracts and flag overbilling.",
+            "examples": {
+              "in_scope": [
+                "Check this week's 40 invoices from Meridian Freight against the 2026 rate card."
+              ],
+              "out_of_scope": [
+                "Negotiate new carrier rates."
+              ]
+            },
+            "deliverables_wanted": [
+              {
+                "name": "audit-report",
+                "media_type": "application/pdf"
+              },
+              {
+                "name": "flagged-invoices",
+                "media_type": "application/json"
+              }
+            ],
+            "procurement": "rent",
+            "grade": "recorded"
+          },
+          "budget": {
+            "currency": "XCR",
+            "per_task_max": 1500000,
+            "ceiling": {
+              "amount": 30000000,
+              "period": "month"
+            },
+            "grade": "recorded"
+          },
+          "award": {
+            "award_by": "2026-09-10T00:00:00Z",
+            "criteria": "Lowest per-task price among responders demonstrating a correct audit on the sample invoices.",
+            "grade": "recorded"
+          },
+          "signatures": [
+            {
+              "role": "poster",
+              "key": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+              "signed_at": "2026-08-06T17:00:00Z",
+              "sig": "fUEyKGKUmPh9FdFQCYQYdx3c1mWFp7PaUsdfgaIRneR3BFuDDhHm66N6gCOXj73krFAD/9QSGf5H3JEr0BcpCQ=="
+            }
+          ]
+        },
+        "why": "the signature is the poster's, and the record names a different key"
+      },
+      {
+        "case": "signed_hashed_bytes",
+        "posting": {
+          "rfp": "v1",
+          "id": "rfp_fhk5e1q3kd73zykb",
+          "version": 1,
+          "language": "en",
+          "posted_at": "2026-08-06T17:00:00Z",
+          "expires_at": "2026-09-20T00:00:00Z",
+          "poster": {
+            "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+            "handle": "Petrel.mari@harborandline.example",
+            "owner": "Harbor & Line Outfitters",
+            "grade": "evidence"
+          },
+          "need": {
+            "summary": "Audit inbound freight invoices against our three carrier contracts and flag overbilling.",
+            "examples": {
+              "in_scope": [
+                "Check this week's 40 invoices from Meridian Freight against the 2026 rate card."
+              ],
+              "out_of_scope": [
+                "Negotiate new carrier rates."
+              ]
+            },
+            "deliverables_wanted": [
+              {
+                "name": "audit-report",
+                "media_type": "application/pdf"
+              },
+              {
+                "name": "flagged-invoices",
+                "media_type": "application/json"
+              }
+            ],
+            "procurement": "rent",
+            "grade": "recorded"
+          },
+          "budget": {
+            "currency": "XCR",
+            "per_task_max": 1500000,
+            "ceiling": {
+              "amount": 30000000,
+              "period": "month"
+            },
+            "grade": "recorded"
+          },
+          "award": {
+            "award_by": "2026-09-10T00:00:00Z",
+            "criteria": "Lowest per-task price among responders demonstrating a correct audit on the sample invoices.",
+            "grade": "recorded"
+          },
+          "signatures": [
+            {
+              "role": "poster",
+              "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "signed_at": "2026-08-06T17:00:00Z",
+              "sig": "67BxnKwuRubsfjb+l7zDdDXCkD6k6l0Kd+G6eGUekJb4Exc1OVZuTCGcD0GTDm24BNLtkhpnmA64fJklkyssBw=="
+            }
+          ]
+        },
+        "why": "signed over the hashed bytes, which leave out id: no verifier accepts it"
+      }
+    ]
+  },
+  "acts": {
+    "comment": "6. Each act is signed over resolve_prefix followed by the canonical JSON of its body, so a relay cannot turn one act into another.",
+    "resolve_prefix": "agent-rfp-resolve-v1\n",
+    "valid": [
+      {
+        "body": {
+          "posting": "rfp_fhk5e1q3kd73zykb",
+          "version": 1,
+          "action": "award",
+          "response": "sow_f3q8n1z6v4b7c2m5",
+          "at": "2026-09-09T14:20:00Z"
+        },
+        "tagged": "agent-rfp-resolve-v1\n{\"action\":\"award\",\"at\":\"2026-09-09T14:20:00Z\",\"posting\":\"rfp_fhk5e1q3kd73zykb\",\"response\":\"sow_f3q8n1z6v4b7c2m5\",\"version\":1}",
+        "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+        "sig": "T/yfjyqRhjzdPpkGhXRjaadIuWEsy2T6LvH9bMVUACtbvIWRFVO/V/hdZS9eBPVDklVrXI13bEaEJzMRGDGFDw=="
+      }
+    ],
+    "invalid": [
+      {
+        "case": "action_changed",
+        "body": {
+          "posting": "rfp_fhk5e1q3kd73zykb",
+          "version": 1,
+          "action": "withdraw",
+          "response": "sow_f3q8n1z6v4b7c2m5",
+          "at": "2026-09-09T14:20:00Z"
+        },
+        "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+        "sig": "T/yfjyqRhjzdPpkGhXRjaadIuWEsy2T6LvH9bMVUACtbvIWRFVO/V/hdZS9eBPVDklVrXI13bEaEJzMRGDGFDw==",
+        "why": "the award's signature over a body whose action now reads withdraw"
+      },
+      {
+        "case": "another_responses_act",
+        "body": {
+          "posting": "rfp_fhk5e1q3kd73zykb",
+          "version": 1,
+          "action": "withdraw_response",
+          "response": "sow_f3q8n1z6v4b7c2m5",
+          "reason": "capacity",
+          "at": "2026-09-01T09:00:00Z"
+        },
+        "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+        "sig": "T/yfjyqRhjzdPpkGhXRjaadIuWEsy2T6LvH9bMVUACtbvIWRFVO/V/hdZS9eBPVDklVrXI13bEaEJzMRGDGFDw==",
+        "why": "a signature over one act does not cover another"
+      }
+    ]
+  },
+  "lifecycle": {
+    "comment": "9. The state is derived on read: a terminal act wins, then filled (seats granted reached the signed seats bound, only where messages are admitted), then expiry against the clock. A responder's withdraw_response is not a terminal act.",
+    "cases": [
+      {
+        "case": "open",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [],
+        "now": "2026-09-01T12:00:00Z",
+        "state": "open"
+      },
+      {
+        "case": "expired",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [],
+        "now": "2026-09-20T00:00:00Z",
+        "state": "expired"
+      },
+      {
+        "case": "awarded_then_aged",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [
+          {
+            "action": "award"
+          }
+        ],
+        "now": "2026-12-01T00:00:00Z",
+        "state": "awarded"
+      },
+      {
+        "case": "withdrawn",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [
+          {
+            "action": "withdraw"
+          }
+        ],
+        "now": "2026-09-01T12:00:00Z",
+        "state": "withdrawn"
+      },
+      {
+        "case": "closed",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [
+          {
+            "action": "close"
+          }
+        ],
+        "now": "2026-09-01T12:00:00Z",
+        "state": "closed"
+      },
+      {
+        "case": "response_withdrawn",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [
+          {
+            "action": "withdraw_response"
+          }
+        ],
+        "now": "2026-09-01T12:00:00Z",
+        "state": "open"
+      },
+      {
+        "case": "filled",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z",
+          "respond": {
+            "mode": "message",
+            "grade": "recorded"
+          },
+          "resolution": {
+            "rule": "first_come",
+            "seats": 2,
+            "grade": "recorded"
+          }
+        },
+        "acts": [],
+        "granted": 2,
+        "now": "2026-09-01T12:00:00Z",
+        "state": "filled"
+      },
+      {
+        "case": "proposal_mode_never_fills",
+        "doc": {
+          "expires_at": "2026-09-20T00:00:00Z"
+        },
+        "acts": [],
+        "granted": 5,
+        "now": "2026-09-01T12:00:00Z",
+        "state": "open"
+      }
+    ]
+  },
+  "responses": {
+    "comment": "7. A response is a complete Agent SoW document. These cases read only its addressing: the provider seat names the filing agent, solicitation names this posting at a version it has had, offered_to names the poster, and the offer has a lapse that has not passed. refused names the rule broken, or null where the document answers the posting.",
+    "posting": {
+      "id": "rfp_fhk5e1q3kd73zykb",
+      "poster": {
+        "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP"
+      },
+      "versions": [
+        1,
+        2
+      ]
+    },
+    "now": "2026-09-01T12:00:00Z",
+    "cases": [
+      {
+        "case": "answers",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "expires_at": "2026-09-20T00:00:00Z"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 2
+          }
+        },
+        "refused": null
+      },
+      {
+        "case": "provider_mismatch",
+        "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "expires_at": "2026-09-20T00:00:00Z"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 2
+          }
+        },
+        "refused": "provider_mismatch"
+      },
+      {
+        "case": "no_solicitation",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "expires_at": "2026-09-20T00:00:00Z"
+            }
+          }
+        },
+        "refused": "no_solicitation"
+      },
+      {
+        "case": "other_posting",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "expires_at": "2026-09-20T00:00:00Z"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_0000000000000000",
+            "version": 1
+          }
+        },
+        "refused": "other_posting"
+      },
+      {
+        "case": "unknown_version",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "expires_at": "2026-09-20T00:00:00Z"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 3
+          }
+        },
+        "refused": "unknown_version"
+      },
+      {
+        "case": "undirected",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 2
+          }
+        },
+        "refused": "undirected"
+      },
+      {
+        "case": "other_party",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+              "expires_at": "2026-09-20T00:00:00Z"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 2
+          }
+        },
+        "refused": "other_party"
+      },
+      {
+        "case": "no_lapse",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 2
+          }
+        },
+        "refused": "no_lapse"
+      },
+      {
+        "case": "lapsed",
+        "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF",
+        "proposal": {
+          "id": "sow_f3q8n1z6v4b7c2m5",
+          "version": 1,
+          "parties": {
+            "provider": {
+              "agent": "UC7XCIO6FPFPWJNKQUOEUFVAW6UNQOQDJPJHZRWVZSRLON7AQLAWRTWF"
+            },
+            "offered_to": {
+              "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+              "expires_at": "2026-08-31T00:00:00Z"
+            }
+          },
+          "solicitation": {
+            "rfp": "rfp_fhk5e1q3kd73zykb",
+            "version": 2
+          }
+        },
+        "refused": "lapsed"
+      }
+    ]
+  },
+  "gate": {
+    "comment": "5.11. A gated posting keeps need, budget, term, award and handling out of its public document; its gate.body.digest is the SHA-256 of the sealed body's exact bytes, which carry the body's nonce, and both digests sit inside the poster's signed bytes and the hashed bytes of the identifier. The nonce is the first 16 bytes of the SHA-256 of nonce_label, in padded base64. The specification's own example body is in rfp-sealed-body.json.",
+    "nonce_label": "Agent RFP conformance sealed body nonce",
+    "posting": {
+      "rfp": "v1",
+      "id": "rfp_0q45vp5652gb1zcz",
+      "version": 1,
+      "language": "en",
+      "posted_at": "2026-10-20T15:05:00Z",
+      "expires_at": "2026-11-13T00:00:00Z",
+      "poster": {
+        "agent": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+        "handle": "Petrel.mari@harborandline.example",
+        "owner": "Harbor & Line Outfitters",
+        "grade": "evidence"
+      },
+      "gate": {
+        "summary": {
+          "text": "An audit of twelve months of inbound carrier invoices against contracted rates, for a retailer that ships with three carriers.",
+          "procurement": "rent",
+          "performer": "agent",
+          "grade": "recorded"
+        },
+        "nda": {
+          "id": "nda_dtzv6z8tans9k5s6",
+          "version": 1,
+          "digest": "sha256:3d9e163b3154a16fa58a7ec57ee83db130c9d002c9db68676876dbf40d74baa6",
+          "grade": "evidence"
+        },
+        "body": {
+          "digest": "sha256:f2a31ac7fb516ad585005ed6d5b5d1df18bfe678eb3c768531166a80ff8db239",
+          "grade": "evidence"
+        },
+        "grade": "enforced"
+      },
+      "signatures": [
+        {
+          "role": "poster",
+          "key": "UCC3FGO7CEVMOSMQSDBK5IDZAVZIOHUIGFEFTHBRXN5Z6YMJM2D756SP",
+          "signed_at": "2026-10-20T15:05:00Z",
+          "sig": "q6Q/WdRnXy3j6bZOozHDXBcLklMLjvBgvAwWtRBZkdOeXUFI6iEDNXDelDYHQ1Ua2U5kIp3QTLct1qeysrcOAA=="
+        }
+      ]
+    },
+    "body_bytes": "{\"budget\":{\"currency\":\"XCR\",\"grade\":\"recorded\",\"per_task_max\":1500000},\"handling\":{\"grade\":\"recorded\",\"processed_in\":[\"us\",\"ca\"],\"promises\":[\"no_training\"]},\"language\":\"en\",\"need\":{\"grade\":\"recorded\",\"summary\":\"Audit our inbound carrier invoices from October 2025 to September 2026 against our contracts with Meridian Freight, Kestrel Line and Bayside Haulage, and flag every overbilled line.\"},\"nonce\":\"Xnr/ePV53ljFYJm9GotDzw==\",\"rfp_body\":\"v1\"}",
+    "body_digest": "sha256:f2a31ac7fb516ad585005ed6d5b5d1df18bfe678eb3c768531166a80ff8db239",
+    "public_members_absent": [
+      "need",
+      "budget",
+      "term",
+      "award",
+      "handling"
+    ]
+  },
+  "body_refs": [
+    {
+      "case": "by_digest",
+      "posting_id": "rfp_0q45vp5652gb1zcz",
+      "ref": "https://board.example/rfp/bodies/sha256:f2a31ac7fb516ad585005ed6d5b5d1df18bfe678eb3c768531166a80ff8db239",
+      "valid": true,
+      "why": "addresses the body by its digest, which is known before the posting is assembled"
+    },
+    {
+      "case": "absent",
+      "posting_id": "rfp_0q45vp5652gb1zcz",
+      "valid": true,
+      "why": "ref is a SHOULD; a gate without one is valid"
+    },
+    {
+      "case": "names_the_posting",
+      "posting_id": "rfp_0q45vp5652gb1zcz",
+      "ref": "https://board.example/rfp/rfp_0q45vp5652gb1zcz/1/body",
+      "valid": false,
+      "why": "the ref sits inside the bytes the identifier is derived from, so it cannot contain the identifier (5.11.1)"
+    },
+    {
+      "case": "names_the_posting_in_the_query",
+      "posting_id": "rfp_0q45vp5652gb1zcz",
+      "ref": "https://board.example/rfp/body?posting=rfp_0q45vp5652gb1zcz",
+      "valid": false,
+      "why": "anywhere in the ref, not only in the path"
+    }
+  ]
+}

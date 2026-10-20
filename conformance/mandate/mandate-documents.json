@@ -1,0 +1,1080 @@
+{
+  "comment": "Agent Mandate conformance: identifiers (§4), signed bytes and signatures (§4), and the shape rules a registry checks before anything else (§5, §6). Every expected answer is written from the specification. The keys are derived from published seeds and are test keys by design: anyone can sign with them. The signatures are base64url; a reader also accepts padded base64.",
+  "spec": "Agent Mandate 0.6.0-draft",
+  "keys": {
+    "ruth-root": {
+      "label": "Agent Mandate conformance test key: ruth-root",
+      "seed_hex": "043d191a3649a80c45f8494387578c306eed0910b215afe9f8d7c6b4501ae311",
+      "public": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47"
+    },
+    "amara-root": {
+      "label": "Agent Mandate conformance test key: amara-root",
+      "seed_hex": "afbb619c7c5ef3fbbf33f86b3270cc991e23f75f7265465e82dc7ad1524ca136",
+      "public": "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+    },
+    "dana-administrator": {
+      "label": "Agent Mandate conformance test key: dana-administrator",
+      "seed_hex": "4ca1221be4d89627598ebc539ba43d3ec81a8af41834106fc209d71cb3ea73ce",
+      "public": "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+    },
+    "marisol-holder": {
+      "label": "Agent Mandate conformance test key: marisol-holder",
+      "seed_hex": "718c970d25381241cd879d40b8647c6462a377153413ee8f0c3d2461a5312c1d",
+      "public": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+    },
+    "tom-holder": {
+      "label": "Agent Mandate conformance test key: tom-holder",
+      "seed_hex": "b3712ddc81112c813ab93c1aa3a2e407f7bd9fd894bd1532bf2bb9cfaf25e843",
+      "public": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+    },
+    "mallory": {
+      "label": "Agent Mandate conformance test key: mallory",
+      "seed_hex": "3e75d79f135170233cef754cc7fb35c84077194d7e2d46ca80ac7980c58af896",
+      "public": "UBIM5HUOPITZW7FQNVPYQRYQK62T2WDMWZIL2FHDCZVZOBXFSZNGAIUC"
+    }
+  },
+  "identifiers": [
+    {
+      "name": "charter",
+      "prefix": "org",
+      "document": {
+        "charter": "v1",
+        "version": 1,
+        "domain": "harborandline.example",
+        "name": "Harbor & Line Outfitters",
+        "legal": {
+          "jurisdiction": "Delaware, US",
+          "registration": "SR-20241102-88417",
+          "grade": "recorded"
+        },
+        "root_authority": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+          ],
+          "threshold": 1,
+          "grade": "evidence"
+        },
+        "administrator": {
+          "keys": [
+            "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+          ]
+        },
+        "created_at": "2026-08-01T00:00:00Z",
+        "id": "org_vd5zvpa4ecerft8b",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "_V_DVGUxc8Y8RBRNQMtuU9JVJZEBuOvFjMpmQoQ3DRtJ04qX_CUDGGzjqRq_Y6yVLuj1bstHXN5TTCU8B-gSAQ"
+          }
+        ]
+      },
+      "expect_id": "org_vd5zvpa4ecerft8b",
+      "why": "§4: crockford32 of the SHA-256 of the canonical version-1 bytes without id and signatures, first 16 characters, lowercase."
+    },
+    {
+      "name": "root-issued mandate",
+      "prefix": "mnd",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect_id": "mnd_c1etkcpcpr6d5gmp",
+      "why": "§4, the same rule for a mandate."
+    },
+    {
+      "name": "sub-mandate",
+      "prefix": "mnd",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "mandate",
+          "mandate": "mnd_c1etkcpcpr6d5gmp"
+        },
+        "holder": {
+          "account": "acct_9b4d2f7c",
+          "person": "Tom Okafor, Accounts",
+          "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+        },
+        "powers": [
+          "form",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 10000000,
+          "per_month": 40000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "nda_categories": [
+            "solicitation",
+            "agreement_terms",
+            "relationship"
+          ]
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": false
+        },
+        "starts_at": "2026-08-06T00:00:00Z",
+        "expires_at": "2026-11-04T00:00:00Z",
+        "id": "mnd_v26kpncz0w44gtc5",
+        "signatures": [
+          {
+            "role": "issuer",
+            "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "WtwxvB-p1T3qYi66s10gaMvhV6sme8xajerX8aVb0VBhytmJX6LJV00MMUZ-SRhA2OvksoU9YcngZNgihBkxAw"
+          }
+        ]
+      },
+      "expect_id": "mnd_v26kpncz0w44gtc5",
+      "why": "§4, the same rule; the issuer's identifier is part of the hashed bytes."
+    }
+  ],
+  "minted_earlier": [
+    {
+      "name": "an identifier that does not re-derive",
+      "document": {
+        "charter": "v1",
+        "version": 1,
+        "domain": "legacy.example",
+        "name": "Legacy Outfitters",
+        "legal": {
+          "jurisdiction": "Delaware, US",
+          "registration": "SR-20241102-88417",
+          "grade": "recorded"
+        },
+        "root_authority": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+          ],
+          "threshold": 1,
+          "grade": "evidence"
+        },
+        "administrator": {
+          "keys": [
+            "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+          ]
+        },
+        "created_at": "2026-08-01T00:00:00Z",
+        "id": "org_7k2m9q4w1x8e5r3t",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "GW3BkcZ6C05B5gRR58sNAp43uuPfc7_VnIio46IHWE89aI7ou2S0W_647WJqzS25zIMg_trdsturOjIYk4maAg"
+          }
+        ]
+      },
+      "derives": "org_j2rtqpgbnwqa69mg",
+      "expect": "accepted",
+      "why": "§4: a verifier MUST NOT reject, and a registry MUST NOT refuse to host, a document whose identifier does not equal what its bytes derive. Its signature, which covers the identifier, verifies."
+    }
+  ],
+  "signatures": [
+    {
+      "name": "charter signed by root authority",
+      "tag": "agent-charter-v1",
+      "document": {
+        "charter": "v1",
+        "version": 1,
+        "domain": "harborandline.example",
+        "name": "Harbor & Line Outfitters",
+        "legal": {
+          "jurisdiction": "Delaware, US",
+          "registration": "SR-20241102-88417",
+          "grade": "recorded"
+        },
+        "root_authority": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+          ],
+          "threshold": 1,
+          "grade": "evidence"
+        },
+        "administrator": {
+          "keys": [
+            "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+          ]
+        },
+        "created_at": "2026-08-01T00:00:00Z",
+        "id": "org_vd5zvpa4ecerft8b",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "_V_DVGUxc8Y8RBRNQMtuU9JVJZEBuOvFjMpmQoQ3DRtJ04qX_CUDGGzjqRq_Y6yVLuj1bstHXN5TTCU8B-gSAQ"
+          }
+        ]
+      },
+      "signed_bytes": "agent-charter-v1\n{\"administrator\":{\"keys\":[\"UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ\"]},\"charter\":\"v1\",\"created_at\":\"2026-08-01T00:00:00Z\",\"domain\":\"harborandline.example\",\"id\":\"org_vd5zvpa4ecerft8b\",\"legal\":{\"grade\":\"recorded\",\"jurisdiction\":\"Delaware, US\",\"registration\":\"SR-20241102-88417\"},\"name\":\"Harbor & Line Outfitters\",\"root_authority\":{\"grade\":\"evidence\",\"keys\":[\"UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47\",\"UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U\"],\"threshold\":1},\"version\":1}",
+      "expect": "valid",
+      "why": "§4: the tag, one newline, the canonical document without signatures, including id."
+    },
+    {
+      "name": "root-issued mandate",
+      "tag": "agent-mandate-v1",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "signed_bytes": "agent-mandate-v1\n{\"ceiling\":{\"currency\":\"XCR\",\"per_engagement\":50000000,\"per_month\":200000000},\"expires_at\":\"2027-08-01T00:00:00Z\",\"holder\":{\"account\":\"acct_2c9f7e1a\",\"key\":\"UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7\",\"person\":\"Marisol Vega, Purchasing\"},\"id\":\"mnd_c1etkcpcpr6d5gmp\",\"issuer\":{\"kind\":\"root\"},\"mandate\":\"v1\",\"organization\":\"org_vd5zvpa4ecerft8b\",\"powers\":[\"form\",\"amend\",\"terminate\",\"award\",\"nda\"],\"scope\":{\"note\":\"logistics purchasing only\",\"offerings\":[\"audit-freight-*\"]},\"settlement\":{\"payer\":\"organization\"},\"starts_at\":\"2026-08-01T00:00:00Z\",\"sub_delegation\":{\"allowed\":true,\"max_depth\":1},\"version\":1}",
+      "expect": "valid",
+      "why": "§4 and §6 rule 1."
+    },
+    {
+      "name": "sub-mandate signed by the holder above",
+      "tag": "agent-mandate-v1",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "mandate",
+          "mandate": "mnd_c1etkcpcpr6d5gmp"
+        },
+        "holder": {
+          "account": "acct_9b4d2f7c",
+          "person": "Tom Okafor, Accounts",
+          "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+        },
+        "powers": [
+          "form",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 10000000,
+          "per_month": 40000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "nda_categories": [
+            "solicitation",
+            "agreement_terms",
+            "relationship"
+          ]
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": false
+        },
+        "starts_at": "2026-08-06T00:00:00Z",
+        "expires_at": "2026-11-04T00:00:00Z",
+        "id": "mnd_v26kpncz0w44gtc5",
+        "signatures": [
+          {
+            "role": "issuer",
+            "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "WtwxvB-p1T3qYi66s10gaMvhV6sme8xajerX8aVb0VBhytmJX6LJV00MMUZ-SRhA2OvksoU9YcngZNgihBkxAw"
+          }
+        ]
+      },
+      "signed_bytes": "agent-mandate-v1\n{\"ceiling\":{\"currency\":\"XCR\",\"per_engagement\":10000000,\"per_month\":40000000},\"expires_at\":\"2026-11-04T00:00:00Z\",\"holder\":{\"account\":\"acct_9b4d2f7c\",\"key\":\"UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3\",\"person\":\"Tom Okafor, Accounts\"},\"id\":\"mnd_v26kpncz0w44gtc5\",\"issuer\":{\"kind\":\"mandate\",\"mandate\":\"mnd_c1etkcpcpr6d5gmp\"},\"mandate\":\"v1\",\"organization\":\"org_vd5zvpa4ecerft8b\",\"powers\":[\"form\",\"nda\"],\"scope\":{\"nda_categories\":[\"solicitation\",\"agreement_terms\",\"relationship\"],\"offerings\":[\"audit-freight-*\"]},\"settlement\":{\"payer\":\"organization\"},\"starts_at\":\"2026-08-06T00:00:00Z\",\"sub_delegation\":{\"allowed\":false},\"version\":1}",
+      "expect": "valid",
+      "why": "§6 rule 1: the signature key is the holder.key of the issuing mandate."
+    },
+    {
+      "name": "a changed member",
+      "tag": "agent-charter-v1",
+      "document": {
+        "charter": "v1",
+        "version": 1,
+        "domain": "harborandline.example",
+        "name": "Harbour and Line Outfitters",
+        "legal": {
+          "jurisdiction": "Delaware, US",
+          "registration": "SR-20241102-88417",
+          "grade": "recorded"
+        },
+        "root_authority": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+          ],
+          "threshold": 1,
+          "grade": "evidence"
+        },
+        "administrator": {
+          "keys": [
+            "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+          ]
+        },
+        "created_at": "2026-08-01T00:00:00Z",
+        "id": "org_vd5zvpa4ecerft8b",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "_V_DVGUxc8Y8RBRNQMtuU9JVJZEBuOvFjMpmQoQ3DRtJ04qX_CUDGGzjqRq_Y6yVLuj1bstHXN5TTCU8B-gSAQ"
+          }
+        ]
+      },
+      "expect": "invalid",
+      "why": "The signature covers the name; changing it after signing breaks the signature."
+    },
+    {
+      "name": "the wrong tag",
+      "tag": "agent-charter-v1",
+      "document": {
+        "charter": "v1",
+        "version": 1,
+        "domain": "harborandline.example",
+        "name": "Harbor & Line Outfitters",
+        "legal": {
+          "jurisdiction": "Delaware, US",
+          "registration": "SR-20241102-88417",
+          "grade": "recorded"
+        },
+        "root_authority": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+          ],
+          "threshold": 1,
+          "grade": "evidence"
+        },
+        "administrator": {
+          "keys": [
+            "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+          ]
+        },
+        "created_at": "2026-08-01T00:00:00Z",
+        "id": "org_vd5zvpa4ecerft8b",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "toJJUuT11Hb828QJu5zu4GONppoNAovs8o81SKPPlj4EnssIT3thZjubq9dIOHemsjOgPWMdCuY12q3z-1-FAw"
+          }
+        ]
+      },
+      "expect": "invalid",
+      "why": "§13: a charter signature is over the agent-charter-v1 tag; one made over agent-mandate-v1 is not a charter signature."
+    }
+  ],
+  "shapes": [
+    {
+      "name": "the example mandate, holding nda",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "valid",
+      "why": "§6: the example holds form, amend, terminate, award and nda."
+    },
+    {
+      "name": "an unknown power",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "issue"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 4: issue is implied by sub_delegation.allowed and is not a listed power."
+    },
+    {
+      "name": "the write power",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "write"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "valid",
+      "why": "§6 rule 4: write covers a mutating act through a resource proxy whose grant names no other power (§7.1)."
+    },
+    {
+      "name": "no powers",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 4: a power not listed is not held, so an empty list holds nothing."
+    },
+    {
+      "name": "nda categories",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "nda_categories": [
+            "solicitation",
+            "agreement_terms",
+            "relationship"
+          ]
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "valid",
+      "why": "§6 rule 8 and the example of §7.2."
+    },
+    {
+      "name": "an empty category list",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "nda_categories": []
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 8: where the list is present it MUST be non-empty."
+    },
+    {
+      "name": "an unknown category",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "nda_categories": [
+            "trade_secrets"
+          ]
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 8: only Agent NDA §5.4 categories."
+    },
+    {
+      "name": "a repeated category",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "nda_categories": [
+            "inputs",
+            "inputs"
+          ]
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 8: MUST NOT repeat one."
+    },
+    {
+      "name": "sub-delegation without a holder key",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": true,
+          "max_depth": 1
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 2: a registry MUST refuse a mandate that allows sub-delegation and carries no holder.key."
+    },
+    {
+      "name": "nda without a holder key",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing"
+        },
+        "powers": [
+          "form",
+          "amend",
+          "terminate",
+          "award",
+          "nda"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": false
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§6 rule 2: a registry MUST refuse a mandate that holds nda and carries no holder.key, because an Agent NDA signature made under it is checked against that key (§7.2 check 1)."
+    },
+    {
+      "name": "no holder key, neither nda nor sub-delegation",
+      "document": {
+        "mandate": "v1",
+        "version": 1,
+        "organization": "org_vd5zvpa4ecerft8b",
+        "issuer": {
+          "kind": "root"
+        },
+        "holder": {
+          "account": "acct_2c9f7e1a",
+          "person": "Marisol Vega, Purchasing"
+        },
+        "powers": [
+          "form"
+        ],
+        "ceiling": {
+          "currency": "XCR",
+          "per_engagement": 50000000,
+          "per_month": 200000000
+        },
+        "scope": {
+          "offerings": [
+            "audit-freight-*"
+          ],
+          "note": "logistics purchasing only"
+        },
+        "settlement": {
+          "payer": "organization"
+        },
+        "sub_delegation": {
+          "allowed": false
+        },
+        "starts_at": "2026-08-01T00:00:00Z",
+        "expires_at": "2027-08-01T00:00:00Z",
+        "id": "mnd_c1etkcpcpr6d5gmp",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+          }
+        ]
+      },
+      "expect": "valid",
+      "why": "§6 rule 2: holder.key MAY be absent on any other mandate."
+    },
+    {
+      "name": "a key that is both root and administrator",
+      "document": {
+        "charter": "v1",
+        "version": 1,
+        "domain": "harborandline.example",
+        "name": "Harbor & Line Outfitters",
+        "legal": {
+          "jurisdiction": "Delaware, US",
+          "registration": "SR-20241102-88417",
+          "grade": "recorded"
+        },
+        "root_authority": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+          ],
+          "threshold": 1,
+          "grade": "evidence"
+        },
+        "administrator": {
+          "keys": [
+            "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47"
+          ]
+        },
+        "created_at": "2026-08-01T00:00:00Z",
+        "id": "org_vd5zvpa4ecerft8b",
+        "signatures": [
+          {
+            "role": "root",
+            "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+            "signed_at": "2026-08-01T00:00:00Z",
+            "sig": "_V_DVGUxc8Y8RBRNQMtuU9JVJZEBuOvFjMpmQoQ3DRtJ04qX_CUDGGzjqRq_Y6yVLuj1bstHXN5TTCU8B-gSAQ"
+          }
+        ]
+      },
+      "expect": "refused",
+      "why": "§5.3: custody and authority are separate; an administrator signature is never sufficient, which cannot be told from the signature if one key is both."
+    }
+  ]
+}

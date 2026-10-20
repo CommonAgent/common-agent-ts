@@ -1,0 +1,75 @@
+{
+  "about": "Test vectors for a claim of breach of an Agent NDA (Agent Reputations §4.8). The claim is signed with the test claimant key below over the tag fdbk-nda-claim-v1, one line feed, and the JCS of the claim; its digest is sha256: and the lowercase hex SHA-256 of that JCS. `rejection` is what a bureau may keep of the claim when it rejects it (§4.8, What a rejection keeps). reference.mjs beside this file reproduces every vector.",
+  "test_claimant": {
+    "warning": "TEST KEY ONLY. Its private part is published so that anyone can reproduce the signature below. No agent may ever sign with it.",
+    "seed_hex": "0fcf73e4c048659274ba186ad9cf8b5807da884375e65c9dc1c06dac207955b7",
+    "public_key": "s1fXtH3RZOyNdo+kEp8OEBO2V5wGS+HL2lUr7mAvrFk=",
+    "kid": "d4969ede1d43"
+  },
+  "test_respondent": {
+    "seed_hex": "7d2540d5010ab3f2be5cfd4f77ff9bc0a8b3f306fbc225d0fe54b6c9bca3e3d2",
+    "public_key": "cqYf1eP+lyaqI61S/cC851intWNzjojwIB5E09okfKk="
+  },
+  "claim": {
+    "nda": {
+      "id": "nda_dtzv6z8tans9k5s6",
+      "version": 1,
+      "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15",
+      "ref": "mesh:artifacts:01JB2N7Q4C"
+    },
+    "claimant": {
+      "agent": "s1fXtH3RZOyNdo+kEp8OEBO2V5wGS+HL2lUr7mAvrFk=",
+      "handle": "Petrel.mari@harborandline.example"
+    },
+    "respondent": {
+      "agent": "cqYf1eP+lyaqI61S/cC851intWNzjojwIB5E09okfKk=",
+      "handle": "Sable.audit@calderafreight.example"
+    },
+    "categories": [
+      "solicitation"
+    ],
+    "disclosures": [
+      {
+        "kind": "rfp_release",
+        "digest": "sha256:a8a631fe30266926a653aac2903353395425c4614355bae86b5988584c56034d",
+        "at": "2026-10-22T09:13:05Z"
+      }
+    ],
+    "found": {
+      "at": "2027-04-09T00:00:00Z",
+      "material_digest": "sha256:1904a3f5b73cb54a8c22e36dc0844fbd4543a1605a62c6d6e33367710384304f",
+      "note": "The sealed posting body was offered for sale on a public site."
+    },
+    "breach_at": null,
+    "at": "2027-04-10T16:02:11Z"
+  },
+  "tag": "fdbk-nda-claim-v1",
+  "signed_bytes": "fdbk-nda-claim-v1\n{\"at\":\"2027-04-10T16:02:11Z\",\"breach_at\":null,\"categories\":[\"solicitation\"],\"claimant\":{\"agent\":\"s1fXtH3RZOyNdo+kEp8OEBO2V5wGS+HL2lUr7mAvrFk=\",\"handle\":\"Petrel.mari@harborandline.example\"},\"disclosures\":[{\"at\":\"2026-10-22T09:13:05Z\",\"digest\":\"sha256:a8a631fe30266926a653aac2903353395425c4614355bae86b5988584c56034d\",\"kind\":\"rfp_release\"}],\"found\":{\"at\":\"2027-04-09T00:00:00Z\",\"material_digest\":\"sha256:1904a3f5b73cb54a8c22e36dc0844fbd4543a1605a62c6d6e33367710384304f\",\"note\":\"The sealed posting body was offered for sale on a public site.\"},\"nda\":{\"digest\":\"sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15\",\"id\":\"nda_dtzv6z8tans9k5s6\",\"ref\":\"mesh:artifacts:01JB2N7Q4C\",\"version\":1},\"respondent\":{\"agent\":\"cqYf1eP+lyaqI61S/cC851intWNzjojwIB5E09okfKk=\",\"handle\":\"Sable.audit@calderafreight.example\"}}",
+  "sig": "MWYbXcT3QGjzjxGLqv2Fl0XNpFBgxmYwPaXWgyyEIYYSxYEeoovC7k49D/KIsD0nq85U6TLLNH2ziQ326uToDA==",
+  "digest": "sha256:6b736bde15af82c67303ee5cce694af1d7f63e2f3ac87603742f797654bcb0a4",
+  "rejection": {
+    "claim": "sha256:6b736bde15af82c67303ee5cce694af1d7f63e2f3ac87603742f797654bcb0a4",
+    "check": 6,
+    "reason": "a category of the claim is not one the agreement covers"
+  },
+  "must_fail": [
+    {
+      "name": "a-category-changed-after-signing",
+      "set": {
+        "categories": [
+          "inputs"
+        ]
+      },
+      "reason": "the signature covers the categories"
+    },
+    {
+      "name": "the-claimant-swapped",
+      "set": {
+        "claimant": {
+          "agent": "<respondent>"
+        }
+      },
+      "reason": "the signature is the claimant's, and verifies under no other key"
+    }
+  ]
+}

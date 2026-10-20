@@ -1,0 +1,6 @@
+{
+  "name": "@common-agent/vectors",
+  "private": true,
+  "type": "module",
+  "description": "The conformance-file runner the packages' tests use. Not published."
+}

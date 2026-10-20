@@ -1,0 +1,121 @@
+{
+  "comment": "Agent Mandate: holding an identifier (agentmandate.net 0.6.0-draft, 4 and 5 rule 1). A charter's identifier is published for the domain proof before the charter is filed. A registry MAY reserve it for that domain when it hands it out, and MUST refuse a filing under an identifier a reservation or an earlier filing holds for a different domain; a mandate's identifier is held for the organization its first filing names. An identifier nobody holds is never refused for failing to re-derive. Each case runs against the registry state given, in order; expected is accept, or refuse with the reason held. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent Mandate 0.6.0-draft: 4 (holding an identifier), 5 rule 1 (domain proof)",
+  "registry": {
+    "reservations": [
+      {
+        "id": "org_7k2m9q4w1x8e5r3t",
+        "domain": "harborandline.example",
+        "reserved_at": "2026-07-31T12:00:00Z",
+        "lapses_at": "2026-08-31T12:00:00Z"
+      }
+    ],
+    "charters": [
+      {
+        "id": "org_2n8c4v6b1m3x9z5q",
+        "domain": "calderafreight.example"
+      }
+    ],
+    "mandates": [
+      {
+        "id": "mnd_3f8c1n6z9v4b7q2m",
+        "organization": "org_7k2m9q4w1x8e5r3t"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "case": "squat_on_a_reserved_id",
+      "filing": {
+        "kind": "charter",
+        "id": "org_7k2m9q4w1x8e5r3t",
+        "domain": "squatter.example",
+        "at": "2026-07-31T12:05:00Z"
+      },
+      "expected": {
+        "accept": false,
+        "reason": "held"
+      },
+      "why": "the identifier was handed out to harborandline.example for its domain proof, and someone who read it in DNS files first under another domain"
+    },
+    {
+      "case": "the_reserving_domain_files",
+      "filing": {
+        "kind": "charter",
+        "id": "org_7k2m9q4w1x8e5r3t",
+        "domain": "harborandline.example",
+        "at": "2026-08-01T00:00:00Z"
+      },
+      "expected": {
+        "accept": true
+      }
+    },
+    {
+      "case": "reservation_lapsed",
+      "filing": {
+        "kind": "charter",
+        "id": "org_7k2m9q4w1x8e5r3t",
+        "domain": "squatter.example",
+        "at": "2026-09-01T00:00:00Z"
+      },
+      "expected": {
+        "accept": true
+      },
+      "why": "a reservation not used within its period lapses, and the identifier is held by nobody"
+    },
+    {
+      "case": "squat_on_a_filed_id",
+      "filing": {
+        "kind": "charter",
+        "id": "org_2n8c4v6b1m3x9z5q",
+        "domain": "squatter.example",
+        "at": "2026-10-01T00:00:00Z"
+      },
+      "expected": {
+        "accept": false,
+        "reason": "held"
+      }
+    },
+    {
+      "case": "unheld_id_that_does_not_rederive",
+      "filing": {
+        "kind": "charter",
+        "id": "org_9t2v6b3n8m4k1x7q",
+        "domain": "northgaterates.example",
+        "at": "2026-10-01T00:00:00Z",
+        "rederives": false
+      },
+      "expected": {
+        "accept": true
+      },
+      "why": "nobody holds the identifier, so the registry does not refuse it for failing to re-derive"
+    },
+    {
+      "case": "mandate_squat",
+      "filing": {
+        "kind": "mandate",
+        "id": "mnd_3f8c1n6z9v4b7q2m",
+        "organization": "org_2n8c4v6b1m3x9z5q",
+        "at": "2026-10-01T00:00:00Z"
+      },
+      "expected": {
+        "accept": false,
+        "reason": "held"
+      },
+      "why": "the mandate identifier is held for Harbor & Line's organization"
+    },
+    {
+      "case": "mandate_new_version_same_organization",
+      "filing": {
+        "kind": "mandate",
+        "id": "mnd_3f8c1n6z9v4b7q2m",
+        "organization": "org_7k2m9q4w1x8e5r3t",
+        "at": "2026-10-01T00:00:00Z"
+      },
+      "expected": {
+        "accept": true
+      }
+    }
+  ]
+}

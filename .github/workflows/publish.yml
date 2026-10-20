@@ -1,0 +1,43 @@
+name: publish
+
+# Publishes every package at the version its package.json names, when a
+# release is published (tag v<version>) or by hand. It needs an npm token
+# with publish rights to the @common-agent scope, stored as the repository
+# secret NPM_TOKEN. A package already on npm at its version is skipped.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - name: The token is there
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::NPM_TOKEN is not set. Add an npm token with publish rights to the @common-agent scope as a repository secret."
+            exit 1
+          fi
+      - run: npm ci
+      - run: node tools/check-standards-pin.mjs --remote
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Publish each package not yet on npm at its version
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node tools/publish.mjs

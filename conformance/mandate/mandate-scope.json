@@ -1,0 +1,186 @@
+{
+  "comment": "Agent Mandate: scope.resources (agentmandate.net 0.7.0-draft, 6 rules 3 and 9, 7.1). A pattern is a resource name, matching it exactly, or a prefix followed by a single trailing *, matching every name that begins with the prefix; * alone matches every name. One pattern covers another when it matches every name the other matches. A sub-mandate's list narrows its issuer's: where the issuer carries a list, the sub-mandate carries one too and each of its patterns is covered by one of the issuer's. Absent means no restriction. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent Mandate 0.7.0-draft: 6 rule 3 (narrowing), 6 rule 9 (resources)",
+  "matching": [
+    {
+      "pattern": "ledger",
+      "name": "ledger",
+      "matches": true
+    },
+    {
+      "pattern": "ledger",
+      "name": "ledger-archive",
+      "matches": false
+    },
+    {
+      "pattern": "ledger*",
+      "name": "ledger-archive",
+      "matches": true
+    },
+    {
+      "pattern": "ledger-*",
+      "name": "ledger",
+      "matches": false
+    },
+    {
+      "pattern": "*",
+      "name": "receipts",
+      "matches": true
+    },
+    {
+      "pattern": "receipts/2026*",
+      "name": "receipts/2026/10",
+      "matches": true
+    }
+  ],
+  "covering": [
+    {
+      "wide": "*",
+      "narrow": "ledger",
+      "covers": true
+    },
+    {
+      "wide": "ledger*",
+      "narrow": "ledger-2026*",
+      "covers": true
+    },
+    {
+      "wide": "ledger-2026*",
+      "narrow": "ledger*",
+      "covers": false
+    },
+    {
+      "wide": "ledger",
+      "narrow": "ledger*",
+      "covers": false
+    },
+    {
+      "wide": "ledger",
+      "narrow": "ledger",
+      "covers": true
+    },
+    {
+      "wide": "receipts*",
+      "narrow": "ledger",
+      "covers": false
+    }
+  ],
+  "narrowing": [
+    {
+      "case": "issuer_unrestricted_sub_restricts",
+      "issuer": null,
+      "sub": [
+        "ledger"
+      ],
+      "valid": true
+    },
+    {
+      "case": "both_unrestricted",
+      "issuer": null,
+      "sub": null,
+      "valid": true
+    },
+    {
+      "case": "sub_within_issuer",
+      "issuer": [
+        "ledger*",
+        "receipts"
+      ],
+      "sub": [
+        "ledger-2026*"
+      ],
+      "valid": true
+    },
+    {
+      "case": "sub_drops_the_list",
+      "issuer": [
+        "ledger*"
+      ],
+      "sub": null,
+      "valid": false,
+      "why": "dropping the list would widen the sub-mandate to every resource"
+    },
+    {
+      "case": "sub_widens_a_pattern",
+      "issuer": [
+        "ledger-2026*"
+      ],
+      "sub": [
+        "ledger*"
+      ],
+      "valid": false
+    },
+    {
+      "case": "sub_adds_a_resource",
+      "issuer": [
+        "ledger*"
+      ],
+      "sub": [
+        "ledger*",
+        "receipts"
+      ],
+      "valid": false
+    }
+  ],
+  "invalid_lists": [
+    {
+      "case": "empty",
+      "resources": [],
+      "why": "a present list is non-empty"
+    },
+    {
+      "case": "inner_star",
+      "resources": [
+        "led*ger"
+      ],
+      "why": "* only as a single trailing character"
+    },
+    {
+      "case": "double_star",
+      "resources": [
+        "ledger**"
+      ],
+      "why": "a single trailing *"
+    },
+    {
+      "case": "repeat",
+      "resources": [
+        "ledger",
+        "ledger"
+      ],
+      "why": "no pattern repeats"
+    },
+    {
+      "case": "not_a_string",
+      "resources": [
+        7
+      ],
+      "why": "a pattern is a string"
+    }
+  ],
+  "charter_amendments": [
+    {
+      "case": "amendment_keeps_domain",
+      "v1": {
+        "domain": "harborandline.example"
+      },
+      "v2": {
+        "domain": "harborandline.example",
+        "name": "Harbor & Line Outfitters, Inc."
+      },
+      "valid": true
+    },
+    {
+      "case": "amendment_changes_domain",
+      "v1": {
+        "domain": "harborandline.example"
+      },
+      "v2": {
+        "domain": "harborline.example"
+      },
+      "valid": false,
+      "why": "a new domain is a new charter (5 rule 6)"
+    }
+  ]
+}

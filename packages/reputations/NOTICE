@@ -1,0 +1,9 @@
+Common Agent reference implementation in TypeScript
+Copyright 2026 Jeff Schneider
+
+This product is licensed under the Apache License, Version 2.0 (LICENSE).
+
+casefolding-15.1.0.json is Unicode data from the Unicode
+Character Database's CaseFolding.txt, Unicode 15.1.0. It is licensed under the
+Unicode License V3 (LICENSE-UNICODE), not under
+Apache-2.0. Copyright (c) 1991-2026 Unicode, Inc.

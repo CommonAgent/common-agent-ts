@@ -1,0 +1,48 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "@common-agent/crypto": [
+        "./packages/crypto/index.ts"
+      ],
+      "@common-agent/mandate": [
+        "./packages/mandate/index.ts"
+      ],
+      "@common-agent/mandate/ports": [
+        "./packages/mandate/ports.ts"
+      ],
+      "@common-agent/nda": [
+        "./packages/nda/index.ts"
+      ],
+      "@common-agent/nda/ports": [
+        "./packages/nda/ports.ts"
+      ],
+      "@common-agent/reputations": [
+        "./packages/reputations/index.ts"
+      ],
+      "@common-agent/reputations/ports": [
+        "./packages/reputations/ports.ts"
+      ],
+      "@common-agent/sow": [
+        "./packages/sow/index.ts"
+      ],
+      "@common-agent/sow/ports": [
+        "./packages/sow/ports.ts"
+      ],
+      "@common-agent/rfp": [
+        "./packages/rfp/index.ts"
+      ],
+      "@common-agent/rfp/ports": [
+        "./packages/rfp/ports.ts"
+      ]
+    }
+  },
+  "include": [
+    "packages"
+  ],
+  "exclude": [
+    "**/dist",
+    "**/node_modules"
+  ]
+}

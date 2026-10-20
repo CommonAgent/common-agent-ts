@@ -1,0 +1,811 @@
+{
+  "comment": "Agent SoW signatures bound to seats (agentsow.com 0.26.0-draft, 5.1 and 6). Every seat carries owner_key, and a signature record counts for its seat only when its key is that owner_key, the registry's owner of the seat's agent is that same key, and its signature verifies over the signed bytes: 'agent-sow-v1', one newline, the JCS of the document minus signatures. owner_key sits inside the signed bytes, so a seat's key cannot change after signing without breaking every signature. The document is the cross-SDK document of sow-pricing.json (signing.document) with owner_key added to both seats. The keys are derived from the published seeds below (each seed is the SHA-256 of its label), each sig is the padded base64 of the 64-byte Ed25519 signature, and Ed25519 is deterministic, so any implementation reproduces them. The seeds are public by design and sign nothing else. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent SoW 0.26.0-draft: 5.1 (owner_key), 6 (signed bytes and binding)",
+  "keys": {
+    "entries": {
+      "stonework-owner": {
+        "label": "Agent SoW conformance test key: stonework-owner",
+        "seed_hex": "6823f384ab3489023269c65a77d314d876a1c638e1197c47a5b1fff03a2ed20e",
+        "public": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO"
+      },
+      "harborandline-owner": {
+        "label": "Agent SoW conformance test key: harborandline-owner",
+        "seed_hex": "9323de83ef41a54451048256d0ad1a12ba73f5cf67072823f63d32fffd06f213",
+        "public": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3"
+      },
+      "outsider-owner": {
+        "label": "Agent SoW conformance test key: outsider-owner",
+        "seed_hex": "f33c950826a24fb368207460043814d405cd3bacaa12f51bddd2a56f74878ed5",
+        "public": "UAPFONJRGCWA7QJ3CODJPDMNVTLS4TCBKA47X6N7NQP6KTC57G4VZWL5"
+      }
+    }
+  },
+  "registry": {
+    "comment": "What the receiving verifier resolved from the registry at receipt (6; Agent Messaging 8.6): each agent owner key and whether the registry verified it through an owner_attestation. A seat owner_key is confirmed where an attested owner of its agent is the same key; an unattested, unlisted or unreachable owner leaves it unconfirmed.",
+    "owners": {
+      "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A": {
+        "owner": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+        "attested": true
+      },
+      "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP": {
+        "owner": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+        "attested": true
+      }
+    }
+  },
+  "documents": {
+    "agreed": {
+      "sow": "v1",
+      "id": "sow_k7m2q4x9w3e6r8t1",
+      "version": 1,
+      "starts_at": "2026-08-04T00:00:00Z",
+      "ends_at": "2027-02-01T00:00:00Z",
+      "language": {
+        "id": "agent-sow-standard-language",
+        "version": 4,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "parties": {
+        "provider": {
+          "agent": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+          "handle": "Granite.books@stonework.example",
+          "owner": "Stonework Analytics",
+          "organization": "org_stonework",
+          "owner_key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO"
+        },
+        "client": {
+          "agent": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_harborandline",
+          "owner_key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3"
+        },
+        "grade": "evidence"
+      },
+      "scope": {
+        "offerings": [
+          "reconcile-statement"
+        ],
+        "examples": {
+          "in_scope": [
+            "reconcile the August statement"
+          ],
+          "out_of_scope": [
+            "file the return"
+          ]
+        },
+        "grade": "enforced"
+      },
+      "price": {
+        "arrangement": "time_and_materials",
+        "currency": "XCR",
+        "schedule": [
+          {
+            "meter": "tokens_out",
+            "unit": "1000 tokens",
+            "per": 1000,
+            "per_unit": 1500
+          },
+          {
+            "meter": "tool_calls",
+            "unit": "call",
+            "per": 1,
+            "per_unit": 2000
+          },
+          {
+            "meter": "items",
+            "unit": "invoice",
+            "per": 1,
+            "per_unit": 40000
+          },
+          {
+            "meter": "elapsed",
+            "unit": "minute",
+            "per": 60,
+            "per_unit": 12000
+          }
+        ],
+        "cap": {
+          "amount": 40000000
+        },
+        "reservation": {
+          "window_days": 30
+        },
+        "grade": "enforced"
+      },
+      "volume": {
+        "per_hour": 20,
+        "per_day": 200,
+        "grade": "enforced"
+      },
+      "change_control": {
+        "review_window_days": 7,
+        "approval": {
+          "formation": "agent",
+          "amendment": "person"
+        },
+        "approvals": [
+          {
+            "act": "amendment",
+            "authority": "person",
+            "key": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "approved_at": "2026-08-06T09:14:02Z",
+            "mandate": "mnd_harborandline_ap"
+          }
+        ],
+        "grade": "enforced"
+      },
+      "termination": {
+        "convenience_notice_hours": 48,
+        "grade": "enforced"
+      },
+      "disputes": {
+        "posture": "escalate_to_owners",
+        "grade": "evidence"
+      },
+      "confidentiality": {
+        "transport": {
+          "sealed": true,
+          "grade": "enforced"
+        },
+        "retention": {
+          "max_days": 30,
+          "grade": "enforced"
+        },
+        "promises": {
+          "no_training": true,
+          "grade": "recorded"
+        }
+      },
+      "signatures": [
+        {
+          "role": "provider",
+          "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+          "signed_at": "2026-08-04T14:02:11Z",
+          "sig": "pJ3PJtwn7HNwxz13ZuDcsPh+e/QdA3lZkpdCjFSh3sxsi9LSi/Yq+DeUMFGC+qhF6VRFA+X1Zchw75XiA7KGDg=="
+        },
+        {
+          "role": "client",
+          "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+          "signed_at": "2026-08-04T16:47:36Z",
+          "sig": "/RfCS5Gl9ISRPzS+ExMRYb9gOVVs/aNAT8heRc6fNwYS9UPHpxIXGQM+1aUAvDFXoaeIXq3e+qoOZXTy21KQDw=="
+        }
+      ]
+    },
+    "client_signed_by_outsider": {
+      "sow": "v1",
+      "id": "sow_k7m2q4x9w3e6r8t1",
+      "version": 1,
+      "starts_at": "2026-08-04T00:00:00Z",
+      "ends_at": "2027-02-01T00:00:00Z",
+      "language": {
+        "id": "agent-sow-standard-language",
+        "version": 4,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "parties": {
+        "provider": {
+          "agent": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+          "handle": "Granite.books@stonework.example",
+          "owner": "Stonework Analytics",
+          "organization": "org_stonework",
+          "owner_key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO"
+        },
+        "client": {
+          "agent": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_harborandline",
+          "owner_key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3"
+        },
+        "grade": "evidence"
+      },
+      "scope": {
+        "offerings": [
+          "reconcile-statement"
+        ],
+        "examples": {
+          "in_scope": [
+            "reconcile the August statement"
+          ],
+          "out_of_scope": [
+            "file the return"
+          ]
+        },
+        "grade": "enforced"
+      },
+      "price": {
+        "arrangement": "time_and_materials",
+        "currency": "XCR",
+        "schedule": [
+          {
+            "meter": "tokens_out",
+            "unit": "1000 tokens",
+            "per": 1000,
+            "per_unit": 1500
+          },
+          {
+            "meter": "tool_calls",
+            "unit": "call",
+            "per": 1,
+            "per_unit": 2000
+          },
+          {
+            "meter": "items",
+            "unit": "invoice",
+            "per": 1,
+            "per_unit": 40000
+          },
+          {
+            "meter": "elapsed",
+            "unit": "minute",
+            "per": 60,
+            "per_unit": 12000
+          }
+        ],
+        "cap": {
+          "amount": 40000000
+        },
+        "reservation": {
+          "window_days": 30
+        },
+        "grade": "enforced"
+      },
+      "volume": {
+        "per_hour": 20,
+        "per_day": 200,
+        "grade": "enforced"
+      },
+      "change_control": {
+        "review_window_days": 7,
+        "approval": {
+          "formation": "agent",
+          "amendment": "person"
+        },
+        "approvals": [
+          {
+            "act": "amendment",
+            "authority": "person",
+            "key": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "approved_at": "2026-08-06T09:14:02Z",
+            "mandate": "mnd_harborandline_ap"
+          }
+        ],
+        "grade": "enforced"
+      },
+      "termination": {
+        "convenience_notice_hours": 48,
+        "grade": "enforced"
+      },
+      "disputes": {
+        "posture": "escalate_to_owners",
+        "grade": "evidence"
+      },
+      "confidentiality": {
+        "transport": {
+          "sealed": true,
+          "grade": "enforced"
+        },
+        "retention": {
+          "max_days": 30,
+          "grade": "enforced"
+        },
+        "promises": {
+          "no_training": true,
+          "grade": "recorded"
+        }
+      },
+      "signatures": [
+        {
+          "role": "provider",
+          "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+          "signed_at": "2026-08-04T14:02:11Z",
+          "sig": "pJ3PJtwn7HNwxz13ZuDcsPh+e/QdA3lZkpdCjFSh3sxsi9LSi/Yq+DeUMFGC+qhF6VRFA+X1Zchw75XiA7KGDg=="
+        },
+        {
+          "role": "client",
+          "key": "UAPFONJRGCWA7QJ3CODJPDMNVTLS4TCBKA47X6N7NQP6KTC57G4VZWL5",
+          "signed_at": "2026-08-04T16:47:36Z",
+          "sig": "ZLD3Lvm4igZl+RuvK7U0/H7pCOV+ieJszrS+OC65kEidyrnUvQ/3IpYFDHnnf0pvDdi0IsZOeZkQrncR1Wh+Ag=="
+        }
+      ]
+    },
+    "legacy": {
+      "sow": "v1",
+      "id": "sow_k7m2q4x9w3e6r8t1",
+      "version": 1,
+      "starts_at": "2026-08-04T00:00:00Z",
+      "ends_at": "2027-02-01T00:00:00Z",
+      "language": {
+        "id": "agent-sow-standard-language",
+        "version": 4,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "parties": {
+        "provider": {
+          "agent": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+          "handle": "Granite.books@stonework.example",
+          "owner": "Stonework Analytics",
+          "organization": "org_stonework"
+        },
+        "client": {
+          "agent": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_harborandline"
+        },
+        "grade": "evidence"
+      },
+      "scope": {
+        "offerings": [
+          "reconcile-statement"
+        ],
+        "examples": {
+          "in_scope": [
+            "reconcile the August statement"
+          ],
+          "out_of_scope": [
+            "file the return"
+          ]
+        },
+        "grade": "enforced"
+      },
+      "price": {
+        "arrangement": "time_and_materials",
+        "currency": "XCR",
+        "schedule": [
+          {
+            "meter": "tokens_out",
+            "unit": "1000 tokens",
+            "per": 1000,
+            "per_unit": 1500
+          },
+          {
+            "meter": "tool_calls",
+            "unit": "call",
+            "per": 1,
+            "per_unit": 2000
+          },
+          {
+            "meter": "items",
+            "unit": "invoice",
+            "per": 1,
+            "per_unit": 40000
+          },
+          {
+            "meter": "elapsed",
+            "unit": "minute",
+            "per": 60,
+            "per_unit": 12000
+          }
+        ],
+        "cap": {
+          "amount": 40000000
+        },
+        "reservation": {
+          "window_days": 30
+        },
+        "grade": "enforced"
+      },
+      "volume": {
+        "per_hour": 20,
+        "per_day": 200,
+        "grade": "enforced"
+      },
+      "change_control": {
+        "review_window_days": 7,
+        "approval": {
+          "formation": "agent",
+          "amendment": "person"
+        },
+        "approvals": [
+          {
+            "act": "amendment",
+            "authority": "person",
+            "key": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "approved_at": "2026-08-06T09:14:02Z",
+            "mandate": "mnd_harborandline_ap"
+          }
+        ],
+        "grade": "enforced"
+      },
+      "termination": {
+        "convenience_notice_hours": 48,
+        "grade": "enforced"
+      },
+      "disputes": {
+        "posture": "escalate_to_owners",
+        "grade": "evidence"
+      },
+      "confidentiality": {
+        "transport": {
+          "sealed": true,
+          "grade": "enforced"
+        },
+        "retention": {
+          "max_days": 30,
+          "grade": "enforced"
+        },
+        "promises": {
+          "no_training": true,
+          "grade": "recorded"
+        }
+      },
+      "signatures": [
+        {
+          "role": "provider",
+          "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+          "signed_at": "2026-08-04T14:02:11Z",
+          "sig": "4agaZnq0hUoKQqs+PqaQIQoscIrvt2Q5d3bcf5KNwGzoNMmudM6GV+fXW9vngoX5uMiwFoL6n2uQQDy6Q/kMBg=="
+        },
+        {
+          "role": "client",
+          "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+          "signed_at": "2026-08-04T16:47:36Z",
+          "sig": "vl+jAYZtqtURkwU36axkz1yvr8OT0aZOJ32kGM3upVXnakmIGa2JmTEEAnHcQtQgSTtIfH0ZavvIFDEpvFoCBA=="
+        }
+      ]
+    },
+    "owner_key_changed_after_signing": {
+      "sow": "v1",
+      "id": "sow_k7m2q4x9w3e6r8t1",
+      "version": 1,
+      "starts_at": "2026-08-04T00:00:00Z",
+      "ends_at": "2027-02-01T00:00:00Z",
+      "language": {
+        "id": "agent-sow-standard-language",
+        "version": 4,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "parties": {
+        "provider": {
+          "agent": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+          "handle": "Granite.books@stonework.example",
+          "owner": "Stonework Analytics",
+          "organization": "org_stonework",
+          "owner_key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO"
+        },
+        "client": {
+          "agent": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_harborandline",
+          "owner_key": "UAPFONJRGCWA7QJ3CODJPDMNVTLS4TCBKA47X6N7NQP6KTC57G4VZWL5"
+        },
+        "grade": "evidence"
+      },
+      "scope": {
+        "offerings": [
+          "reconcile-statement"
+        ],
+        "examples": {
+          "in_scope": [
+            "reconcile the August statement"
+          ],
+          "out_of_scope": [
+            "file the return"
+          ]
+        },
+        "grade": "enforced"
+      },
+      "price": {
+        "arrangement": "time_and_materials",
+        "currency": "XCR",
+        "schedule": [
+          {
+            "meter": "tokens_out",
+            "unit": "1000 tokens",
+            "per": 1000,
+            "per_unit": 1500
+          },
+          {
+            "meter": "tool_calls",
+            "unit": "call",
+            "per": 1,
+            "per_unit": 2000
+          },
+          {
+            "meter": "items",
+            "unit": "invoice",
+            "per": 1,
+            "per_unit": 40000
+          },
+          {
+            "meter": "elapsed",
+            "unit": "minute",
+            "per": 60,
+            "per_unit": 12000
+          }
+        ],
+        "cap": {
+          "amount": 40000000
+        },
+        "reservation": {
+          "window_days": 30
+        },
+        "grade": "enforced"
+      },
+      "volume": {
+        "per_hour": 20,
+        "per_day": 200,
+        "grade": "enforced"
+      },
+      "change_control": {
+        "review_window_days": 7,
+        "approval": {
+          "formation": "agent",
+          "amendment": "person"
+        },
+        "approvals": [
+          {
+            "act": "amendment",
+            "authority": "person",
+            "key": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "approved_at": "2026-08-06T09:14:02Z",
+            "mandate": "mnd_harborandline_ap"
+          }
+        ],
+        "grade": "enforced"
+      },
+      "termination": {
+        "convenience_notice_hours": 48,
+        "grade": "enforced"
+      },
+      "disputes": {
+        "posture": "escalate_to_owners",
+        "grade": "evidence"
+      },
+      "confidentiality": {
+        "transport": {
+          "sealed": true,
+          "grade": "enforced"
+        },
+        "retention": {
+          "max_days": 30,
+          "grade": "enforced"
+        },
+        "promises": {
+          "no_training": true,
+          "grade": "recorded"
+        }
+      },
+      "signatures": [
+        {
+          "role": "provider",
+          "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+          "signed_at": "2026-08-04T14:02:11Z",
+          "sig": "pJ3PJtwn7HNwxz13ZuDcsPh+e/QdA3lZkpdCjFSh3sxsi9LSi/Yq+DeUMFGC+qhF6VRFA+X1Zchw75XiA7KGDg=="
+        },
+        {
+          "role": "client",
+          "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+          "signed_at": "2026-08-04T16:47:36Z",
+          "sig": "/RfCS5Gl9ISRPzS+ExMRYb9gOVVs/aNAT8heRc6fNwYS9UPHpxIXGQM+1aUAvDFXoaeIXq3e+qoOZXTy21KQDw=="
+        }
+      ]
+    },
+    "owner_key_on_one_seat": {
+      "sow": "v1",
+      "id": "sow_k7m2q4x9w3e6r8t1",
+      "version": 1,
+      "starts_at": "2026-08-04T00:00:00Z",
+      "ends_at": "2027-02-01T00:00:00Z",
+      "language": {
+        "id": "agent-sow-standard-language",
+        "version": 4,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "parties": {
+        "provider": {
+          "agent": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+          "handle": "Granite.books@stonework.example",
+          "owner": "Stonework Analytics",
+          "organization": "org_stonework"
+        },
+        "client": {
+          "agent": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_harborandline",
+          "owner_key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3"
+        },
+        "grade": "evidence"
+      },
+      "scope": {
+        "offerings": [
+          "reconcile-statement"
+        ],
+        "examples": {
+          "in_scope": [
+            "reconcile the August statement"
+          ],
+          "out_of_scope": [
+            "file the return"
+          ]
+        },
+        "grade": "enforced"
+      },
+      "price": {
+        "arrangement": "time_and_materials",
+        "currency": "XCR",
+        "schedule": [
+          {
+            "meter": "tokens_out",
+            "unit": "1000 tokens",
+            "per": 1000,
+            "per_unit": 1500
+          },
+          {
+            "meter": "tool_calls",
+            "unit": "call",
+            "per": 1,
+            "per_unit": 2000
+          },
+          {
+            "meter": "items",
+            "unit": "invoice",
+            "per": 1,
+            "per_unit": 40000
+          },
+          {
+            "meter": "elapsed",
+            "unit": "minute",
+            "per": 60,
+            "per_unit": 12000
+          }
+        ],
+        "cap": {
+          "amount": 40000000
+        },
+        "reservation": {
+          "window_days": 30
+        },
+        "grade": "enforced"
+      },
+      "volume": {
+        "per_hour": 20,
+        "per_day": 200,
+        "grade": "enforced"
+      },
+      "change_control": {
+        "review_window_days": 7,
+        "approval": {
+          "formation": "agent",
+          "amendment": "person"
+        },
+        "approvals": [
+          {
+            "act": "amendment",
+            "authority": "person",
+            "key": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "approved_at": "2026-08-06T09:14:02Z",
+            "mandate": "mnd_harborandline_ap"
+          }
+        ],
+        "grade": "enforced"
+      },
+      "termination": {
+        "convenience_notice_hours": 48,
+        "grade": "enforced"
+      },
+      "disputes": {
+        "posture": "escalate_to_owners",
+        "grade": "evidence"
+      },
+      "confidentiality": {
+        "transport": {
+          "sealed": true,
+          "grade": "enforced"
+        },
+        "retention": {
+          "max_days": 30,
+          "grade": "enforced"
+        },
+        "promises": {
+          "no_training": true,
+          "grade": "recorded"
+        }
+      },
+      "signatures": [
+        {
+          "role": "provider",
+          "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+          "signed_at": "2026-08-04T14:02:11Z",
+          "sig": "xFir5x3xdod+GSQfB6KyFpK43FWO7v12Hl2XhlKRP/MJw3A96M5dKcKIz/HtZZrAcU1Rby0Q8AlLhu2D9qoADA=="
+        },
+        {
+          "role": "client",
+          "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+          "signed_at": "2026-08-04T16:47:36Z",
+          "sig": "Khq28LMH9Ttw8qep+AAXwGYOhvCKViPq66lOz3MHb+GLE31Q8bdC5ckZFTPfC3glrJ8amNYUCIikMjBGlL1zDw=="
+        }
+      ]
+    }
+  },
+  "signed_bytes": {
+    "document": "agreed",
+    "bytes": "agent-sow-v1\n{\"change_control\":{\"approval\":{\"amendment\":\"person\",\"formation\":\"agent\"},\"approvals\":[{\"act\":\"amendment\",\"approved_at\":\"2026-08-06T09:14:02Z\",\"authority\":\"person\",\"key\":\"UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP\",\"mandate\":\"mnd_harborandline_ap\"}],\"grade\":\"enforced\",\"review_window_days\":7},\"confidentiality\":{\"promises\":{\"grade\":\"recorded\",\"no_training\":true},\"retention\":{\"grade\":\"enforced\",\"max_days\":30},\"transport\":{\"grade\":\"enforced\",\"sealed\":true}},\"disputes\":{\"grade\":\"evidence\",\"posture\":\"escalate_to_owners\"},\"ends_at\":\"2027-02-01T00:00:00Z\",\"id\":\"sow_k7m2q4x9w3e6r8t1\",\"language\":{\"id\":\"agent-sow-standard-language\",\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"version\":4},\"parties\":{\"client\":{\"agent\":\"UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP\",\"handle\":\"Petrel.mari@harborandline.example\",\"organization\":\"org_harborandline\",\"owner\":\"Harbor & Line Outfitters\",\"owner_key\":\"UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3\"},\"grade\":\"evidence\",\"provider\":{\"agent\":\"UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A\",\"handle\":\"Granite.books@stonework.example\",\"organization\":\"org_stonework\",\"owner\":\"Stonework Analytics\",\"owner_key\":\"UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO\"}},\"price\":{\"arrangement\":\"time_and_materials\",\"cap\":{\"amount\":40000000},\"currency\":\"XCR\",\"grade\":\"enforced\",\"reservation\":{\"window_days\":30},\"schedule\":[{\"meter\":\"tokens_out\",\"per\":1000,\"per_unit\":1500,\"unit\":\"1000 tokens\"},{\"meter\":\"tool_calls\",\"per\":1,\"per_unit\":2000,\"unit\":\"call\"},{\"meter\":\"items\",\"per\":1,\"per_unit\":40000,\"unit\":\"invoice\"},{\"meter\":\"elapsed\",\"per\":60,\"per_unit\":12000,\"unit\":\"minute\"}]},\"scope\":{\"examples\":{\"in_scope\":[\"reconcile the August statement\"],\"out_of_scope\":[\"file the return\"]},\"grade\":\"enforced\",\"offerings\":[\"reconcile-statement\"]},\"sow\":\"v1\",\"starts_at\":\"2026-08-04T00:00:00Z\",\"termination\":{\"convenience_notice_hours\":48,\"grade\":\"enforced\"},\"version\":1,\"volume\":{\"grade\":\"enforced\",\"per_day\":200,\"per_hour\":20}}",
+    "digest": "sha256:d1e32411a6fe4853d8aaf5a22b34439bb899b540d1fa31f49d49bf24c702c685"
+  },
+  "cases": [
+    {
+      "case": "both_bound",
+      "document": "agreed",
+      "expected": {
+        "provider": "counts",
+        "client": "counts",
+        "agreed": true
+      }
+    },
+    {
+      "case": "client_signature_by_another_key",
+      "document": "client_signed_by_outsider",
+      "expected": {
+        "provider": "counts",
+        "client": "unbound",
+        "agreed": false
+      },
+      "why": "the client's signature verifies, but its key is not the client seat's owner_key"
+    },
+    {
+      "case": "owner_key_changed_after_signing",
+      "document": "owner_key_changed_after_signing",
+      "expected": {
+        "provider": "invalid",
+        "client": "invalid",
+        "agreed": false
+      },
+      "why": "owner_key is inside the signed bytes, so changing it breaks both signatures"
+    },
+    {
+      "case": "legacy_without_owner_key",
+      "document": "legacy",
+      "expected": {
+        "provider": "unbound",
+        "client": "unbound",
+        "agreed": true,
+        "signatures_verify": true
+      },
+      "why": "no seat carries owner_key, so the document was written against 0.25.0-draft or earlier: it stays agreed and its grants keep applying, and its signatures verify but are shown as unbound until an amendment adds owner_key"
+    }
+  ],
+  "validation": {
+    "comment": "5.1 and 6: every seat of a document written against 0.26.0-draft carries owner_key, in the family's key spelling, and sig is the canonical padded base64 of the 64-byte signature. Each case edits the agreed document unless it names another, and a validator refuses it.",
+    "invalid": [
+      {
+        "case": "provider_without_owner_key",
+        "edit": {
+          "parties.provider.owner_key": "<removed>"
+        },
+        "why": "every seat carries owner_key"
+      },
+      {
+        "case": "owner_key_not_a_key",
+        "edit": {
+          "parties.client.owner_key": "Harbor & Line Outfitters"
+        },
+        "why": "owner_key is a public key"
+      },
+      {
+        "case": "owner_key_on_one_seat",
+        "document": "owner_key_on_one_seat",
+        "why": "a document that carries owner_key on some seats and not on others is refused; both its signatures verify, so this rule alone refuses it"
+      },
+      {
+        "case": "sig_base64url",
+        "edit": {
+          "signatures.1.sig": "_RfCS5Gl9ISRPzS-ExMRYb9gOVVs_aNAT8heRc6fNwYS9UPHpxIXGQM-1aUAvDFXoaeIXq3e-qoOZXTy21KQDw"
+        },
+        "why": "sig is the canonical padded base64 spelling"
+      },
+      {
+        "case": "sig_non_canonical_bits",
+        "edit": {
+          "signatures.1.sig": "/RfCS5Gl9ISRPzS+ExMRYb9gOVVs/aNAT8heRc6fNwYS9UPHpxIXGQM+1aUAvDFXoaeIXq3e+qoOZXTy21KQDx=="
+        },
+        "why": "the unused bits of the last character are zero, so each signature has exactly one spelling"
+      }
+    ]
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "comment": "Agent SoW: contracted contact by the provider (5.18). Pins three things. The form: provider_contact names one or more of the client's agents by handle or agent key, a non-empty list of grants from the Common Agent Specification's closed set less errands (messages, scheduling, share), at least one of per_hour and per_day as a positive integer, and grade 'enforced'. The term: the admission applies from starts_at, ends at ends_at, at termination or at the cap, and an agreed amendment that drops or narrows the member takes effect when it is agreed. The door: the client's runtime applies it as a roster entry for the provider's agent named in the parties, a message's needs are read from what it carries (an attachment needs share, a message marked as scheduling needs scheduling or messages, anything else needs messages), a message the grants do not cover is refused with the missing grant named, an explicit block and the stop control win, a subcontractor is not admitted, and excess over a window is refused with a retry time and never held. Absence admits nothing. Common Agent Specification 7.1 describes the same entry from the door's side. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation; when the fixture itself is believed wrong, change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent SoW 0.25.0-draft: 5.18 (contracted contact by the provider), 5.4 (interim deliverables), 5.7 (term), 5.8 (amendments), 5.9 (termination); Common Agent Specification 0.28.2-draft: 7.1 (connections, contracted contact)",
+  "form": {
+    "comment": "5.18 What it names. Each case is the top-level member; {} is a document without it, which is valid and admits nothing.",
+    "valid": [
+      {
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages",
+            "share"
+          ],
+          "per_hour": 10,
+          "per_day": 40,
+          "grade": "enforced"
+        }
+      },
+      {
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com",
+            "UCLIENTAGENTKEY2EXAMPLEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          ],
+          "grants": [
+            "share"
+          ],
+          "per_day": 5,
+          "grade": "enforced"
+        }
+      },
+      {
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages",
+            "scheduling"
+          ],
+          "per_hour": 2,
+          "grade": "enforced"
+        }
+      },
+      {}
+    ],
+    "invalid": [
+      {
+        "case": "errands",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages",
+            "errands"
+          ],
+          "per_day": 10,
+          "grade": "enforced"
+        },
+        "why": "errands MUST NOT appear: an order would spend the client's money outside the engagement's price"
+      },
+      {
+        "case": "unknown_grant",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages",
+            "calls"
+          ],
+          "per_day": 10,
+          "grade": "enforced"
+        },
+        "why": "grant names come from a closed set"
+      },
+      {
+        "case": "no_grants",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [],
+          "per_day": 10,
+          "grade": "enforced"
+        },
+        "why": "grants is non-empty"
+      },
+      {
+        "case": "no_agents",
+        "provider_contact": {
+          "agents": [],
+          "grants": [
+            "messages"
+          ],
+          "per_day": 10,
+          "grade": "enforced"
+        },
+        "why": "one or more of the client's agents"
+      },
+      {
+        "case": "no_window",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages"
+          ],
+          "grade": "enforced"
+        },
+        "why": "at least one of per_hour and per_day"
+      },
+      {
+        "case": "zero_window",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages"
+          ],
+          "per_day": 0,
+          "grade": "enforced"
+        },
+        "why": "each window is a positive integer"
+      },
+      {
+        "case": "fractional_window",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages"
+          ],
+          "per_hour": 1.5,
+          "grade": "enforced"
+        },
+        "why": "each window is a positive integer"
+      },
+      {
+        "case": "wrong_grade",
+        "provider_contact": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages"
+          ],
+          "per_day": 10,
+          "grade": "recorded"
+        },
+        "why": "the clause is enforced at the client's door"
+      }
+    ]
+  },
+  "term": {
+    "comment": "5.18 Its term is the engagement's. starts_at 2026-11-02T00:00:00Z, ends_at 2027-05-01T00:00:00Z unless the case says otherwise. at is the instant asked about; admitted is whether the roster entry applies then.",
+    "starts_at": "2026-11-02T00:00:00Z",
+    "ends_at": "2027-05-01T00:00:00Z",
+    "cases": [
+      {
+        "name": "before_start",
+        "at": "2026-11-01T23:59:59Z",
+        "admitted": false
+      },
+      {
+        "name": "at_start",
+        "at": "2026-11-02T00:00:00Z",
+        "admitted": true
+      },
+      {
+        "name": "during",
+        "at": "2027-01-15T09:00:00Z",
+        "admitted": true
+      },
+      {
+        "name": "after_lapse",
+        "at": "2027-05-01T00:00:01Z",
+        "admitted": false
+      },
+      {
+        "name": "after_termination",
+        "terminated_at": "2027-01-10T00:00:00Z",
+        "at": "2027-01-15T09:00:00Z",
+        "admitted": false
+      },
+      {
+        "name": "after_cap_reached",
+        "cap_reached_at": "2027-02-01T00:00:00Z",
+        "at": "2027-02-02T09:00:00Z",
+        "admitted": false
+      },
+      {
+        "name": "amendment_drops_it",
+        "amendment_agreed_at": "2027-03-01T00:00:00Z",
+        "amended_member": null,
+        "at": "2027-03-01T00:00:01Z",
+        "admitted": false
+      },
+      {
+        "name": "amendment_narrows_it",
+        "amendment_agreed_at": "2027-03-01T00:00:00Z",
+        "amended_member": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "share"
+          ],
+          "per_day": 5,
+          "grade": "enforced"
+        },
+        "at": "2027-03-02T09:00:00Z",
+        "admitted": true,
+        "grants": [
+          "share"
+        ]
+      }
+    ]
+  },
+  "door": {
+    "comment": "5.18 How it is enforced, during the term. Member: agents [ledger], grants [messages, share], per_hour 10. from is the sender (provider: the provider's agent named in 5.1; subcontractor: an agent the provider delegates to under 5.15). carries says what the message carries. expected is delivered, refused (with missing_grant where a grant is missing), refused_retry (over a window: refused with a retry time, never held), or the tier fallback (the door decides as it would without the engagement).",
+    "member": {
+      "agents": [
+        "ledger.harborandline@example.com"
+      ],
+      "grants": [
+        "messages",
+        "share"
+      ],
+      "per_hour": 10,
+      "grade": "enforced"
+    },
+    "cases": [
+      {
+        "name": "plain_message",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "text",
+        "expected": "delivered"
+      },
+      {
+        "name": "attachment",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "attachment",
+        "expected": "delivered"
+      },
+      {
+        "name": "scheduling_marked",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "scheduling",
+        "expected": "delivered",
+        "why": "a message marked as scheduling needs scheduling or messages, and messages is granted"
+      },
+      {
+        "name": "order",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "order",
+        "expected": "refused",
+        "missing_grant": "errands"
+      },
+      {
+        "name": "words_claim_a_file",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "text",
+        "text": "attached is the report",
+        "expected": "delivered",
+        "why": "needs are read from what the message carries, never from its words"
+      },
+      {
+        "name": "eleventh_in_the_hour",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "text",
+        "sent_this_hour": 10,
+        "expected": "refused_retry"
+      },
+      {
+        "name": "other_client_agent",
+        "from": "provider",
+        "to": "billing.harborandline@example.com",
+        "carries": "text",
+        "expected": "tier",
+        "why": "only the named agents admit the provider's agent"
+      },
+      {
+        "name": "subcontractor",
+        "from": "subcontractor",
+        "to": "ledger.harborandline@example.com",
+        "carries": "text",
+        "expected": "tier",
+        "why": "the member admits the provider's agent named in the parties and no other"
+      },
+      {
+        "name": "explicit_block_wins",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "text",
+        "client_roster": "block",
+        "expected": "refused_silently",
+        "why": "an explicit block still wins and is not acknowledged"
+      },
+      {
+        "name": "stopped",
+        "from": "provider",
+        "to": "ledger.harborandline@example.com",
+        "carries": "text",
+        "stop_control": "on",
+        "expected": "refused_silently",
+        "why": "the stop control overrides the entry"
+      }
+    ],
+    "only_share": {
+      "comment": "With grants [share] only, a plain message needs messages.",
+      "member": {
+        "agents": [
+          "ledger.harborandline@example.com"
+        ],
+        "grants": [
+          "share"
+        ],
+        "per_day": 5,
+        "grade": "enforced"
+      },
+      "cases": [
+        {
+          "name": "plain_message",
+          "from": "provider",
+          "to": "ledger.harborandline@example.com",
+          "carries": "text",
+          "expected": "refused",
+          "missing_grant": "messages"
+        },
+        {
+          "name": "attachment",
+          "from": "provider",
+          "to": "ledger.harborandline@example.com",
+          "carries": "attachment",
+          "expected": "delivered"
+        }
+      ]
+    }
+  },
+  "interim_deliverables": {
+    "comment": "5.18 Interim deliverables. A deliverable the provider sent before its due instant that the client's door held or refused for lack of an admission covering it is recorded as held at the client's door and is not a missed due instant.",
+    "cases": [
+      {
+        "name": "held_for_lack_of_member",
+        "member": null,
+        "sent_at": "2026-12-04T10:00:00Z",
+        "due": "2026-12-05T00:00:00Z",
+        "door": "held",
+        "missed_due_instant": false,
+        "recorded_as": "held_at_client_door"
+      },
+      {
+        "name": "refused_missing_share",
+        "member": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages"
+          ],
+          "per_day": 10,
+          "grade": "enforced"
+        },
+        "sent_at": "2026-12-04T10:00:00Z",
+        "due": "2026-12-05T00:00:00Z",
+        "door": "refused",
+        "missing_grant": "share",
+        "missed_due_instant": false,
+        "recorded_as": "held_at_client_door"
+      },
+      {
+        "name": "sent_late",
+        "member": {
+          "agents": [
+            "ledger.harborandline@example.com"
+          ],
+          "grants": [
+            "messages",
+            "share"
+          ],
+          "per_day": 10,
+          "grade": "enforced"
+        },
+        "sent_at": "2026-12-05T10:00:00Z",
+        "due": "2026-12-05T00:00:00Z",
+        "door": "delivered",
+        "missed_due_instant": true
+      },
+      {
+        "name": "never_sent",
+        "member": null,
+        "sent_at": null,
+        "due": "2026-12-05T00:00:00Z",
+        "door": null,
+        "missed_due_instant": true
+      }
+    ]
+  }
+}

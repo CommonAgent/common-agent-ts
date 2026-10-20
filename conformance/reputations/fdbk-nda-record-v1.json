@@ -1,0 +1,187 @@
+{
+  "about": "Agent Reputations 0.10.0-draft, 4.9 rules 2, 4 and 6: who is served a party's filed counts. Two parties: a claimant and a respondent. At filed_at the claimant files one claim of breach against the respondent under an agreement between them. Each record is the nda block a reader is served, before and after the filing. A public report never carries filed; the party's own excerpt and the respondent's excerpt beside the claim do. So the claimant's public report is the same before and after, and a reader who polls both public reports learns that someone filed against the respondent, and nothing about who. The vectors are normative.",
+  "filed_at": "2027-08-19T09:00:00Z",
+  "readers": [
+    "public",
+    "own_excerpt",
+    "respondent_excerpt_beside_claim"
+  ],
+  "records": {
+    "claimant": {
+      "before": {
+        "public": {
+          "record_days": 1825,
+          "upheld": [],
+          "open": {
+            "count": 0,
+            "claimants": 0,
+            "earliest": null,
+            "answered": 0
+          },
+          "closed": {
+            "dismissed": 0,
+            "withdrawn": 0,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        },
+        "own_excerpt": {
+          "record_days": 1825,
+          "upheld": [],
+          "open": {
+            "count": 0,
+            "claimants": 0,
+            "earliest": null,
+            "answered": 0
+          },
+          "closed": {
+            "dismissed": 0,
+            "withdrawn": 0,
+            "set_aside": 0,
+            "lapsed": 0
+          },
+          "filed": {
+            "open": 0,
+            "upheld": 0,
+            "dismissed": 2,
+            "withdrawn": 1,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        }
+      },
+      "after": {
+        "public": {
+          "record_days": 1825,
+          "upheld": [],
+          "open": {
+            "count": 0,
+            "claimants": 0,
+            "earliest": null,
+            "answered": 0
+          },
+          "closed": {
+            "dismissed": 0,
+            "withdrawn": 0,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        },
+        "own_excerpt": {
+          "record_days": 1825,
+          "upheld": [],
+          "open": {
+            "count": 0,
+            "claimants": 0,
+            "earliest": null,
+            "answered": 0
+          },
+          "closed": {
+            "dismissed": 0,
+            "withdrawn": 0,
+            "set_aside": 0,
+            "lapsed": 0
+          },
+          "filed": {
+            "open": 1,
+            "upheld": 0,
+            "dismissed": 2,
+            "withdrawn": 1,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        },
+        "respondent_excerpt_beside_claim": {
+          "filed": {
+            "open": 1,
+            "upheld": 0,
+            "dismissed": 2,
+            "withdrawn": 1,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        }
+      }
+    },
+    "respondent": {
+      "before": {
+        "public": {
+          "record_days": 1825,
+          "upheld": [],
+          "open": {
+            "count": 0,
+            "claimants": 0,
+            "earliest": null,
+            "answered": 0
+          },
+          "closed": {
+            "dismissed": 0,
+            "withdrawn": 0,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        }
+      },
+      "after": {
+        "public": {
+          "record_days": 1825,
+          "upheld": [],
+          "open": {
+            "count": 1,
+            "claimants": 1,
+            "earliest": "2027-08-19T09:00:00Z",
+            "answered": 0
+          },
+          "closed": {
+            "dismissed": 0,
+            "withdrawn": 0,
+            "set_aside": 0,
+            "lapsed": 0
+          }
+        }
+      }
+    }
+  },
+  "expected": {
+    "filed_served_to": [
+      "own_excerpt",
+      "respondent_excerpt_beside_claim"
+    ],
+    "claimant_public_unchanged": true,
+    "respondent_public_open_count": {
+      "before": 0,
+      "after": 1
+    }
+  },
+  "must_fail": [
+    {
+      "name": "public_report_with_filed",
+      "reader": "public",
+      "record": {
+        "record_days": 1825,
+        "upheld": [],
+        "open": {
+          "count": 0,
+          "claimants": 0,
+          "earliest": null,
+          "answered": 0
+        },
+        "closed": {
+          "dismissed": 0,
+          "withdrawn": 0,
+          "set_aside": 0,
+          "lapsed": 0
+        },
+        "filed": {
+          "open": 1,
+          "upheld": 0,
+          "dismissed": 2,
+          "withdrawn": 1,
+          "set_aside": 0,
+          "lapsed": 0
+        }
+      },
+      "why": "a public report carrying filed lets a poller line the claimant's filed.open up with the respondent's open.count"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "comment": "Agent SoW: the Agent NDA the engagement runs under (5.16). Pins the reference shape and the two tests a runtime holding the referenced NDA's bytes runs before forming an engagement. The reference: id and version name the agreement, digest is REQUIRED in the same sha256: spelling and exact comparison as 5.11's dpa member (the literal prefix sha256: and exactly 64 lowercase hex characters, compared byte for byte), ref is an optional locator, and grade is 'evidence' because what is mechanical is which bytes were agreed. What the NDA obliges is graded 'recorded', so 'enforced' on the reference is refused as the false enforcement claim. The parties test: the agent keys in the NDA's discloser and recipient seats are the engagement's provider and client agent keys, in either order. The disclosure test: every 5.11 processor appears in the NDA's disclosure terms for the provider's seat, matched on service and domain (an entry without domain matches only an entry without domain); an NDA declaring no processors for the provider (an empty list or an omitted member) declares none the test can match; and where the NDA states processed_in for the provider, the engagement's processed_in is stated and a subset of it. processed_in is read as declared structure, as in sow-data-use.json: a list whose entries are all non-empty strings has stated jurisdictions, and anything else has stated none. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation; when the fixture itself is believed wrong, change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent SoW 0.26.0-draft: 5.16 (the Agent NDA the engagement runs under), 5.11 (processors, processed_in, dpa digest spelling); Agent NDA 0.2.0-draft: 5.5, 8",
+
+  "reference": {
+    "comment": "5.16: the top-level nda member. Absence states nothing, so a document without it is valid and says nothing about any NDA.",
+    "valid": [
+      { "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15", "grade": "evidence" } },
+      { "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15", "ref": "mesh:artifacts:01JB2N7Q4C", "grade": "evidence" } },
+      {}
+    ],
+    "invalid": [
+      { "case": "digest_missing", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "grade": "evidence" }, "why": "digest is REQUIRED: the agreement named is the one whose bytes hash to it" },
+      { "case": "digest_uppercase", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "sha256:C733C0A5F4717A9F5558C244449BD7266EE9A2C7822424934AC8897D26EC8612", "grade": "evidence" }, "why": "lowercase hex only; the comparison is exact, so two spellings of one digest would compare unequal" },
+      { "case": "digest_no_prefix", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15", "grade": "evidence" }, "why": "the spelling is sha256: followed by the hex, as 5.11's dpa digest" },
+      { "case": "digest_short", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021", "grade": "evidence" }, "why": "exactly 64 hex characters" },
+      { "case": "version_zero", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 0, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15", "grade": "evidence" }, "why": "versions start at 1" },
+      { "case": "id_wrong_prefix", "nda": { "id": "sow_2bpnmagnx6925r5y", "version": 1, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15", "grade": "evidence" }, "why": "an Agent NDA id begins nda_" },
+      { "case": "grade_enforced", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15", "grade": "enforced" }, "why": "the false enforcement claim: what the NDA obliges is recorded, and the reference is evidence of which bytes were agreed" },
+      { "case": "grade_missing", "nda": { "id": "nda_dtzv6z8tans9k5s6", "version": 1, "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15" }, "why": "every clause object carries a grade (4.2), and here it is 'evidence'" },
+      { "case": "not_an_object", "nda": "nda_dtzv6z8tans9k5s6", "why": "the reference carries the digest that fixes the bytes; an id alone names no bytes" }
+    ]
+  },
+
+  "parties": {
+    "comment": "5.16: the NDA's two seats hold the engagement's two agent keys, in either order. The match is on the agent key; handles are labels.",
+    "cases": [
+      { "name": "provider is the recipient", "engagement": { "provider": "key-sable", "client": "key-petrel" }, "nda": { "discloser": "key-petrel", "recipient": "key-sable" }, "expected": true },
+      { "name": "provider is the discloser", "engagement": { "provider": "key-sable", "client": "key-petrel" }, "nda": { "discloser": "key-sable", "recipient": "key-petrel" }, "expected": true },
+      { "name": "a third party in a seat", "engagement": { "provider": "key-sable", "client": "key-petrel" }, "nda": { "discloser": "key-petrel", "recipient": "key-granite" }, "expected": false },
+      { "name": "an open offer has no recipient", "engagement": { "provider": "key-sable", "client": "key-petrel" }, "nda": { "discloser": "key-petrel", "recipient": null }, "expected": false },
+      { "name": "one party in both seats", "engagement": { "provider": "key-sable", "client": "key-petrel" }, "nda": { "discloser": "key-petrel", "recipient": "key-petrel" }, "expected": false }
+    ]
+  },
+
+  "disclosure": {
+    "comment": "5.16: the engagement's 5.11 declarations against the NDA's disclosure terms for the provider's seat (disclosure.recipient where the provider is the recipient, disclosure.discloser where it sat as discloser in a mutual agreement). `nda_permits` is that member; `confidentiality` is the engagement's 5.11 clause. Processors are tested before jurisdictions, and the first failing entry in the engagement's declared order is reported by its zero-based index.",
+    "cases": [
+      {
+        "name": "a declared processor the NDA names",
+        "nda_permits": { "processors": [{ "service": "Anthropic API", "domain": "anthropic.com" }], "processed_in": ["us"] },
+        "confidentiality": { "processors": [{ "service": "Anthropic API", "domain": "anthropic.com", "purpose": "model inference" }], "processed_in": ["us"] },
+        "expected": { "ok": true }
+      },
+      {
+        "name": "a processor the NDA does not name",
+        "nda_permits": { "processors": [{ "service": "Anthropic API", "domain": "anthropic.com" }] },
+        "confidentiality": { "processors": [{ "service": "Anthropic API", "domain": "anthropic.com" }, { "service": "Whisper transcription" }] },
+        "expected": { "ok": false, "test": "processors", "entry": 1 }
+      },
+      {
+        "name": "a domain that differs is a different processor",
+        "nda_permits": { "processors": [{ "service": "Postmark", "domain": "postmarkapp.com" }] },
+        "confidentiality": { "processors": [{ "service": "Postmark", "domain": "postmark.example" }] },
+        "expected": { "ok": false, "test": "processors", "entry": 0 }
+      },
+      {
+        "name": "an entry without domain matches only an entry without domain",
+        "nda_permits": { "processors": [{ "service": "Postmark", "domain": "postmarkapp.com" }] },
+        "confidentiality": { "processors": [{ "service": "Postmark" }] },
+        "expected": { "ok": false, "test": "processors", "entry": 0 }
+      },
+      {
+        "name": "an NDA declaring no processors declares none to match",
+        "nda_permits": {},
+        "confidentiality": { "processors": [{ "service": "Anthropic API", "domain": "anthropic.com" }] },
+        "expected": { "ok": false, "test": "processors", "entry": 0 }
+      },
+      {
+        "name": "an empty processors list fits any NDA",
+        "nda_permits": {},
+        "confidentiality": { "processors": [] },
+        "expected": { "ok": true }
+      },
+      {
+        "name": "a narrower jurisdiction set fits",
+        "nda_permits": { "processed_in": ["us", "ca"] },
+        "confidentiality": { "processed_in": ["us"] },
+        "expected": { "ok": true }
+      },
+      {
+        "name": "a jurisdiction outside the NDA's",
+        "nda_permits": { "processed_in": ["us"] },
+        "confidentiality": { "processed_in": ["us", "eu"] },
+        "expected": { "ok": false, "test": "processed_in", "entry": 1 }
+      },
+      {
+        "name": "an unstated processed_in fails a stated one",
+        "nda_permits": { "processed_in": ["us"] },
+        "confidentiality": { "retention": { "max_days": 30, "grade": "enforced" } },
+        "expected": { "ok": false, "test": "processed_in" }
+      },
+      {
+        "name": "an unreadable processed_in states none",
+        "nda_permits": { "processed_in": ["us"] },
+        "confidentiality": { "processed_in": ["us", 7] },
+        "expected": { "ok": false, "test": "processed_in" }
+      },
+      {
+        "name": "an NDA stating no jurisdictions leaves nothing to compare",
+        "nda_permits": {},
+        "confidentiality": { "processed_in": ["us", "eu"] },
+        "expected": { "ok": true }
+      },
+      {
+        "name": "a processor failure is reported before a jurisdiction failure",
+        "nda_permits": { "processors": [], "processed_in": ["us"] },
+        "confidentiality": { "processors": [{ "service": "Anthropic API" }], "processed_in": ["eu"] },
+        "expected": { "ok": false, "test": "processors", "entry": 0 }
+      }
+    ]
+  }
+}

@@ -1,0 +1,413 @@
+{
+  "comment": "Agent SoW: the formation messages of 5.8 (agentsow.com 0.29.0-draft). Each message is a JSON object whose signed bytes are 'agent-sow-formation-v1', one newline, and the JCS of the message minus sig, so a message signature can never be read as a document signature, whose tag is 'agent-sow-v1'. kind is acknowledgement, receipt or void; a receipt names in of what it receives. digest is 'sha256:' and the lowercase hex SHA-256 of the signed bytes (6) of the approved replacement. An acknowledgement and a void are sent by the proposer's seat, a receipt by the counterparty's, and key is that seat's owner_key. sig is the canonical padded base64 of the 64-byte signature. The keys are the published test seeds of sow-signatures.json. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent SoW 0.29.0-draft: 5.8 (the formation messages), 6 (signature spelling)",
+  "keys": {
+    "entries": {
+      "stonework-owner": {
+        "label": "Agent SoW conformance test key: stonework-owner",
+        "seed_hex": "6823f384ab3489023269c65a77d314d876a1c638e1197c47a5b1fff03a2ed20e",
+        "public": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO"
+      },
+      "harborandline-owner": {
+        "label": "Agent SoW conformance test key: harborandline-owner",
+        "seed_hex": "9323de83ef41a54451048256d0ad1a12ba73f5cf67072823f63d32fffd06f213",
+        "public": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3"
+      }
+    }
+  },
+  "proposer": "provider",
+  "approved": {
+    "document": {
+      "sow": "v1",
+      "id": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "starts_at": "2026-08-04T00:00:00Z",
+      "ends_at": "2027-02-01T00:00:00Z",
+      "language": {
+        "id": "agent-sow-standard-language",
+        "version": 4,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "parties": {
+        "provider": {
+          "agent": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+          "handle": "Granite.books@stonework.example",
+          "owner": "Stonework Analytics",
+          "organization": "org_stonework",
+          "owner_key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO"
+        },
+        "client": {
+          "agent": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_harborandline",
+          "owner_key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3"
+        },
+        "grade": "evidence"
+      },
+      "scope": {
+        "offerings": [
+          "reconcile-statement"
+        ],
+        "examples": {
+          "in_scope": [
+            "reconcile the August statement"
+          ],
+          "out_of_scope": [
+            "file the return"
+          ]
+        },
+        "grade": "enforced"
+      },
+      "price": {
+        "arrangement": "time_and_materials",
+        "currency": "XCR",
+        "schedule": [
+          {
+            "meter": "tokens_out",
+            "unit": "1000 tokens",
+            "per": 1000,
+            "per_unit": 1500
+          },
+          {
+            "meter": "tool_calls",
+            "unit": "call",
+            "per": 1,
+            "per_unit": 2000
+          },
+          {
+            "meter": "items",
+            "unit": "invoice",
+            "per": 1,
+            "per_unit": 40000
+          },
+          {
+            "meter": "elapsed",
+            "unit": "minute",
+            "per": 60,
+            "per_unit": 12000
+          }
+        ],
+        "cap": {
+          "amount": 40000000
+        },
+        "reservation": {
+          "window_days": 30
+        },
+        "grade": "enforced"
+      },
+      "volume": {
+        "per_hour": 20,
+        "per_day": 200,
+        "grade": "enforced"
+      },
+      "change_control": {
+        "review_window_days": 7,
+        "approval": {
+          "formation": "agent",
+          "amendment": "person"
+        },
+        "approvals": [
+          {
+            "act": "amendment",
+            "authority": "person",
+            "key": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "approved_at": "2026-08-06T09:14:02Z",
+            "mandate": "mnd_harborandline_ap"
+          }
+        ],
+        "grade": "enforced",
+        "proposed_at": "2026-09-14T10:02:00Z"
+      },
+      "termination": {
+        "convenience_notice_hours": 48,
+        "grade": "enforced"
+      },
+      "disputes": {
+        "posture": "escalate_to_owners",
+        "grade": "evidence"
+      },
+      "confidentiality": {
+        "transport": {
+          "sealed": true,
+          "grade": "enforced"
+        },
+        "retention": {
+          "max_days": 30,
+          "grade": "enforced"
+        },
+        "promises": {
+          "no_training": true,
+          "grade": "recorded"
+        }
+      },
+      "signatures": [
+        {
+          "role": "provider",
+          "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+          "signed_at": "2026-09-14T10:02:00Z",
+          "sig": "P5lfYDaImm+74DoINaObTHsg7Iq67v1389NipQ3sbvH1i0n20Zm+0T70QITnKLELfIKXc6bDI876DUq0AQaPCA=="
+        },
+        {
+          "role": "client",
+          "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+          "signed_at": "2026-09-16T11:59:00Z",
+          "sig": "AkL1BAy6h8+TNlXZlgAtkROGQH0aotn1XLy4A2xBALp7Mr9dETbFVdz9K96EIBqX85+RtYtk6vtKbr3Yt2myAw=="
+        }
+      ]
+    },
+    "signed_bytes_digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a"
+  },
+  "messages": {
+    "acknowledgement": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "formed": true,
+      "deadline": "2026-09-23T12:00:00Z",
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:05Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "FWNOXg/ZRz12GyLII3gNGc502BrT+leSUTw/7xJ0G8p9tXSaxmGvx9ihbz6TDE6hIeT2LfRAm9TEnkTjTGsRAg=="
+    },
+    "receipt_of_acknowledgement": {
+      "kind": "receipt",
+      "of": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "by": "client",
+      "signed_at": "2026-09-16T12:00:07Z",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "mDVRQQN/HfO5UUsdJe/3WBizYPyE0ayEhDy8SUpHBRqTfG5ENq3HclHTXabuFzAc9/UHF669mcAUEgZl1HQIBw=="
+    },
+    "void": {
+      "kind": "void",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "deadline": "2026-09-23T12:00:00Z",
+      "by": "provider",
+      "signed_at": "2026-09-23T12:00:00Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "M/DFCN3PrBxk8pLs7uiClJttgLb1oT2KBypcbL0wJr/TsyvqSJpQRIuj0WMAy2nf/x0wl3ulqOvfA3I2Uu8JAA=="
+    },
+    "receipt_of_void": {
+      "kind": "receipt",
+      "of": "void",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "by": "client",
+      "signed_at": "2026-09-24T12:00:02Z",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "YmApnTzzgS7fompaj/kY0+NPBIijTdYQlqziAaZKVreIBfEAV4BCMhV6kktTpZLKvn+vV0THoWVwR6KNOU7jCg=="
+    },
+    "acknowledgement_not_formed": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "formed": false,
+      "by": "provider",
+      "signed_at": "2026-09-22T00:00:05Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "TiZOsd8Sb0KAU8ahdcJ9s8pNLuuCVTu6EAm8T7plBvS0BPRErphMrWGJVbqYq/8zaBLqNK176tSbFvQ1YWIsBQ=="
+    },
+    "signed_under_document_tag": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "formed": true,
+      "deadline": "2026-09-23T12:00:00Z",
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:05Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "deHvIvbL46Vq2QFJ+cU0AtNgbR3LnlFNVsd9NdH4pHQQUhCSuL9p9FDPXbbrM27ZR0Oq4EU19kMIrJwpX2pxDQ=="
+    },
+    "deadline_altered": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "formed": true,
+      "deadline": "2026-10-23T12:00:00Z",
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:05Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "FWNOXg/ZRz12GyLII3gNGc502BrT+leSUTw/7xJ0G8p9tXSaxmGvx9ihbz6TDE6hIeT2LfRAm9TEnkTjTGsRAg=="
+    },
+    "signed_by_the_other_seat": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "formed": true,
+      "deadline": "2026-09-23T12:00:00Z",
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:05Z",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "rJaZl0PsvAw7XDQzb6jyulrQbPJVIn/ym+YyVz7B5HsZFp0azH6XfYnAj/lO23zqWJM47jzQTwmByEnxU67lBA=="
+    },
+    "receipt_by_the_proposer": {
+      "kind": "receipt",
+      "of": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:07Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "bfkzJUD5WzR7MM8QqNqlvWs2MbukZ76SAjR77r1MOZVRDKHfLr1GAigOwNefjv/NP9tMDqbVFgWvBMwBhZrgCQ=="
+    },
+    "unknown_member": {
+      "kind": "receipt",
+      "of": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "by": "client",
+      "signed_at": "2026-09-16T12:00:07Z",
+      "note": "thanks",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "WbSZw17BYIj27+1w5BeKAUFDV5r5s2X5MRwftzJJyv0s6OWth3Uot1BcercvmP40tR5qZzx2c4X19sy5+99bAQ=="
+    },
+    "names_another_digest": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:c3c2f3bb0a31f10c99b156fe10dbc455e2b1ecb92a74991cf458679256597499",
+      "formed": true,
+      "deadline": "2026-09-23T12:00:00Z",
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:05Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "6WMGXwOWPuQYR8L+/kziMQhSR8C39s8SPEfAB6s8bJLuijFRylB2M/A1jcWnGlDThCralzXzCipUCNR69kGXBw=="
+    },
+    "deadline_on_a_receipt": {
+      "kind": "receipt",
+      "of": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "deadline": "2026-09-23T12:00:00Z",
+      "by": "client",
+      "signed_at": "2026-09-16T12:00:07Z",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "zn9QSCvQcgrQ7Yj/PiWmHOaV2RdNoUaF5YAd1NyGchXX3zfGso8mj3cdXX5qT+bHv+kloUmwk3NO1MJIGcq3AA=="
+    },
+    "formed_without_deadline": {
+      "kind": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "formed": true,
+      "by": "provider",
+      "signed_at": "2026-09-16T12:00:05Z",
+      "key": "UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO",
+      "sig": "wKiU4jxUr65ZB21jTZIOzBDAu78F+Na50SLh4zDx1PCHW0gXZEBngY+BBM6KY5mq0K1iqlkATQKkQ228E/nIDA=="
+    },
+    "sig_base64url": {
+      "kind": "receipt",
+      "of": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "by": "client",
+      "signed_at": "2026-09-16T12:00:07Z",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "mDVRQQN_HfO5UUsdJe_3WBizYPyE0ayEhDy8SUpHBRqTfG5ENq3HclHTXabuFzAc9_UHF669mcAUEgZl1HQIBw"
+    },
+    "sig_non_canonical_bits": {
+      "kind": "receipt",
+      "of": "acknowledgement",
+      "engagement": "sow_k7m2q4x9w3e6r8t1",
+      "version": 4,
+      "digest": "sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a",
+      "by": "client",
+      "signed_at": "2026-09-16T12:00:07Z",
+      "key": "UA753LJST5GAH632MY3EBMCE7FDB6YP5XW4O6IA5SDXZTOAYWCIP3CM3",
+      "sig": "mDVRQQN/HfO5UUsdJe/3WBizYPyE0ayEhDy8SUpHBRqTfG5ENq3HclHTXabuFzAc9/UHF669mcAUEgZl1HQIBx=="
+    }
+  },
+  "signed_bytes": {
+    "message": "acknowledgement",
+    "bytes": "agent-sow-formation-v1\n{\"by\":\"provider\",\"deadline\":\"2026-09-23T12:00:00Z\",\"digest\":\"sha256:62df3950499510461ab8d7bb2976e1824df3bb88a4b37c5eb6f8fde5f90c403a\",\"engagement\":\"sow_k7m2q4x9w3e6r8t1\",\"formed\":true,\"key\":\"UDCFPA7KHMXUNJJU7KJ6YTHHCN5VMIA4TKJMP57VXRUM4PRBYBA4GOPO\",\"kind\":\"acknowledgement\",\"signed_at\":\"2026-09-16T12:00:05Z\",\"version\":4}"
+  },
+  "cases": [
+    {
+      "message": "acknowledgement",
+      "valid": true
+    },
+    {
+      "message": "receipt_of_acknowledgement",
+      "valid": true
+    },
+    {
+      "message": "void",
+      "valid": true
+    },
+    {
+      "message": "receipt_of_void",
+      "valid": true
+    },
+    {
+      "message": "acknowledgement_not_formed",
+      "valid": true,
+      "why": "an acknowledgement that the version did not form carries no deadline"
+    },
+    {
+      "message": "signed_under_document_tag",
+      "valid": false,
+      "why": "signed over 'agent-sow-v1' and the message; a message is signed under its own tag"
+    },
+    {
+      "message": "deadline_altered",
+      "valid": false,
+      "why": "the deadline is inside the signed bytes"
+    },
+    {
+      "message": "signed_by_the_other_seat",
+      "valid": false,
+      "why": "by names the provider, and the key is the client seat's owner_key"
+    },
+    {
+      "message": "receipt_by_the_proposer",
+      "valid": false,
+      "why": "a receipt comes from the counterparty's seat"
+    },
+    {
+      "message": "unknown_member",
+      "valid": false,
+      "why": "a message carries only the members 5.8 defines"
+    },
+    {
+      "message": "names_another_digest",
+      "valid": false,
+      "why": "the digest is not the digest of the approved replacement"
+    },
+    {
+      "message": "deadline_on_a_receipt",
+      "valid": false,
+      "why": "deadline appears only on an acknowledgement that the version formed, and on a void"
+    },
+    {
+      "message": "formed_without_deadline",
+      "valid": false,
+      "why": "an acknowledgement that the version formed names its deadline"
+    },
+    {
+      "message": "sig_base64url",
+      "valid": false,
+      "why": "sig is padded base64 in the standard alphabet"
+    },
+    {
+      "message": "sig_non_canonical_bits",
+      "valid": false,
+      "why": "the unused bits of the last character are zero"
+    }
+  ]
+}

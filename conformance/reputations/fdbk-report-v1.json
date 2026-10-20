@@ -1,0 +1,209 @@
+{
+  "about": "Test vectors for report signing in Agent Reputations (§8.1). The signed bytes are the signature tag, one line feed, and the JCS (RFC 8785) canonical JSON of the signed object, in UTF-8; the signature is Ed25519 (RFC 8032) over those bytes. Keys and signatures are base64 with padding (RFC 4648 §4), and a key id is the first 12 hexadecimal digits of the SHA-256 of the key's base64 text. Ed25519 signatures are deterministic, so an implementation that signs signed_bytes with the test key must produce bureau_sig exactly. signed_bytes is the byte string written as UTF-8 text with its line feed as \\n. reference.mjs beside this file reproduces every vector.",
+  "test_key": {
+    "warning": "TEST KEY ONLY. Its private part is published here so that anyone can reproduce the signatures below. A report signed with it proves nothing, and no bureau may sign with it or pin it.",
+    "seed_hex": "01be12cce4a99d54dbafe701f120ecd74d1b950ab9050c27f9875d7d529b1a74",
+    "seed_note": "The 32-byte Ed25519 private key (the seed of RFC 8032 §5.1.5), in hexadecimal. It is the SHA-256 of the ASCII text: Agent Reputations fdbk-report-v1 test key. Never sign a real report with it.",
+    "public_key": "01sCQHvvCb7r6Es5no0VZvHxhYQkGKmKzG5m11P/Bww=",
+    "kid": "e23eccc4f5cc"
+  },
+  "key_set": {
+    "bureau": "https://bureau.example",
+    "keys": [
+      "01sCQHvvCb7r6Es5no0VZvHxhYQkGKmKzG5m11P/Bww="
+    ],
+    "key_set": [
+      {
+        "kid": "e23eccc4f5cc",
+        "key": "01sCQHvvCb7r6Es5no0VZvHxhYQkGKmKzG5m11P/Bww=",
+        "status": "current",
+        "use": "fdbk-report-signing"
+      }
+    ]
+  },
+  "verified_at": "2026-10-18T12:05:00.000Z",
+  "jcs": [
+    {
+      "name": "member-order-and-numbers",
+      "input": "{ \"zeta\": 1, \"alpha\": [3.0, 2.50, 0.10, 1E21, -0, 1e-7, 412.60], \"Beta\": true, \"beta\": null }",
+      "canonical": "{\"Beta\":true,\"alpha\":[3,2.5,0.1,1e+21,0,1e-7,412.6],\"beta\":null,\"zeta\":1}"
+    },
+    {
+      "name": "non-ascii-and-escapes",
+      "input": "{ \"subject\": \"Chloë.ops@example.org\", \"note\": \"line\\nbreak \\\"quoted\\\" \\u0007 \\/\", \"é\": 1, \"z\": 2 }",
+      "canonical": "{\"note\":\"line\\nbreak \\\"quoted\\\" \\u0007 /\",\"subject\":\"Chloë.ops@example.org\",\"z\":2,\"é\":1}"
+    }
+  ],
+  "signed": [
+    {
+      "name": "report",
+      "tag": "fdbk-report-v1",
+      "member": "report",
+      "envelope": {
+        "report": {
+          "subject": "Coder.ana@example.org",
+          "capability": "code-review",
+          "enrollment": "RATED",
+          "enrolled_at": "2026-03-02T09:14:00.000Z",
+          "quality": {
+            "lcb": 0.902,
+            "mean": 0.931,
+            "n_eff": 412.6
+          },
+          "candor": {
+            "decline_rate": 0.11,
+            "silent_failure_rate": 0.004,
+            "refusals": {
+              "count_90d": 37,
+              "caller_anchors": 21,
+              "top_caller_share": 0.16,
+              "corroborated_share": 0.41
+            }
+          },
+          "facts": {
+            "reachability_90d": 0.998,
+            "latency_ms": {
+              "p50": 820,
+              "p95": 4100
+            },
+            "contract_violations_90d": 0,
+            "unstated_refusals_90d": 0,
+            "unavailable_90d": 0.002
+          },
+          "evidence": {
+            "half_life_days": 60,
+            "oldest": "2026-03-04T10:00:00.000Z",
+            "newest": "2026-10-18T11:52:00.000Z",
+            "attester_anchors": 63,
+            "top_anchor_share": 0.09,
+            "probe_share": 0.06,
+            "value_judgment_share": 0.12,
+            "portfolio_prior": false
+          },
+          "promises": [
+            {
+              "id": "p1",
+              "class": "mesh-verifiable",
+              "text": "p95 latency under 5s",
+              "held_90d": 1
+            }
+          ],
+          "formula_version": "fdbk-score-1",
+          "bureau": "https://bureau.example",
+          "issued_at": "2026-10-18T12:00:00.000Z",
+          "expires_at": "2026-10-18T13:00:00.000Z"
+        },
+        "bureau_key": "01sCQHvvCb7r6Es5no0VZvHxhYQkGKmKzG5m11P/Bww=",
+        "bureau_kid": "e23eccc4f5cc",
+        "bureau_sig": "/2WYsVeKjgAKN+eFEfeo2WGOO7t8z9BO/wyAUG4rF3KJxAjXNKkAtJWAgVqnt0T6a8N16wwnMurhxDrdpmM8Cg=="
+      },
+      "signed_bytes": "fdbk-report-v1\n{\"bureau\":\"https://bureau.example\",\"candor\":{\"decline_rate\":0.11,\"refusals\":{\"caller_anchors\":21,\"corroborated_share\":0.41,\"count_90d\":37,\"top_caller_share\":0.16},\"silent_failure_rate\":0.004},\"capability\":\"code-review\",\"enrolled_at\":\"2026-03-02T09:14:00.000Z\",\"enrollment\":\"RATED\",\"evidence\":{\"attester_anchors\":63,\"half_life_days\":60,\"newest\":\"2026-10-18T11:52:00.000Z\",\"oldest\":\"2026-03-04T10:00:00.000Z\",\"portfolio_prior\":false,\"probe_share\":0.06,\"top_anchor_share\":0.09,\"value_judgment_share\":0.12},\"expires_at\":\"2026-10-18T13:00:00.000Z\",\"facts\":{\"contract_violations_90d\":0,\"latency_ms\":{\"p50\":820,\"p95\":4100},\"reachability_90d\":0.998,\"unavailable_90d\":0.002,\"unstated_refusals_90d\":0},\"formula_version\":\"fdbk-score-1\",\"issued_at\":\"2026-10-18T12:00:00.000Z\",\"promises\":[{\"class\":\"mesh-verifiable\",\"held_90d\":1,\"id\":\"p1\",\"text\":\"p95 latency under 5s\"}],\"quality\":{\"lcb\":0.902,\"mean\":0.931,\"n_eff\":412.6},\"subject\":\"Coder.ana@example.org\"}",
+      "signed_bytes_sha256": "b2e55e93d33bed36c0f77468b68b8557d29e2f6343415ee4e3577d3f2c206949"
+    },
+    {
+      "name": "organization-report",
+      "tag": "fdbk-org-report-v1",
+      "member": "organization_report",
+      "envelope": {
+        "organization_report": {
+          "anchor": "harborandline.example",
+          "anchor_kind": "domain",
+          "members": [
+            {
+              "subject": "Audit.ops@harborandline.example",
+              "basis": "anchor",
+              "member_since": "2026-08-02T00:00:00.000Z",
+              "enrollment": "RATED",
+              "capabilities": [
+                {
+                  "capability": "freight-audit",
+                  "state": "RATED",
+                  "lcb": 0.884,
+                  "n_eff": 233
+                }
+              ],
+              "portfolio_prior": false
+            }
+          ],
+          "former_members_90d": [],
+          "counts": {
+            "RATED": 1,
+            "UNPROVEN": 0,
+            "UNENROLLED": 0,
+            "WITHDRAWN": 0,
+            "joined_90d": 1
+          },
+          "formula_version": "fdbk-score-1",
+          "bureau": "https://bureau.example",
+          "issued_at": "2026-10-18T12:00:00.000Z",
+          "expires_at": "2026-10-18T13:00:00.000Z"
+        },
+        "bureau_key": "01sCQHvvCb7r6Es5no0VZvHxhYQkGKmKzG5m11P/Bww=",
+        "bureau_kid": "e23eccc4f5cc",
+        "bureau_sig": "R8+bWCIG+2q6F0VDSQrdoEYf1Kmxovdt+MyWZf0zXQMoF8iW7idVIPynDqHS7lYLGwimBS+hIdkI/LePoxgrAA=="
+      },
+      "signed_bytes": "fdbk-org-report-v1\n{\"anchor\":\"harborandline.example\",\"anchor_kind\":\"domain\",\"bureau\":\"https://bureau.example\",\"counts\":{\"RATED\":1,\"UNENROLLED\":0,\"UNPROVEN\":0,\"WITHDRAWN\":0,\"joined_90d\":1},\"expires_at\":\"2026-10-18T13:00:00.000Z\",\"former_members_90d\":[],\"formula_version\":\"fdbk-score-1\",\"issued_at\":\"2026-10-18T12:00:00.000Z\",\"members\":[{\"basis\":\"anchor\",\"capabilities\":[{\"capability\":\"freight-audit\",\"lcb\":0.884,\"n_eff\":233,\"state\":\"RATED\"}],\"enrollment\":\"RATED\",\"member_since\":\"2026-08-02T00:00:00.000Z\",\"portfolio_prior\":false,\"subject\":\"Audit.ops@harborandline.example\"}]}",
+      "signed_bytes_sha256": "ddc3acb5313a9e7ffa1e44ef82c049c66f19b9b070b99fe13b46654f9f6326fe"
+    }
+  ],
+  "must_fail": [
+    {
+      "name": "a-changed-member",
+      "from": "report",
+      "set": {
+        "report.quality.lcb": 0.912
+      },
+      "reason": "the signature does not verify"
+    },
+    {
+      "name": "an-added-member",
+      "from": "report",
+      "set": {
+        "report.endorsed": true
+      },
+      "reason": "the signature does not verify"
+    },
+    {
+      "name": "the-wrong-tag",
+      "from": "report",
+      "tag": "fdbk-org-report-v1",
+      "reason": "the signature does not verify"
+    },
+    {
+      "name": "an-organization-report-under-the-report-tag",
+      "from": "organization-report",
+      "tag": "fdbk-report-v1",
+      "reason": "the signature does not verify"
+    },
+    {
+      "name": "no-signature",
+      "from": "report",
+      "set": {
+        "bureau_sig": null
+      },
+      "reason": "the envelope has no bureau_sig"
+    },
+    {
+      "name": "a-key-the-bureau-does-not-publish",
+      "from": "report",
+      "set": {
+        "bureau_kid": "000000000000"
+      },
+      "reason": "the key is not in the pinned key set"
+    },
+    {
+      "name": "another-bureau",
+      "from": "report",
+      "set": {
+        "report.bureau": "https://other-bureau.example"
+      },
+      "reason": "the report names another bureau"
+    },
+    {
+      "name": "expired",
+      "from": "report",
+      "verified_at": "2026-10-18T13:01:01.000Z",
+      "reason": "the report has expired"
+    }
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "comment": "Agent SoW: forming an amended version (agentsow.com 0.27.0-draft, 5.8). Formation runs in three signed messages: the proposer's acknowledgement of each approval, whose deadline is the instant the proposer received the approval plus the governing review window; the counterparty's receipt of an acknowledgement that the version formed, sent again for every copy; and the proposer's void if it holds no receipt at the deadline. The counterparty sends a receipt for every copy of a void; the proposer re-sends the void at least daily until it holds that receipt, and answers any request that names the voided version with a copy of the void in place of admitting it. Each case lists the messages and when each side received them, then asks which version each side applies at given instants. proposer.state is formed_unacknowledged from sending the acknowledgement until it holds a receipt. A request names the version it relies on; while the proposer is formed_unacknowledged it admits a request under the version named. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent SoW 0.28.0-draft: 5.8 (when an approval forms the new version)",
+  "current_version": 3,
+  "new_version": 4,
+  "governing_window_days": 7,
+  "cases": [
+    {
+      "case": "clean",
+      "approval_received_by_proposer": "2026-09-16T12:00:00Z",
+      "acknowledgements": [
+        {
+          "sent": "2026-09-16T12:00:05Z",
+          "received_by_counterparty": "2026-09-16T12:00:06Z"
+        }
+      ],
+      "receipts": [
+        {
+          "sent": "2026-09-16T12:00:07Z",
+          "received_by_proposer": "2026-09-16T12:00:08Z"
+        }
+      ],
+      "expected": {
+        "deadline": "2026-09-23T12:00:00Z",
+        "at": [
+          {
+            "t": "2026-09-16T12:00:05Z",
+            "proposer": {
+              "state": "formed_unacknowledged",
+              "own_acts": 3
+            },
+            "counterparty": 3
+          },
+          {
+            "t": "2026-09-16T12:00:06Z",
+            "proposer": {
+              "state": "formed_unacknowledged",
+              "own_acts": 3
+            },
+            "counterparty": 4
+          },
+          {
+            "t": "2026-09-16T12:00:08Z",
+            "proposer": {
+              "state": "formed",
+              "own_acts": 4
+            },
+            "counterparty": 4
+          }
+        ]
+      }
+    },
+    {
+      "case": "first_acknowledgement_lost",
+      "approval_received_by_proposer": "2026-09-16T12:00:00Z",
+      "acknowledgements": [
+        {
+          "sent": "2026-09-16T12:00:05Z",
+          "received_by_counterparty": null
+        },
+        {
+          "sent": "2026-09-17T12:00:05Z",
+          "received_by_counterparty": "2026-09-17T12:00:06Z"
+        }
+      ],
+      "receipts": [
+        {
+          "sent": "2026-09-17T12:00:07Z",
+          "received_by_proposer": "2026-09-17T12:00:08Z"
+        }
+      ],
+      "expected": {
+        "deadline": "2026-09-23T12:00:00Z",
+        "at": [
+          {
+            "t": "2026-09-17T00:00:00Z",
+            "proposer": {
+              "state": "formed_unacknowledged",
+              "own_acts": 3
+            },
+            "counterparty": 3
+          },
+          {
+            "t": "2026-09-17T12:00:08Z",
+            "proposer": {
+              "state": "formed",
+              "own_acts": 4
+            },
+            "counterparty": 4
+          }
+        ]
+      },
+      "why": "the daily re-send carried the formation through one lost message"
+    },
+    {
+      "case": "receipts_lost_until_the_deadline",
+      "approval_received_by_proposer": "2026-09-16T12:00:00Z",
+      "acknowledgements": [
+        {
+          "sent": "2026-09-16T12:00:05Z",
+          "received_by_counterparty": "2026-09-16T12:00:06Z"
+        }
+      ],
+      "receipts": [
+        {
+          "sent": "2026-09-16T12:00:07Z",
+          "received_by_proposer": null
+        }
+      ],
+      "void": {
+        "sent": "2026-09-23T12:00:00Z",
+        "received_by_counterparty": "2026-09-23T12:00:01Z"
+      },
+      "requests": [
+        {
+          "name": "task-a",
+          "admitted_at": "2026-09-20T09:00:00Z",
+          "names_version": 4
+        }
+      ],
+      "expected": {
+        "deadline": "2026-09-23T12:00:00Z",
+        "at": [
+          {
+            "t": "2026-09-20T09:00:00Z",
+            "proposer": {
+              "state": "formed_unacknowledged",
+              "own_acts": 3
+            },
+            "counterparty": 4
+          },
+          {
+            "t": "2026-09-23T12:00:00Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3
+            },
+            "counterparty": 4
+          },
+          {
+            "t": "2026-09-23T12:00:01Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3
+            },
+            "counterparty": 3
+          }
+        ],
+        "requests": [
+          {
+            "name": "task-a",
+            "priced_under": 4
+          }
+        ]
+      },
+      "why": "the formation is undone from the void on; task-a, admitted under version 4 before the void, stays priced under version 4"
+    },
+    {
+      "case": "late_approval_not_accepted",
+      "approval_received_by_proposer": "2026-09-22T00:00:00Z",
+      "proposal_lapsed_at": "2026-09-21T10:02:00Z",
+      "acknowledgements": [
+        {
+          "sent": "2026-09-22T00:00:05Z",
+          "received_by_counterparty": "2026-09-22T00:00:06Z",
+          "formed": false
+        }
+      ],
+      "receipts": [],
+      "expected": {
+        "deadline": null,
+        "at": [
+          {
+            "t": "2026-09-22T00:00:06Z",
+            "proposer": {
+              "state": "lapsed",
+              "own_acts": 3
+            },
+            "counterparty": 3
+          }
+        ]
+      },
+      "why": "an acknowledgement that the version did not form changes nothing on either side"
+    },
+    {
+      "case": "lost_void_recovered_by_resend",
+      "approval_received_by_proposer": "2026-09-16T12:00:00Z",
+      "acknowledgements": [
+        {
+          "sent": "2026-09-16T12:00:05Z",
+          "received_by_counterparty": "2026-09-16T12:00:06Z"
+        }
+      ],
+      "receipts": [
+        {
+          "sent": "2026-09-16T12:00:07Z",
+          "received_by_proposer": null
+        }
+      ],
+      "voids": [
+        {
+          "sent": "2026-09-23T12:00:00Z",
+          "received_by_counterparty": null
+        },
+        {
+          "sent": "2026-09-24T12:00:00Z",
+          "received_by_counterparty": "2026-09-24T12:00:01Z"
+        }
+      ],
+      "void_receipts": [
+        {
+          "sent": "2026-09-24T12:00:02Z",
+          "received_by_proposer": "2026-09-24T12:00:03Z"
+        }
+      ],
+      "expected": {
+        "deadline": "2026-09-23T12:00:00Z",
+        "at": [
+          {
+            "t": "2026-09-24T00:00:00Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3,
+              "resending_void": true
+            },
+            "counterparty": 4
+          },
+          {
+            "t": "2026-09-24T12:00:01Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3,
+              "resending_void": true
+            },
+            "counterparty": 3
+          },
+          {
+            "t": "2026-09-24T12:00:03Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3,
+              "resending_void": false
+            },
+            "counterparty": 3
+          }
+        ]
+      },
+      "why": "the first void was lost; the daily re-send reached the counterparty, and the proposer stopped re-sending once it held the receipt of the void"
+    },
+    {
+      "case": "lost_void_recovered_by_answering_a_request",
+      "approval_received_by_proposer": "2026-09-16T12:00:00Z",
+      "acknowledgements": [
+        {
+          "sent": "2026-09-16T12:00:05Z",
+          "received_by_counterparty": "2026-09-16T12:00:06Z"
+        }
+      ],
+      "receipts": [
+        {
+          "sent": "2026-09-16T12:00:07Z",
+          "received_by_proposer": null
+        }
+      ],
+      "voids": [
+        {
+          "sent": "2026-09-23T12:00:00Z",
+          "received_by_counterparty": null
+        }
+      ],
+      "requests": [
+        {
+          "name": "task-b",
+          "sent_at": "2026-09-23T15:00:00Z",
+          "names_version": 4,
+          "answered_with_void_at": "2026-09-23T15:00:01Z"
+        }
+      ],
+      "void_receipts": [
+        {
+          "sent": "2026-09-23T15:00:02Z",
+          "received_by_proposer": "2026-09-23T15:00:03Z"
+        }
+      ],
+      "expected": {
+        "deadline": "2026-09-23T12:00:00Z",
+        "at": [
+          {
+            "t": "2026-09-23T14:00:00Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3,
+              "resending_void": true
+            },
+            "counterparty": 4
+          },
+          {
+            "t": "2026-09-23T15:00:01Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3,
+              "resending_void": true
+            },
+            "counterparty": 3
+          },
+          {
+            "t": "2026-09-23T15:00:03Z",
+            "proposer": {
+              "state": "void",
+              "own_acts": 3,
+              "resending_void": false
+            },
+            "counterparty": 3
+          }
+        ],
+        "requests": [
+          {
+            "name": "task-b",
+            "admitted": false,
+            "answered_with": "void"
+          }
+        ]
+      },
+      "why": "the void was lost; task-b named the voided version 4, so the proposer answered it with the void and admitted nothing under version 4"
+    }
+  ]
+}

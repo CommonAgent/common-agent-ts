@@ -1,0 +1,1347 @@
+{
+  "comment": "Agent Mandate conformance: a chain verified from the documents alone (§6), the check at approval (§7) and the check for an Agent NDA (§7.2). `documents` holds every document once, by name, signed with the test keys of mandate-documents.json, under the charter named `charter`. A chain lists its mandates target first and root-issued last, and `fails` names what fails in the words of the rule cited. In an approval, `registry` is what the registry holds, `request.at` is when the act was approved or signed, and `check` is the number of the §7 check that fails, or \"7.2 step 4\" for the category check of an act on an Agent NDA.",
+  "spec": "Agent Mandate 0.6.0-draft",
+  "documents": {
+    "charter": {
+      "charter": "v1",
+      "version": 1,
+      "domain": "harborandline.example",
+      "name": "Harbor & Line Outfitters",
+      "legal": {
+        "jurisdiction": "Delaware, US",
+        "registration": "SR-20241102-88417",
+        "grade": "recorded"
+      },
+      "root_authority": {
+        "keys": [
+          "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+          "UAQOHRDUSYL2EYSGLHPF2HRRSZHI7BULN26GCVVD6TKV5ZDFISHAVG4U"
+        ],
+        "threshold": 1,
+        "grade": "evidence"
+      },
+      "administrator": {
+        "keys": [
+          "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ"
+        ]
+      },
+      "created_at": "2026-08-01T00:00:00Z",
+      "id": "org_vd5zvpa4ecerft8b",
+      "signatures": [
+        {
+          "role": "root",
+          "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "_V_DVGUxc8Y8RBRNQMtuU9JVJZEBuOvFjMpmQoQ3DRtJ04qX_CUDGGzjqRq_Y6yVLuj1bstHXN5TTCU8B-gSAQ"
+        }
+      ]
+    },
+    "marisol": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "root"
+      },
+      "holder": {
+        "account": "acct_2c9f7e1a",
+        "person": "Marisol Vega, Purchasing",
+        "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+      },
+      "powers": [
+        "form",
+        "amend",
+        "terminate",
+        "award",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 50000000,
+        "per_month": 200000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "note": "logistics purchasing only"
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": true,
+        "max_depth": 1
+      },
+      "starts_at": "2026-08-01T00:00:00Z",
+      "expires_at": "2027-08-01T00:00:00Z",
+      "id": "mnd_c1etkcpcpr6d5gmp",
+      "signatures": [
+        {
+          "role": "root",
+          "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "pps7d7FJGoUQJ2_fZrxz3A-XRFpG0bUaCYl7KhGgZ3uOvPsKw1eRO55AEP_Pq7GwDCFf8eEwU0UxtLGwTLFWCg"
+        }
+      ]
+    },
+    "tom": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_v26kpncz0w44gtc5",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "WtwxvB-p1T3qYi66s10gaMvhV6sme8xajerX8aVb0VBhytmJX6LJV00MMUZ-SRhA2OvksoU9YcngZNgihBkxAw"
+        }
+      ]
+    },
+    "marisol, signed by the administrator": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "root"
+      },
+      "holder": {
+        "account": "acct_2c9f7e1a",
+        "person": "Marisol Vega, Purchasing",
+        "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+      },
+      "powers": [
+        "form",
+        "amend",
+        "terminate",
+        "award",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 50000000,
+        "per_month": 200000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "note": "logistics purchasing only"
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": true,
+        "max_depth": 1
+      },
+      "starts_at": "2026-08-01T00:00:00Z",
+      "expires_at": "2027-08-01T00:00:00Z",
+      "id": "mnd_c1etkcpcpr6d5gmp",
+      "signatures": [
+        {
+          "role": "root",
+          "key": "UB4IYNHHKM6QWJLJDUHBYHRMPJMQ6PTJIRPHOD5WJ3A4VDY3OL4OKDKJ",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "zNpKUvu9kJlgMVRhl-SboKW6e14ze6iKSCNtYTeAJ8bVo3s87_97wYWktSqJ2gpiXXVsZh4XjHxwh0yqrwBsDQ"
+        }
+      ]
+    },
+    "tom, signed by mallory": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_v26kpncz0w44gtc5",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBIM5HUOPITZW7FQNVPYQRYQK62T2WDMWZIL2FHDCZVZOBXFSZNGAIUC",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "gijvyXC03LAWjmPPOap3HIpoeZyNaoYbFq4-gUiNpQs1JShnsiNL-Gq55fpKXojOS9QMxGwGuMkr8IOVop1wCQ"
+        }
+      ]
+    },
+    "marisol, form and nda only": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "root"
+      },
+      "holder": {
+        "account": "acct_2c9f7e1a",
+        "person": "Marisol Vega, Purchasing",
+        "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 50000000,
+        "per_month": 200000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "note": "logistics purchasing only"
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": true,
+        "max_depth": 1
+      },
+      "starts_at": "2026-08-01T00:00:00Z",
+      "expires_at": "2027-08-01T00:00:00Z",
+      "id": "mnd_7mfv6rkr21esjf97",
+      "signatures": [
+        {
+          "role": "root",
+          "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "ObwMol4wNRSOfGJaM9K0oDfJjli7smkom0hqZLlTqG1jZNUWruuESEoIHBiNf39MF-pAR91uYuctRkbWJOSYBg"
+        }
+      ]
+    },
+    "tom, asking for award": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_7mfv6rkr21esjf97"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "award"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_7295j1jck2nxp2bt",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "wQs7bGIzTv9Gkti5AQ_Wze7WIO7WSTdFTzB6kphxTGnaS8GMI9zn4KU8o0s50cnu_qMzf4GBlZOiFCxXCb6EDQ"
+        }
+      ]
+    },
+    "tom, with a higher ceiling": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 60000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_a6vcp6x30ct6vppv",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "G9HRUioAGkzx7SdY427MEqAHrveiyMZCirspn_pzuQUuqcR_7ONqfrkIMJ8vBuUgF8P-kM9vjyH3WkhIPjC7Bw"
+        }
+      ]
+    },
+    "tom, expiring later than marisol": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2027-09-01T00:00:00Z",
+      "id": "mnd_k05h7tk0parjb3rh",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "BQqeTYqPVdXQfBQ4JVyRP4ZgEAwcaBbShkfhrJHbnGGVnSyb9GGQYBQNbvbqpHFLjYVzqevDYfPJFnVey4wwDw"
+        }
+      ]
+    },
+    "tom, delegating further": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": true,
+        "max_depth": 1
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_1rj4s29gzb8v9nn1",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "hzCE9HhCgoWMs4ARlytbUoTNdarfVKL0Zr3IDo-4RaBx91IQgGjanl5tqwcuKQFT6q24oEmVWIpL65UyY0pNCA"
+        }
+      ]
+    },
+    "tom, form only": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_vn1vw1z5a8tpwwz9",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "kio0edKGOwkghA3diVEpOXfyAVQzS49uLsqVoHKRx90VMjocABnib1cEH81JwypZVKccX0vlijyy15PzE19bAg"
+        }
+      ]
+    },
+    "marisol, limited to two categories": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "root"
+      },
+      "holder": {
+        "account": "acct_2c9f7e1a",
+        "person": "Marisol Vega, Purchasing",
+        "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7"
+      },
+      "powers": [
+        "form",
+        "amend",
+        "terminate",
+        "award",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 50000000,
+        "per_month": 200000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": true,
+        "max_depth": 1
+      },
+      "starts_at": "2026-08-01T00:00:00Z",
+      "expires_at": "2027-08-01T00:00:00Z",
+      "id": "mnd_r2j56gzaf707bfhx",
+      "signatures": [
+        {
+          "role": "root",
+          "key": "UB636LKRWT4GIAWU6FRSYSNDRZI3CNVG4FY2SN7RY2755F6JNTXJXV47",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "WZoXQQoh_TUFOKPzhr2RETHXCOuucV2vMXLndYH0bJvJPU1vbkLYE9O4iXX_smS0ipB7pL3imPEMXFVI7RpuBw"
+        }
+      ]
+    },
+    "tom under the limit, with no list": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_r2j56gzaf707bfhx"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_db6nbr498mpmej07",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "VEIZ7-4F8NW1OQTrrciMMiPcpWBohBygYpvRyeN9HmPlIx2d7USFXhuI296EscrXF5M0rmY3f3YYz77rIWG2AA"
+        }
+      ]
+    },
+    "tom under the limit, with inputs": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_r2j56gzaf707bfhx"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "solicitation",
+          "inputs"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_5keg3pddtx38yd8g",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "RDpebkcoq2sWRlqHmMUammigNLUyRPxYLPMEOfxHumqclloqgMLnZ6OCkU5jJTMra6LbBfdU8Q07hEAX9K0lAw"
+        }
+      ]
+    },
+    "tom under the limit, inside it": {
+      "mandate": "v1",
+      "version": 1,
+      "organization": "org_vd5zvpa4ecerft8b",
+      "issuer": {
+        "kind": "mandate",
+        "mandate": "mnd_r2j56gzaf707bfhx"
+      },
+      "holder": {
+        "account": "acct_9b4d2f7c",
+        "person": "Tom Okafor, Accounts",
+        "key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3"
+      },
+      "powers": [
+        "form",
+        "nda"
+      ],
+      "ceiling": {
+        "currency": "XCR",
+        "per_engagement": 10000000,
+        "per_month": 40000000
+      },
+      "scope": {
+        "offerings": [
+          "audit-freight-*"
+        ],
+        "nda_categories": [
+          "agreement_terms"
+        ]
+      },
+      "settlement": {
+        "payer": "organization"
+      },
+      "sub_delegation": {
+        "allowed": false
+      },
+      "starts_at": "2026-08-06T00:00:00Z",
+      "expires_at": "2026-11-04T00:00:00Z",
+      "id": "mnd_7rvwsg6vd49h8rtp",
+      "signatures": [
+        {
+          "role": "issuer",
+          "key": "UBZZ2FT4COUPIWSBWTXD2XR5DCZTXG6MIBRRJ6EPT24YJ5IS2FG2SVX7",
+          "signed_at": "2026-08-01T00:00:00Z",
+          "sig": "J3PFs2vItGjydKhQvbzPfs2Ulk2p6T4rmw7zXsU9PVzkGcgpzbR1Exg4vQLBSeTJsaQrtEaOS8k8B_wacZ8zBQ"
+        }
+      ]
+    }
+  },
+  "chains": [
+    {
+      "name": "a root-issued mandate",
+      "mandates": [
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": true,
+        "depth": 0
+      },
+      "why": "§6: its signatures meet the charter's threshold of root authority keys."
+    },
+    {
+      "name": "a sub-mandate under it",
+      "mandates": [
+        "tom",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": true,
+        "depth": 1
+      },
+      "why": "§6: each hop's signature is by the holder.key of the mandate above, and nothing widens."
+    },
+    {
+      "name": "signed by the administrator alone",
+      "mandates": [
+        "marisol, signed by the administrator"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "root authority"
+      },
+      "why": "§5.3: an administrator signature never carries an act of root authority."
+    },
+    {
+      "name": "signed by someone other than the holder above",
+      "mandates": [
+        "tom, signed by mallory",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "issuer signature"
+      },
+      "why": "§6 rule 1: the signature key MUST equal the holder.key of the issuing mandate."
+    },
+    {
+      "name": "a power the issuer does not hold",
+      "mandates": [
+        "tom, asking for award",
+        "marisol, form and nda only"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "narrowing"
+      },
+      "why": "§6 rule 3: powers a subset. The issuer holds form and nda, and this asks for award."
+    },
+    {
+      "name": "a higher ceiling",
+      "mandates": [
+        "tom, with a higher ceiling",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "narrowing"
+      },
+      "why": "§6 rule 3: ceilings no higher. 60,000,000 is over Marisol's 50,000,000 per engagement."
+    },
+    {
+      "name": "a later expiry",
+      "mandates": [
+        "tom, expiring later than marisol",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "narrowing"
+      },
+      "why": "§6 rule 3: expiry no later."
+    },
+    {
+      "name": "depth beyond max_depth",
+      "mandates": [
+        "tom, delegating further",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "narrowing"
+      },
+      "why": "§6 rule 3: depth within max_depth. Marisol's max_depth of 1 is spent by this mandate, so it may not delegate again."
+    },
+    {
+      "name": "no category list under an issuer that has one",
+      "mandates": [
+        "tom under the limit, with no list",
+        "marisol, limited to two categories"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "narrowing"
+      },
+      "why": "§6 rule 3: where the issuer carries nda_categories, the sub-mandate MUST carry it too."
+    },
+    {
+      "name": "a category outside the issuer's list",
+      "mandates": [
+        "tom under the limit, with inputs",
+        "marisol, limited to two categories"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "narrowing"
+      },
+      "why": "§6 rule 3: every category in it MUST appear in the issuer's list."
+    },
+    {
+      "name": "a category list inside the issuer's",
+      "mandates": [
+        "tom under the limit, inside it",
+        "marisol, limited to two categories"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": true,
+        "depth": 1
+      },
+      "why": "§6 rule 3: narrower is allowed."
+    },
+    {
+      "name": "a category list where the issuer has none",
+      "mandates": [
+        "tom",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [],
+      "expect": {
+        "ok": true,
+        "depth": 1
+      },
+      "why": "§6 rule 3: where the issuer carries no list, the sub-mandate MAY carry one. Tom's mandate does."
+    },
+    {
+      "name": "the mandate above is revoked",
+      "mandates": [
+        "tom",
+        "marisol"
+      ],
+      "at": "2026-09-24T15:41:07Z",
+      "revoked": [
+        "mnd_c1etkcpcpr6d5gmp"
+      ],
+      "expect": {
+        "ok": false,
+        "fails": "revoked"
+      },
+      "why": "§6 rule 7: revoking a mandate revokes every mandate issued under it."
+    },
+    {
+      "name": "before the sub-mandate starts",
+      "mandates": [
+        "tom",
+        "marisol"
+      ],
+      "at": "2026-08-05T00:00:00Z",
+      "revoked": [],
+      "expect": {
+        "ok": false,
+        "fails": "term"
+      },
+      "why": "§6 rule 7: no force before starts_at."
+    }
+  ],
+  "approvals": [
+    {
+      "name": "the worked example's September formation",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "formation",
+        "committed_price": 1400000,
+        "currency": "XCR",
+        "offerings": [
+          "audit-freight-invoices"
+        ],
+        "month_to_date": 6200000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": true,
+        "mandate": "mnd_v26kpncz0w44gtc5"
+      },
+      "why": "§7: all five checks pass."
+    },
+    {
+      "name": "an account with no mandate",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_nobody",
+        "act": "formation",
+        "committed_price": 1400000,
+        "currency": "XCR",
+        "offerings": [
+          "audit-freight-invoices"
+        ],
+        "month_to_date": 6200000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 1
+      },
+      "why": "§7 check 1."
+    },
+    {
+      "name": "the mandate above is revoked",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": [
+          "mnd_c1etkcpcpr6d5gmp"
+        ]
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "formation",
+        "committed_price": 1400000,
+        "currency": "XCR",
+        "offerings": [
+          "audit-freight-invoices"
+        ],
+        "month_to_date": 6200000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 2
+      },
+      "why": "§7 check 2: unrevoked up the chain."
+    },
+    {
+      "name": "a power the mandate does not list",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "amendment",
+        "committed_price": 1400000,
+        "currency": "XCR",
+        "offerings": [
+          "audit-freight-invoices"
+        ],
+        "month_to_date": 6200000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 3
+      },
+      "why": "§7 check 3: Tom holds form and nda."
+    },
+    {
+      "name": "over per_engagement",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "formation",
+        "committed_price": 12000000,
+        "currency": "XCR",
+        "offerings": [
+          "audit-freight-invoices"
+        ],
+        "month_to_date": 6200000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 4
+      },
+      "why": "§7 check 4: 12,000,000 is over 10,000,000."
+    },
+    {
+      "name": "over per_month, counting the act",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "formation",
+        "committed_price": 1400000,
+        "currency": "XCR",
+        "offerings": [
+          "audit-freight-invoices"
+        ],
+        "month_to_date": 39000000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 4
+      },
+      "why": "§7 check 4: 39,000,000 plus 1,400,000 is over 40,000,000."
+    },
+    {
+      "name": "an offering outside the scope",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "formation",
+        "committed_price": 1400000,
+        "currency": "XCR",
+        "offerings": [
+          "payroll-run"
+        ],
+        "month_to_date": 6200000,
+        "at": "2026-09-24T15:41:07Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 5
+      },
+      "why": "§7 check 5."
+    },
+    {
+      "name": "an Agent NDA inside the category list",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ],
+        "signer_key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3",
+        "at": "2026-10-20T15:00:00Z"
+      },
+      "expect": {
+        "ok": true,
+        "mandate": "mnd_v26kpncz0w44gtc5"
+      },
+      "why": "§7.2: checks 1 to 3 and step 4 pass."
+    },
+    {
+      "name": "an Agent NDA ignores ceiling and offering scope",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ],
+        "signer_key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3",
+        "at": "2026-10-20T15:00:00Z",
+        "committed_price": 999999999,
+        "currency": "XCR",
+        "offerings": [
+          "payroll-run"
+        ],
+        "month_to_date": 999999999
+      },
+      "expect": {
+        "ok": true,
+        "mandate": "mnd_v26kpncz0w44gtc5"
+      },
+      "why": "§7.2: checks 4 and 5 of §7 do not apply; a ceiling and scope.offerings place no limit on the nda power."
+    },
+    {
+      "name": "an Agent NDA covering a category outside the list",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "inputs"
+        ],
+        "signer_key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3",
+        "at": "2026-10-20T15:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": "7.2 step 4"
+      },
+      "why": "§7.2 step 4: every covered category appears in scope.nda_categories."
+    },
+    {
+      "name": "an Agent NDA under a mandate without nda",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom, form only"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ],
+        "signer_key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3",
+        "at": "2026-10-20T15:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 3
+      },
+      "why": "§7.2 step 3, which is check 3 of §7."
+    },
+    {
+      "name": "an Agent NDA signed after the mandate expired",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ],
+        "signer_key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3",
+        "at": "2026-12-01T00:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 2
+      },
+      "why": "§7.2 step 2: in force when the person signed. Tom's mandate expired on 2026-11-04."
+    },
+    {
+      "name": "an Agent NDA signed with a key that is not the holder key",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ],
+        "signer_key": "UBIM5HUOPITZW7FQNVPYQRYQK62T2WDMWZIL2FHDCZVZOBXFSZNGAIUC",
+        "at": "2026-10-20T15:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 1
+      },
+      "why": "§7.2 step 1: where the mandate carries holder.key, the signature verifies under that key."
+    },
+    {
+      "name": "an Agent NDA that names no signing key",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation"
+        ],
+        "at": "2026-10-20T15:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "check": 1
+      },
+      "why": "§7.2 check 1: made with the key the signature record names, which is the mandate's holder.key; with no key, the signer is not shown to hold the mandate."
+    },
+    {
+      "name": "an Agent NDA citing a mandate the account does not hold",
+      "registry": {
+        "charter_state": "active",
+        "mandates": [
+          "marisol",
+          "tom"
+        ],
+        "revoked": []
+      },
+      "request": {
+        "organization": "org_vd5zvpa4ecerft8b",
+        "account": "acct_9b4d2f7c",
+        "act": "nda",
+        "nda_categories": [
+          "solicitation",
+          "agreement_terms"
+        ],
+        "signer_key": "UAZE3Y7YCJHGWIK3KKK6GE5EFKNXXNKQ7BFKI3OHG2GQTYSZPZOMEUK3",
+        "at": "2026-10-20T15:00:00Z",
+        "mandate": "mnd_c1etkcpcpr6d5gmp"
+      },
+      "expect": {
+        "ok": false,
+        "check": 1
+      },
+      "why": "§7.2: each act names the mandate it was signed under, and the signer holds that mandate."
+    }
+  ]
+}

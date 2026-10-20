@@ -1,0 +1,111 @@
+{
+  "comment": "Agent RFP: the sealed body of a gated posting (agentrfp.net 0.10.0-draft, 5.11.2). The body's digest is public in the posting, so the body carries a REQUIRED nonce: at least 16 random bytes in base64 with padding, inside the hashed bytes, so that a guessed body cannot be confirmed against the digest. body is the specification's example, bytes is its JCS serialization, and digest is 'sha256:' and the lowercase hex SHA-256 of those bytes, as gate.body.digest carries it. The example nonce is derived from a published label so that the example is reproducible; a real poster draws a fresh random nonce for every body. THE FIXTURE IS THE AUTHORITY: change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent RFP 0.10.0-draft: 5.11.2 (the sealed body)",
+  "nonce_label": "Agent RFP example sealed body nonce",
+  "body": {
+    "rfp_body": "v1",
+    "nonce": "i9dt+oYl76qbDI7Sitnp1Q==",
+    "language": "en",
+    "need": {
+      "summary": "Audit our inbound carrier invoices from October 2025 to September 2026 against our contracts with Meridian Freight, Kestrel Line and Bayside Haulage, and flag every overbilled line.",
+      "examples": {
+        "in_scope": [
+          "Check Meridian Freight's fuel surcharges against the index clause of its 2026 rate card."
+        ],
+        "out_of_scope": [
+          "Negotiate new carrier rates."
+        ]
+      },
+      "deliverables_wanted": [
+        {
+          "name": "audit-report",
+          "media_type": "application/pdf"
+        },
+        {
+          "name": "flagged-invoices",
+          "media_type": "application/json"
+        }
+      ],
+      "inputs_available": [
+        {
+          "name": "invoices",
+          "media_type": "application/pdf",
+          "when": "per_task"
+        },
+        {
+          "name": "carrier-contracts",
+          "kind": "shared_resource",
+          "access": "read",
+          "when": "standing"
+        }
+      ],
+      "grade": "recorded"
+    },
+    "budget": {
+      "currency": "XCR",
+      "per_task_max": 1500000,
+      "ceiling": {
+        "amount": 30000000,
+        "period": "month"
+      },
+      "grade": "recorded"
+    },
+    "term": {
+      "desired_starts_at": "2026-11-23T00:00:00Z",
+      "desired_months": 3,
+      "volume": {
+        "per_day": 8
+      },
+      "grade": "recorded"
+    },
+    "award": {
+      "award_by": "2026-11-10T00:00:00Z",
+      "criteria": "Lowest per-task price among responders who audit the twelve sample invoices correctly.",
+      "grade": "recorded"
+    },
+    "handling": {
+      "processed_in": [
+        "us",
+        "ca"
+      ],
+      "retention_max_days": 30,
+      "promises": [
+        "no_training",
+        "no_third_party_sharing"
+      ],
+      "grade": "recorded"
+    }
+  },
+  "bytes": "{\"award\":{\"award_by\":\"2026-11-10T00:00:00Z\",\"criteria\":\"Lowest per-task price among responders who audit the twelve sample invoices correctly.\",\"grade\":\"recorded\"},\"budget\":{\"ceiling\":{\"amount\":30000000,\"period\":\"month\"},\"currency\":\"XCR\",\"grade\":\"recorded\",\"per_task_max\":1500000},\"handling\":{\"grade\":\"recorded\",\"processed_in\":[\"us\",\"ca\"],\"promises\":[\"no_training\",\"no_third_party_sharing\"],\"retention_max_days\":30},\"language\":\"en\",\"need\":{\"deliverables_wanted\":[{\"media_type\":\"application/pdf\",\"name\":\"audit-report\"},{\"media_type\":\"application/json\",\"name\":\"flagged-invoices\"}],\"examples\":{\"in_scope\":[\"Check Meridian Freight's fuel surcharges against the index clause of its 2026 rate card.\"],\"out_of_scope\":[\"Negotiate new carrier rates.\"]},\"grade\":\"recorded\",\"inputs_available\":[{\"media_type\":\"application/pdf\",\"name\":\"invoices\",\"when\":\"per_task\"},{\"access\":\"read\",\"kind\":\"shared_resource\",\"name\":\"carrier-contracts\",\"when\":\"standing\"}],\"summary\":\"Audit our inbound carrier invoices from October 2025 to September 2026 against our contracts with Meridian Freight, Kestrel Line and Bayside Haulage, and flag every overbilled line.\"},\"nonce\":\"i9dt+oYl76qbDI7Sitnp1Q==\",\"rfp_body\":\"v1\",\"term\":{\"desired_months\":3,\"desired_starts_at\":\"2026-11-23T00:00:00Z\",\"grade\":\"recorded\",\"volume\":{\"per_day\":8}}}",
+  "digest": "sha256:1904a3f5b73cb54a8c22e36dc0844fbd4543a1605a62c6d6e33367710384304f",
+  "invalid": [
+    {
+      "case": "no_nonce",
+      "remove": "nonce",
+      "why": "nonce is REQUIRED"
+    },
+    {
+      "case": "nonce_15_bytes",
+      "nonce": "+bAHi131ltLqGQEMABu9",
+      "why": "at least 16 bytes"
+    },
+    {
+      "case": "nonce_base64url",
+      "nonce": "i9dt-oYl76qbDI7Sitnp1Q",
+      "why": "base64 with padding in the standard alphabet"
+    },
+    {
+      "case": "nonce_not_base64",
+      "nonce": "not a nonce!!",
+      "why": "base64 with padding"
+    }
+  ],
+  "traps": [
+    {
+      "case": "digest_without_nonce",
+      "digest": "sha256:ef507dc4700878dd9e47950027241b41ca3c344dd29ce718800e1cf2099bf434",
+      "why": "the digest of the same body without its nonce; a reader who can produce this from a guess learns nothing about the real body, whose digest covers the nonce"
+    }
+  ]
+}

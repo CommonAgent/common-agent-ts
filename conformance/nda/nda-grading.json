@@ -1,0 +1,1074 @@
+{
+  "comment": "Agent NDA grading (agentnda.net 0.2.0-draft, 3, 5, 7.1, 11). An NDA asks the recipient to do things in private, so its promises are 'recorded', the facts around them (parties, instants, signatures, acts) are 'evidence', and NOTHING in an agreement is 'enforced': a clause graded 'enforced' is refused as the false enforcement claim (Agent SoW 3 rule 1). The one enforced step, a board releasing a gated body after a valid acceptance, is defined in Agent RFP 5.11 and does not appear in an agreement. Also pinned: the closed lists and what absence means in each (a category, activity, exclusion or need_to_know value left out is not covered and MUST NOT be inferred; absent subcontractors means none; absent survival is no survival period, never a default), and the derivation of the lifecycle state from signatures, acts and instants. Each case edits the base document: an edit maps a dotted path to its new value, and the value \"<removed>\" deletes the member. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation; when the fixture itself is believed wrong, change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent NDA 0.2.0-draft: 3 (gradient), 5 (clauses, with 5.1 multilateral agreements and 5.5 flow-down), 6.2 (mandates), 7.1 (states), 8.1 (whether a party is bound), 11 (conformance)",
+  "grades": {
+    "comment": "11: the grade each clause MUST carry. Any other grade does not validate; 'enforced' on any clause is reported as the false enforcement claim.",
+    "fixed": {
+      "parties": "evidence",
+      "purpose": "recorded",
+      "covers": "recorded",
+      "disclosure": "recorded",
+      "survival": "recorded",
+      "exclusions": "recorded",
+      "compelled": "recorded",
+      "at_end": "recorded",
+      "termination": "evidence"
+    },
+    "false_enforcement_message": "an Agent NDA clause cannot be enforced: no runtime can refuse a recipient's private use of what it holds (Agent NDA 3)",
+    "render_rule": "A renderer shows every clause's grade and never presents a promise as enforced, even for a body released by an enforced board step."
+  },
+  "closed_lists": {
+    "categories": [
+      "solicitation",
+      "agreement_terms",
+      "relationship",
+      "inputs",
+      "deliverables",
+      "own_material"
+    ],
+    "activities": [
+      "evaluate_solicitation",
+      "validation_probe",
+      "negotiation",
+      "perform_engagements",
+      "process_runs"
+    ],
+    "exclusions": [
+      "public",
+      "already_known",
+      "independently_developed",
+      "third_party"
+    ],
+    "need_to_know": [
+      "personnel",
+      "advisers"
+    ],
+    "subcontractors": [
+      "none",
+      "bound"
+    ],
+    "at_end_action": [
+      "return",
+      "destroy",
+      "return_or_destroy"
+    ],
+    "direction": [
+      "one_way",
+      "mutual",
+      "multilateral"
+    ]
+  },
+  "absence": {
+    "comment": "What a reader may conclude from a member or value that is not there. The weak meaning throughout: nothing is inferred.",
+    "cases": [
+      {
+        "member": "covers.categories without own_material",
+        "reading": "the recipient's duties do not reach the discloser's methods or other own material"
+      },
+      {
+        "member": "purpose.activities without perform_engagements",
+        "reading": "an Agent SoW that names this agreement is outside its purpose; a node SHOULD warn"
+      },
+      {
+        "member": "exclusions absent",
+        "reading": "no exclusion applies"
+      },
+      {
+        "member": "subcontractors absent",
+        "reading": "none"
+      },
+      {
+        "member": "need_to_know empty",
+        "reading": "no person beyond the agent named in the seat"
+      },
+      {
+        "member": "survival absent",
+        "reading": "duties end when the agreement ends; no default period"
+      },
+      {
+        "member": "at_end absent",
+        "reading": "no promise to return or destroy; engagement content still follows its Agent SoW 5.11 retention"
+      },
+      {
+        "member": "compelled absent",
+        "reading": "compelled disclosure is still no breach; no promise of notice"
+      },
+      {
+        "member": "disclosure.recipient.processors empty",
+        "reading": "material goes to no processor"
+      },
+      {
+        "member": "disclosure.recipient.processors absent",
+        "reading": "states nothing"
+      }
+    ]
+  },
+  "base": {
+    "comment": "The valid agreement every case below edits: Caldera Freight Systems' acceptance of Harbor & Line Outfitters' open offer (see nda-offer.json).",
+    "document": {
+      "nda": "v1",
+      "id": "nda_dtzv6z8tans9k5s6",
+      "version": 1,
+      "language": {
+        "id": "agent-nda-standard-language",
+        "version": 1,
+        "sha256": "32e0821ea4cc9982808b4570c3ba6dc9da0a0311fae6f629e40407ee0920ce31"
+      },
+      "direction": "one_way",
+      "parties": {
+        "discloser": {
+          "agent": "U5WF6QOGXRKK4O6CI6J7EVQMGUGCGCVXY2DOYGQPSBNO46FDKZ35WF6Q",
+          "handle": "Petrel.mari@harborandline.example",
+          "owner": "Harbor & Line Outfitters",
+          "organization": "org_7k2m9q4w1x8e5r3t"
+        },
+        "recipient": {
+          "agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB",
+          "handle": "Sable.audit@calderafreight.example",
+          "owner": "Caldera Freight Systems",
+          "owner_key": "UBL2TNL5ZIPZYX62DSWOBTYK6JBPKR72MV2K7JG6S25S5PWDHEETOMZJ"
+        },
+        "grade": "evidence"
+      },
+      "offer": {
+        "open_to": "any",
+        "expires_at": "2026-11-20T00:00:00Z"
+      },
+      "effective_at": null,
+      "ends_at": "2027-11-30T00:00:00Z",
+      "purpose": {
+        "statement": "Evaluating and responding to Harbor & Line's freight-audit posting, which names this offer, and running validation probes, negotiating, and performing any Agent SoW between the parties that names this agreement.",
+        "activities": [
+          "evaluate_solicitation",
+          "validation_probe",
+          "negotiation",
+          "perform_engagements"
+        ],
+        "grade": "recorded"
+      },
+      "covers": {
+        "categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship",
+          "inputs",
+          "deliverables"
+        ],
+        "grade": "recorded"
+      },
+      "disclosure": {
+        "require": {
+          "processed_in": [
+            "us",
+            "ca"
+          ]
+        },
+        "recipient": {
+          "processors": [
+            {
+              "service": "Anthropic API",
+              "domain": "anthropic.com",
+              "purpose": "model inference, zero-retention tier",
+              "processed_in": [
+                "us"
+              ]
+            }
+          ],
+          "processed_in": [
+            "us"
+          ]
+        },
+        "subcontractors": "bound",
+        "need_to_know": [
+          "personnel",
+          "advisers"
+        ],
+        "grade": "recorded"
+      },
+      "survival": {
+        "days": 730,
+        "grade": "recorded"
+      },
+      "exclusions": {
+        "allowed": [
+          "public",
+          "already_known",
+          "independently_developed",
+          "third_party"
+        ],
+        "grade": "recorded"
+      },
+      "compelled": {
+        "notice": true,
+        "grade": "recorded"
+      },
+      "at_end": {
+        "action": "return_or_destroy",
+        "within_days": 30,
+        "certify": true,
+        "grade": "recorded"
+      },
+      "termination": {
+        "notice_days": 30,
+        "grade": "evidence"
+      },
+      "signatures": [
+        {
+          "role": "discloser",
+          "key": "UARHK3CZKNFYKM6UITP7I2HFEW7G3HSD5L7ING4Q36F4EZHCVLKWN74C",
+          "signed_at": "2026-10-20T15:00:00Z",
+          "digest": "sha256:3d9e163b3154a16fa58a7ec57ee83db130c9d002c9db68676876dbf40d74baa6",
+          "over": "offer",
+          "mandate": "mnd_3f8c1n6z9v4b7q2m",
+          "sig": "0rnQxLka/GJtMUP7bp2APfoUUA47KZZM5TKgdW8D7r8pShle2hPkCz/oBXopHA9rHNtw9/vrokorhIzx1B+WBw=="
+        },
+        {
+          "role": "recipient",
+          "key": "UBL2TNL5ZIPZYX62DSWOBTYK6JBPKR72MV2K7JG6S25S5PWDHEETOMZJ",
+          "signed_at": "2026-10-22T09:12:40Z",
+          "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15",
+          "sig": "YrJBF2STw2o8utvMErj7hrnyIY+yrxjwMD/tYou7j8fD9VJhhyUcTgZA2neGRQHfvuCF5rrjSlbR1yz4nI85AQ=="
+        }
+      ]
+    }
+  },
+  "valid": [
+    {
+      "case": "acceptance",
+      "edit": {},
+      "why": "the base document"
+    },
+    {
+      "case": "mutual",
+      "edit": {
+        "direction": "mutual"
+      },
+      "why": "either direction is valid; in a mutual agreement each party is both discloser and recipient"
+    },
+    {
+      "case": "no_survival",
+      "edit": {
+        "survival": "<removed>"
+      },
+      "why": "survival is optional; absent means no survival period"
+    },
+    {
+      "case": "processed_in_equal_to_require",
+      "edit": {
+        "disclosure.recipient.processed_in": [
+          "us",
+          "ca"
+        ]
+      },
+      "why": "a subset may be the whole set"
+    },
+    {
+      "case": "empty_processors",
+      "edit": {
+        "disclosure.recipient.processors": []
+      },
+      "why": "an empty list is itself a statement: no processor"
+    }
+  ],
+  "invalid": [
+    {
+      "case": "purpose_enforced",
+      "edit": {
+        "purpose.grade": "enforced"
+      },
+      "error": "false_enforcement",
+      "why": "the false enforcement claim"
+    },
+    {
+      "case": "covers_enforced",
+      "edit": {
+        "covers.grade": "enforced"
+      },
+      "error": "false_enforcement",
+      "why": "no runtime can see what a recipient does with covered material"
+    },
+    {
+      "case": "disclosure_enforced",
+      "edit": {
+        "disclosure.grade": "enforced"
+      },
+      "error": "false_enforcement",
+      "why": "a node may refuse to send to an undeclared processor as its own policy; the clause stays recorded"
+    },
+    {
+      "case": "at_end_enforced",
+      "edit": {
+        "at_end.grade": "enforced"
+      },
+      "error": "false_enforcement",
+      "why": "destruction happens in private; a governing Agent SoW retention window is enforced under that specification, and nothing here adds to it"
+    },
+    {
+      "case": "parties_recorded",
+      "edit": {
+        "parties.grade": "recorded"
+      },
+      "error": "wrong_grade",
+      "why": "parties are evidence"
+    },
+    {
+      "case": "purpose_evidence",
+      "edit": {
+        "purpose.grade": "evidence"
+      },
+      "error": "wrong_grade",
+      "why": "a purpose is a promise"
+    },
+    {
+      "case": "termination_recorded",
+      "edit": {
+        "termination.grade": "recorded"
+      },
+      "error": "wrong_grade",
+      "why": "termination acts and notice instants are evidence"
+    },
+    {
+      "case": "unknown_category",
+      "edit": {
+        "covers.categories": [
+          "solicitation",
+          "trade_secrets"
+        ]
+      },
+      "error": "closed_list",
+      "why": "a category outside the closed list cannot be compared"
+    },
+    {
+      "case": "duplicate_category",
+      "edit": {
+        "covers.categories": [
+          "inputs",
+          "inputs"
+        ]
+      },
+      "error": "closed_list",
+      "why": "no value twice"
+    },
+    {
+      "case": "empty_categories",
+      "edit": {
+        "covers.categories": []
+      },
+      "error": "closed_list",
+      "why": "an agreement that covers nothing"
+    },
+    {
+      "case": "unknown_activity",
+      "edit": {
+        "purpose.activities": [
+          "marketing"
+        ]
+      },
+      "error": "closed_list",
+      "why": "activities are closed"
+    },
+    {
+      "case": "unknown_exclusion",
+      "edit": {
+        "exclusions.allowed": [
+          "public",
+          "feedback"
+        ]
+      },
+      "error": "closed_list",
+      "why": "exclusions are closed"
+    },
+    {
+      "case": "unknown_need_to_know",
+      "edit": {
+        "disclosure.need_to_know": [
+          "personnel",
+          "investors"
+        ]
+      },
+      "error": "closed_list",
+      "why": "need_to_know is closed"
+    },
+    {
+      "case": "bad_direction",
+      "edit": {
+        "direction": "two_way"
+      },
+      "error": "closed_list",
+      "why": "one_way or mutual"
+    },
+    {
+      "case": "processed_in_outside_require",
+      "edit": {
+        "disclosure.recipient.processed_in": [
+          "us",
+          "eu"
+        ]
+      },
+      "error": "require_subset",
+      "why": "the declared jurisdictions must be a subset of require.processed_in"
+    },
+    {
+      "case": "processed_in_unstated",
+      "edit": {
+        "disclosure.recipient.processed_in": "<removed>"
+      },
+      "error": "require_subset",
+      "why": "silence fails a stated requirement"
+    },
+    {
+      "case": "processor_outside_party_set",
+      "edit": {
+        "disclosure.recipient.processors.0.processed_in": [
+          "ca"
+        ]
+      },
+      "error": "processor_subset",
+      "why": "Agent SoW 5.11: a processor's processed_in must be a subset of the party's"
+    },
+    {
+      "case": "survival_zero",
+      "edit": {
+        "survival.days": 0
+      },
+      "error": "positive_whole_number",
+      "why": "days is a positive whole number"
+    },
+    {
+      "case": "within_days_fraction",
+      "edit": {
+        "at_end.within_days": 7.5
+      },
+      "error": "positive_whole_number",
+      "why": "days is a positive whole number"
+    },
+    {
+      "case": "bad_at_end_action",
+      "edit": {
+        "at_end.action": "archive"
+      },
+      "error": "closed_list",
+      "why": "return, destroy or return_or_destroy"
+    },
+    {
+      "case": "offer_without_expiry",
+      "edit": {
+        "offer.expires_at": "<removed>"
+      },
+      "error": "offer",
+      "why": "an open offer MUST carry expires_at"
+    },
+    {
+      "case": "offer_names_posting",
+      "edit": {
+        "purpose.named": [
+          {
+            "rfp": "rfp_7f3k9w2q5m8t4x6c",
+            "version": 1
+          }
+        ]
+      },
+      "error": "offer",
+      "why": "an open offer MUST NOT name the posting that gates on it; the posting commits to the offer digest, so the reference runs one way"
+    },
+    {
+      "case": "organization_without_mandate",
+      "edit": {
+        "signatures.0.mandate": "<removed>"
+      },
+      "error": "mandate",
+      "why": "6.2: a seat that names an organization signs under a mandate holding the nda power"
+    },
+    {
+      "case": "ends_before_effective",
+      "edit": {
+        "effective_at": "2028-01-01T00:00:00Z"
+      },
+      "error": "instants",
+      "why": "ends_at before a non-null effective_at"
+    },
+    {
+      "case": "recipient_without_owner_key",
+      "edit": {
+        "parties.recipient.owner_key": "<removed>"
+      },
+      "error": "owner_key",
+      "why": "a seat without an organization names the key that signs for it (5.1)"
+    },
+    {
+      "case": "organization_seat_with_owner_key",
+      "edit": {
+        "parties.discloser.owner_key": "UARHK3CZKNFYKM6UITP7I2HFEW7G3HSD5L7ING4Q36F4EZHCVLKWN74C"
+      },
+      "error": "owner_key",
+      "why": "a seat that names an organization carries no owner_key; its signers are the holders of the mandates their records cite (5.1, 6.2)"
+    },
+    {
+      "case": "record_without_digest",
+      "edit": {
+        "signatures.1.digest": "<removed>"
+      },
+      "error": "signatures",
+      "why": "every signature record names the digest of the bytes it covers (6)"
+    },
+    {
+      "case": "sig_base64url",
+      "edit": {
+        "signatures.1.sig": "YrJBF2STw2o8utvMErj7hrnyIY-yrxjwMD_tYou7j8fD9VJhhyUcTgZA2neGRQHfvuCF5rrjSlbR1yz4nI85AQ"
+      },
+      "error": "signatures",
+      "why": "sig is padded base64 in the standard alphabet (6)"
+    },
+    {
+      "case": "sig_unpadded",
+      "edit": {
+        "signatures.1.sig": "YrJBF2STw2o8utvMErj7hrnyIY+yrxjwMD/tYou7j8fD9VJhhyUcTgZA2neGRQHfvuCF5rrjSlbR1yz4nI85AQ"
+      },
+      "error": "signatures",
+      "why": "sig carries its padding (6)"
+    },
+    {
+      "case": "sig_non_canonical_bits",
+      "edit": {
+        "signatures.1.sig": "YrJBF2STw2o8utvMErj7hrnyIY+yrxjwMD/tYou7j8fD9VJhhyUcTgZA2neGRQHfvuCF5rrjSlbR1yz4nI85AR=="
+      },
+      "error": "signatures",
+      "why": "the unused bits of the last character are zero, so each signature has exactly one spelling (6)"
+    },
+    {
+      "case": "record_unknown_member",
+      "edit": {
+        "signatures.1.note": "accepted for the Q4 audit"
+      },
+      "error": "signatures",
+      "why": "a signature record carries only the members 6 defines"
+    },
+    {
+      "case": "over_on_recipient_record",
+      "edit": {
+        "signatures.1.over": "offer"
+      },
+      "error": "signatures",
+      "why": "over sits only on the discloser's record of a document with an offer member (6)"
+    },
+    {
+      "case": "offer_owners_other_value",
+      "edit": {
+        "offer.owners": "attested"
+      },
+      "error": "offer",
+      "why": "offer.owners is confirmed or any (6.1)"
+    }
+  ],
+  "states": {
+    "comment": "7.1: the state is derived from signatures, acts and instants, never stored. 'now' is the instant of the reading. The offer expires 2026-11-20T00:00:00Z and the agreement ends 2027-11-30T00:00:00Z.",
+    "cases": [
+      {
+        "case": "unsigned",
+        "signatures": [],
+        "now": "2026-10-21T00:00:00Z",
+        "state": "draft"
+      },
+      {
+        "case": "open_offer",
+        "signatures": [
+          "discloser over offer"
+        ],
+        "recipient": null,
+        "now": "2026-10-21T00:00:00Z",
+        "state": "offered"
+      },
+      {
+        "case": "open_offer_after_expiry",
+        "signatures": [
+          "discloser over offer"
+        ],
+        "recipient": null,
+        "now": "2026-11-21T00:00:00Z",
+        "state": "lapsed"
+      },
+      {
+        "case": "open_offer_withdrawn",
+        "signatures": [
+          "discloser over offer"
+        ],
+        "recipient": null,
+        "acts": [
+          "withdraw at 2026-10-25T00:00:00Z"
+        ],
+        "now": "2026-10-26T00:00:00Z",
+        "state": "withdrawn"
+      },
+      {
+        "case": "accepted",
+        "signatures": [
+          "discloser over offer",
+          "recipient at 2026-10-22T09:12:40Z"
+        ],
+        "effective_at": null,
+        "now": "2026-10-23T00:00:00Z",
+        "state": "in force"
+      },
+      {
+        "case": "accepted_after_expiry",
+        "signatures": [
+          "discloser over offer",
+          "recipient at 2026-11-21T00:00:00Z"
+        ],
+        "now": "2026-11-22T00:00:00Z",
+        "state": "lapsed",
+        "why": "an acceptance signed after offer.expires_at is not an agreement (6.1 step 3); the offer itself has lapsed"
+      },
+      {
+        "case": "bilateral_one_signature",
+        "signatures": [
+          "recipient"
+        ],
+        "now": "2026-10-23T00:00:00Z",
+        "state": "offered",
+        "why": "a renderer MUST NOT show one signature as in force"
+      },
+      {
+        "case": "countersigned_future_start",
+        "signatures": [
+          "discloser",
+          "recipient"
+        ],
+        "effective_at": "2026-12-01T00:00:00Z",
+        "now": "2026-11-01T00:00:00Z",
+        "state": "countersigned"
+      },
+      {
+        "case": "past_end",
+        "signatures": [
+          "discloser over offer",
+          "recipient at 2026-10-22T09:12:40Z"
+        ],
+        "now": "2027-12-01T00:00:00Z",
+        "state": "expired",
+        "why": "covers no new disclosure; duties continue for 730 days from 2027-11-30 for material disclosed while in force"
+      },
+      {
+        "case": "terminated",
+        "signatures": [
+          "discloser over offer",
+          "recipient at 2026-10-22T09:12:40Z"
+        ],
+        "acts": [
+          "terminate at 2027-03-01T12:00:00Z"
+        ],
+        "now": "2027-04-01T00:00:00Z",
+        "state": "terminated",
+        "why": "notice_days 30: the termination takes effect at 2027-03-31T12:00:00Z, and survival runs from then"
+      }
+    ]
+  },
+  "multilateral": {
+    "comment": "5.1, 6, 7.1: a multilateral agreement among the process owner and three outside parties. Every member is a discloser and a recipient to every other; each member signs the same bytes with role 'member' and its seat's agent; it is in force only when every member has signed; it has no open offer. The keys are derived from the test seeds of nda-lifecycle.json, the identifier is minted, and the four signatures are real.",
+    "document": {
+      "nda": "v1",
+      "id": "nda_jfrehsjcfnxkb2f0",
+      "version": 1,
+      "language": {
+        "id": "agent-nda-standard-language",
+        "version": 1,
+        "sha256": "32e0821ea4cc9982808b4570c3ba6dc9da0a0311fae6f629e40407ee0920ce31"
+      },
+      "direction": "multilateral",
+      "parties": {
+        "members": [
+          {
+            "agent": "U5WF6QOGXRKK4O6CI6J7EVQMGUGCGCVXY2DOYGQPSBNO46FDKZ35WF6Q",
+            "handle": "Petrel.mari@harborandline.example",
+            "owner": "Harbor & Line Outfitters",
+            "organization": "org_7k2m9q4w1x8e5r3t"
+          },
+          {
+            "agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB",
+            "handle": "Sable.audit@calderafreight.example",
+            "owner": "Caldera Freight Systems",
+            "owner_key": "UBL2TNL5ZIPZYX62DSWOBTYK6JBPKR72MV2K7JG6S25S5PWDHEETOMZJ"
+          },
+          {
+            "agent": "UCPQTPNER6IMQPR4EJ3BNZM5AWUB4D7Q4KPSDNNZLF5FCYLBEMDZOZFL",
+            "handle": "Heron.desk@tidewatercustoms.example",
+            "owner": "Tidewater Customs Brokers",
+            "owner_key": "UDZOHYPC7MHCBXNIXESS56SMQMOGWLERKHWQKW334E6K3OM24LVC2BJX"
+          },
+          {
+            "agent": "UDURVVYU3MHKW4EV6WBXMY4VTJPK3EOV25OEQRXZYVZ2Y4ICOHBZYR7I",
+            "handle": "Kestrel.rates@northgaterates.example",
+            "owner": "Northgate Rate Data",
+            "owner_key": "UA5YO4EOEWT44QBZIHD7U3QGCSUVTRE6GRUHMCHH5Z5ES5XWLCT47O2Y"
+          }
+        ],
+        "grade": "evidence"
+      },
+      "effective_at": null,
+      "ends_at": "2027-11-30T00:00:00Z",
+      "purpose": {
+        "statement": "Performing the phases of Harbor & Line's freight-audit process runs whose document names this agreement.",
+        "activities": [
+          "process_runs"
+        ],
+        "grade": "recorded"
+      },
+      "covers": {
+        "categories": [
+          "inputs",
+          "deliverables",
+          "own_material",
+          "relationship"
+        ],
+        "grade": "recorded"
+      },
+      "disclosure": {
+        "members": [
+          {
+            "agent": "U5WF6QOGXRKK4O6CI6J7EVQMGUGCGCVXY2DOYGQPSBNO46FDKZ35WF6Q",
+            "processors": [],
+            "processed_in": [
+              "us"
+            ]
+          },
+          {
+            "agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB",
+            "processors": [],
+            "processed_in": [
+              "us"
+            ]
+          },
+          {
+            "agent": "UCPQTPNER6IMQPR4EJ3BNZM5AWUB4D7Q4KPSDNNZLF5FCYLBEMDZOZFL",
+            "processors": [],
+            "processed_in": [
+              "us"
+            ]
+          },
+          {
+            "agent": "UDURVVYU3MHKW4EV6WBXMY4VTJPK3EOV25OEQRXZYVZ2Y4ICOHBZYR7I",
+            "processors": [],
+            "processed_in": [
+              "us"
+            ]
+          }
+        ],
+        "subcontractors": "bound",
+        "need_to_know": [
+          "personnel"
+        ],
+        "grade": "recorded"
+      },
+      "survival": {
+        "days": 730,
+        "grade": "recorded"
+      },
+      "signatures": [
+        {
+          "role": "member",
+          "key": "UARHK3CZKNFYKM6UITP7I2HFEW7G3HSD5L7ING4Q36F4EZHCVLKWN74C",
+          "signed_at": "2026-11-02T10:00:00Z",
+          "digest": "sha256:5ff384d01f40f863ca9c8aa75e6078b49a430513fb30d9622f96232998e4b713",
+          "agent": "U5WF6QOGXRKK4O6CI6J7EVQMGUGCGCVXY2DOYGQPSBNO46FDKZ35WF6Q",
+          "mandate": "mnd_3f8c1n6z9v4b7q2m",
+          "sig": "Vva1lKAtJxy3qcLJjRD2llHmqSJdFUqFSyQ4U3bysGGFZaTu/c2ixiziB1LDiRAXcYldfaPb9pKhDzOiKAE5Cw=="
+        },
+        {
+          "role": "member",
+          "key": "UBL2TNL5ZIPZYX62DSWOBTYK6JBPKR72MV2K7JG6S25S5PWDHEETOMZJ",
+          "signed_at": "2026-11-02T10:00:00Z",
+          "digest": "sha256:5ff384d01f40f863ca9c8aa75e6078b49a430513fb30d9622f96232998e4b713",
+          "agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB",
+          "sig": "6FAU9nsFkfDAI26IVzSBree9YK5979/yN6PlMOCzB6M1QQOATB2f18Td17AisPsTKYeILYAIenwvesLGbLqmAw=="
+        },
+        {
+          "role": "member",
+          "key": "UDZOHYPC7MHCBXNIXESS56SMQMOGWLERKHWQKW334E6K3OM24LVC2BJX",
+          "signed_at": "2026-11-02T10:00:00Z",
+          "digest": "sha256:5ff384d01f40f863ca9c8aa75e6078b49a430513fb30d9622f96232998e4b713",
+          "agent": "UCPQTPNER6IMQPR4EJ3BNZM5AWUB4D7Q4KPSDNNZLF5FCYLBEMDZOZFL",
+          "sig": "xoGTe+u39nDgX/cwgTONyA+JnONii/SpIXsGgPai8inpsE7FiWC7Bcjo9l6bHD39e+7DI4vzMI3IK/FcpoPPCQ=="
+        },
+        {
+          "role": "member",
+          "key": "UA5YO4EOEWT44QBZIHD7U3QGCSUVTRE6GRUHMCHH5Z5ES5XWLCT47O2Y",
+          "signed_at": "2026-11-02T10:00:00Z",
+          "digest": "sha256:5ff384d01f40f863ca9c8aa75e6078b49a430513fb30d9622f96232998e4b713",
+          "agent": "UDURVVYU3MHKW4EV6WBXMY4VTJPK3EOV25OEQRXZYVZ2Y4ICOHBZYR7I",
+          "sig": "iiAMxBsJRzuK0C9XTIQVa9muVlQsVKgn88tu7KmPgsOKJjvBJE1svIoaoebnIMKgVyxEGU7xABtmJdyBfP4jBw=="
+        }
+      ]
+    },
+    "valid": [
+      {
+        "case": "four_members",
+        "edit": {},
+        "why": "3 to 16 members, all signed"
+      }
+    ],
+    "invalid": [
+      {
+        "case": "two_members",
+        "edit": {
+          "parties.members": [
+            {
+              "agent": "U5WF6QOGXRKK4O6CI6J7EVQMGUGCGCVXY2DOYGQPSBNO46FDKZ35WF6Q",
+              "handle": "Petrel.mari@harborandline.example",
+              "owner": "Harbor & Line Outfitters",
+              "organization": "org_7k2m9q4w1x8e5r3t"
+            },
+            {
+              "agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB",
+              "handle": "Sable.audit@calderafreight.example",
+              "owner": "Caldera Freight Systems",
+              "owner_key": "UBL2TNL5ZIPZYX62DSWOBTYK6JBPKR72MV2K7JG6S25S5PWDHEETOMZJ"
+            }
+          ]
+        },
+        "error": "members",
+        "why": "two parties use one_way or mutual"
+      },
+      {
+        "case": "shared_key",
+        "edit": {
+          "parties.members.3.agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB"
+        },
+        "error": "members",
+        "why": "no two members share an agent key"
+      },
+      {
+        "case": "with_offer",
+        "edit": {
+          "offer": {
+            "open_to": "any",
+            "expires_at": "2026-11-20T00:00:00Z"
+          }
+        },
+        "error": "offer",
+        "why": "a multilateral agreement has no open offer"
+      },
+      {
+        "case": "member_signature_without_agent",
+        "edit": {
+          "signatures.1.agent": "<removed>"
+        },
+        "error": "signatures",
+        "why": "a member signature names its seat"
+      },
+      {
+        "case": "member_without_owner_key",
+        "edit": {
+          "parties.members.2.owner_key": "<removed>"
+        },
+        "error": "owner_key",
+        "why": "a member seat without an organization names the key that signs for it"
+      }
+    ],
+    "states": [
+      {
+        "case": "three_of_four_signed",
+        "signatures": 3,
+        "state": "offered",
+        "why": "in force only when every member has signed"
+      },
+      {
+        "case": "all_signed",
+        "signatures": 4,
+        "state": "in force"
+      },
+      {
+        "case": "one_member_terminates",
+        "signatures": 4,
+        "acts": [
+          "terminate by Northgate Rate Data"
+        ],
+        "state": "in force",
+        "why": "7.3: a member's termination ends its own participation; three remain"
+      }
+    ]
+  },
+  "flow_down": {
+    "comment": "5.5, 8.1: Caldera Freight Systems binds its subcontractor Ledgerline Data Services with a flow-down agreement whose flows_from names Caldera's acceptance. At least as strict, compared field by field: categories a superset, activities a subset, the subcontractor's processors and processed_in a subset of Caldera's own upstream declaration, survival at least as long, within_days no longer, exclusions and need_to_know subsets, subcontractors none or bound. A flow-down that fails does not bind the subcontractor for 8.1.",
+    "upstream": {
+      "id": "nda_dtzv6z8tans9k5s6",
+      "version": 1,
+      "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15"
+    },
+    "document": {
+      "nda": "v1",
+      "id": "nda_yj6zcdgbe7pjf42c",
+      "version": 1,
+      "language": {
+        "id": "agent-nda-standard-language",
+        "version": 1,
+        "sha256": "32e0821ea4cc9982808b4570c3ba6dc9da0a0311fae6f629e40407ee0920ce31"
+      },
+      "direction": "one_way",
+      "parties": {
+        "discloser": {
+          "agent": "U44CZBU4QWBVADJH3LKBYLSMTHUVGDSCCO7KLJHM3NCUH5FWUQC44CZB",
+          "handle": "Sable.audit@calderafreight.example",
+          "owner": "Caldera Freight Systems",
+          "owner_key": "UBL2TNL5ZIPZYX62DSWOBTYK6JBPKR72MV2K7JG6S25S5PWDHEETOMZJ"
+        },
+        "recipient": {
+          "agent": "UCZDL3VEPELZGIPJXCFKAG33TRNOPYYTGW7KOZVIYROHDMWWDZPIPCZS",
+          "handle": "Wren.ops@ledgerline.example",
+          "owner": "Ledgerline Data Services",
+          "owner_key": "UBPTD7JMW6FRJFK6M2KZASOLWYTCZ34I3ZUEPQWG2ZISUV7VDGXZ3UD2"
+        },
+        "grade": "evidence"
+      },
+      "flows_from": {
+        "id": "nda_dtzv6z8tans9k5s6",
+        "version": 1,
+        "digest": "sha256:98e111dee46ccf35e88bf863bd9e6021fb6d635c48a53a751f27ec2802c89c15"
+      },
+      "effective_at": null,
+      "ends_at": "2027-11-30T00:00:00Z",
+      "purpose": {
+        "statement": "Extracting line items from Harbor & Line's carrier invoices for Caldera's freight audit.",
+        "activities": [
+          "perform_engagements"
+        ],
+        "grade": "recorded"
+      },
+      "covers": {
+        "categories": [
+          "solicitation",
+          "agreement_terms",
+          "relationship",
+          "inputs",
+          "deliverables"
+        ],
+        "grade": "recorded"
+      },
+      "disclosure": {
+        "recipient": {
+          "processors": [],
+          "processed_in": [
+            "us"
+          ]
+        },
+        "subcontractors": "none",
+        "need_to_know": [
+          "personnel"
+        ],
+        "grade": "recorded"
+      },
+      "survival": {
+        "days": 730,
+        "grade": "recorded"
+      },
+      "exclusions": {
+        "allowed": [
+          "public",
+          "already_known"
+        ],
+        "grade": "recorded"
+      },
+      "compelled": {
+        "notice": true,
+        "grade": "recorded"
+      },
+      "at_end": {
+        "action": "destroy",
+        "within_days": 14,
+        "certify": true,
+        "grade": "recorded"
+      },
+      "signatures": []
+    },
+    "valid": [
+      {
+        "case": "stricter",
+        "edit": {},
+        "why": "equal survival, within_days 14 against 30, fewer exclusions, no further subcontracting"
+      },
+      {
+        "case": "same_need_to_know",
+        "edit": {
+          "disclosure.need_to_know": [
+            "personnel",
+            "advisers"
+          ]
+        },
+        "why": "equal to the upstream list is a subset"
+      },
+      {
+        "case": "fewer_activities",
+        "edit": {
+          "purpose.activities": [
+            "perform_engagements",
+            "negotiation"
+          ]
+        },
+        "why": "both are upstream activities"
+      }
+    ],
+    "not_binding": [
+      {
+        "case": "drops_category",
+        "edit": {
+          "covers.categories": [
+            "solicitation",
+            "inputs",
+            "deliverables"
+          ]
+        },
+        "why": "relationship and agreement_terms are covered upstream"
+      },
+      {
+        "case": "new_activity",
+        "edit": {
+          "purpose.activities": [
+            "perform_engagements",
+            "process_runs"
+          ]
+        },
+        "why": "process_runs is not an upstream activity"
+      },
+      {
+        "case": "shorter_survival",
+        "edit": {
+          "survival.days": 365
+        },
+        "why": "survival at least the upstream 730 days"
+      },
+      {
+        "case": "longer_at_end",
+        "edit": {
+          "at_end.within_days": 60
+        },
+        "why": "within_days at most the upstream 30"
+      },
+      {
+        "case": "wider_jurisdiction",
+        "edit": {
+          "disclosure.recipient.processed_in": [
+            "us",
+            "ca"
+          ]
+        },
+        "why": "Caldera declared us only upstream"
+      },
+      {
+        "case": "undeclared_processor",
+        "edit": {
+          "disclosure.recipient.processors": [
+            {
+              "service": "Example OCR",
+              "domain": "ocr.example",
+              "purpose": "invoice text extraction",
+              "processed_in": [
+                "us"
+              ]
+            }
+          ]
+        },
+        "why": "Caldera's upstream declaration lists no such processor"
+      }
+    ]
+  }
+}

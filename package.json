@@ -1,0 +1,33 @@
+{
+  "name": "common-agent-ts",
+  "private": true,
+  "description": "The reference implementation of the Common Agent contracting standards, in TypeScript.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CommonAgent/common-agent-ts.git"
+  },
+  "type": "module",
+  "workspaces": [
+    "packages/crypto",
+    "packages/mandate",
+    "packages/nda",
+    "packages/reputations",
+    "packages/sow",
+    "packages/rfp"
+  ],
+  "engines": {
+    "node": ">=20.10"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "npm run build --workspaces",
+    "check:pins": "node tools/check-standards-pin.mjs --remote"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "typescript": "5.9.3",
+    "vitest": "2.1.9"
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "comment": "Agent SoW: the buyer's reference (5.17). Pins three rules. The form: buyer_reference, when present, is a string of 1 to 128 Unicode code points (code points, so a string of 128 two-byte characters is valid) with no character of general category Cc. The template rule: a standing proposal (12.1), which no client has signed yet, carries no buyer_reference. The carriage rule: every settlement record and task receipt for work admitted under an engagement carries the reference of the engagement version the work was admitted under, byte for byte, and an engagement without one produces records without one. Absence states nothing, so a document without the member is valid. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation; when the fixture itself is believed wrong, change it only with a spec change alongside.",
+  "version": 1,
+  "spec": "Agent SoW 0.25.0-draft: 5.17 (the buyer's reference), 12.1 (formation), 5.8 (amendments); Agent Messaging 0.9.4-draft: 19.2 (the task receipt)",
+  "form": {
+    "comment": "5.17 Form. Each case is the top-level member of an engagement; {} is a document without it.",
+    "valid": [
+      {
+        "buyer_reference": "PO-2026-004417"
+      },
+      {
+        "buyer_reference": "4500018832 / cost centre 4410"
+      },
+      {
+        "buyer_reference": "A"
+      },
+      {
+        "buyer_reference": "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+      },
+      {
+        "buyer_reference": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+      },
+      {
+        "buyer_reference": "Bestellnummer 77-Ä"
+      },
+      {}
+    ],
+    "invalid": [
+      {
+        "case": "empty",
+        "buyer_reference": "",
+        "why": "1 to 128 code points: an empty reference is refused, so a record never carries a reference that matches nothing"
+      },
+      {
+        "case": "too_long",
+        "buyer_reference": "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+        "why": "longer than 128 code points"
+      },
+      {
+        "case": "too_long_multibyte",
+        "buyer_reference": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "why": "129 code points; the limit counts code points, not bytes"
+      },
+      {
+        "case": "newline",
+        "buyer_reference": "PO-2026\n004417",
+        "why": "U+000A is a control character (Cc)"
+      },
+      {
+        "case": "tab",
+        "buyer_reference": "PO\t2026",
+        "why": "U+0009 is a control character (Cc)"
+      },
+      {
+        "case": "c1_control",
+        "buyer_reference": "PO-2026004417",
+        "why": "U+0085 is a control character (Cc)"
+      },
+      {
+        "case": "number",
+        "buyer_reference": 4500018832,
+        "why": "not a string; a number would lose leading zeros and could be read differently by two systems"
+      },
+      {
+        "case": "null",
+        "buyer_reference": null,
+        "why": "not a string; omit the member instead"
+      },
+      {
+        "case": "object",
+        "buyer_reference": {
+          "po": "PO-2026-004417"
+        },
+        "why": "not a string"
+      }
+    ]
+  },
+  "template": {
+    "comment": "5.17: a standing proposal carries no buyer_reference, because no client has given one. The client sets it in the completed instance at countersign (12.1).",
+    "valid": [
+      {
+        "document": "standing_proposal",
+        "client_seat": null,
+        "starts_at": null
+      },
+      {
+        "document": "completed_instance",
+        "client_seat": "filled",
+        "starts_at": "2026-11-02T00:00:00Z",
+        "buyer_reference": "PO-2026-004417"
+      },
+      {
+        "document": "completed_instance",
+        "client_seat": "filled",
+        "starts_at": "2026-11-02T00:00:00Z"
+      }
+    ],
+    "invalid": [
+      {
+        "case": "template_carries_reference",
+        "document": "standing_proposal",
+        "client_seat": null,
+        "starts_at": null,
+        "buyer_reference": "PO-2026-004417",
+        "why": "a standing proposal MUST NOT carry buyer_reference"
+      }
+    ]
+  },
+  "carriage": {
+    "comment": "5.17 It travels unchanged. engagement lists the agreed versions and the reference each carries (null for none); admitted_under is the version the work was admitted under; expected is the buyer_reference every settlement record and task receipt for that work carries (null: the member is absent).",
+    "cases": [
+      {
+        "name": "carried",
+        "engagement": {
+          "1": "PO-2026-004417"
+        },
+        "admitted_under": 1,
+        "expected": "PO-2026-004417"
+      },
+      {
+        "name": "none",
+        "engagement": {
+          "1": null
+        },
+        "admitted_under": 1,
+        "expected": null
+      },
+      {
+        "name": "admitted_before_amendment",
+        "engagement": {
+          "1": "PO-2026-004417",
+          "2": "PO-2027-000120"
+        },
+        "admitted_under": 1,
+        "expected": "PO-2026-004417"
+      },
+      {
+        "name": "admitted_after_amendment",
+        "engagement": {
+          "1": "PO-2026-004417",
+          "2": "PO-2027-000120"
+        },
+        "admitted_under": 2,
+        "expected": "PO-2027-000120"
+      },
+      {
+        "name": "added_by_amendment",
+        "engagement": {
+          "1": null,
+          "2": "PO-2027-000120"
+        },
+        "admitted_under": 2,
+        "expected": "PO-2027-000120"
+      },
+      {
+        "name": "byte_for_byte",
+        "engagement": {
+          "1": "po 2026 / 004417 "
+        },
+        "admitted_under": 1,
+        "expected": "po 2026 / 004417 "
+      }
+    ],
+    "discrepancy": {
+      "comment": "A client node that receives a record whose reference is missing or different records the discrepancy. The settlement is not disputed by it alone.",
+      "cases": [
+        {
+          "name": "missing",
+          "expected": "PO-2026-004417",
+          "record": null,
+          "discrepancy": true,
+          "disputed_settlement": false
+        },
+        {
+          "name": "altered",
+          "expected": "PO-2026-004417",
+          "record": "PO-2026-4417",
+          "discrepancy": true,
+          "disputed_settlement": false
+        },
+        {
+          "name": "matches",
+          "expected": "PO-2026-004417",
+          "record": "PO-2026-004417",
+          "discrepancy": false,
+          "disputed_settlement": false
+        }
+      ]
+    }
+  }
+}

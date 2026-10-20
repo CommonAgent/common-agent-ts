@@ -1,0 +1,3863 @@
+{
+  "about": "Test vectors for the scoring formula fdbk-score-1 of Agent Reputations (§7, §14). Each vector is the ledger of one (subject, capability) pair of an enrolled subject, evaluated at evaluated_at under the constants below. An event's age runs from the ended_at of the interaction it scores to evaluated_at, in days of 86,400 seconds (§7.2); age_days repeats it for the reader. expect gives a, b, mean, sd, lcb, n_eff and the state, and the pool the events entered with their value v and weight w, in ledger order. An implementation matches a vector when every number is within tolerance of the expected one and the state and the pool's codes are equal. reference.mjs beside this file reproduces every vector.",
+  "formula_version": "fdbk-score-1",
+  "evaluated_at": "2026-10-18T12:00:00.000Z",
+  "constants": {
+    "half_life_days": 60,
+    "k_value": 0.5,
+    "unproven_below": 20,
+    "z": 1.2816,
+    "uniform_prior": {
+      "a0": 1,
+      "b0": 1
+    }
+  },
+  "tolerance": 1e-9,
+  "vectors": [
+    {
+      "name": "empty-record",
+      "covers": "No events. The pool is empty, the uniform prior alone gives a = b = 1, and n_eff is 0, so the capability is UNPROVEN (§7.4).",
+      "events": [],
+      "expect": {
+        "a": 1,
+        "b": 1,
+        "mean": 0.5,
+        "sd": 0.28867513459481287,
+        "lcb": 0.13003394750328778,
+        "n_eff": 0,
+        "state": "UNPROVEN",
+        "pool": []
+      }
+    },
+    {
+      "name": "thin-record",
+      "covers": "Five accepted interactions today. The mean is high and n_eff is 5, so the capability is UNPROVEN and the lower bound shows how little five calls prove (§7.3, §7.4).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        }
+      ],
+      "expect": {
+        "a": 6,
+        "b": 1,
+        "mean": 0.8571428571428571,
+        "sd": 0.12371791482634838,
+        "lcb": 0.6985859775014089,
+        "n_eff": 5,
+        "state": "UNPROVEN",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "just-below-threshold",
+      "covers": "Nineteen accepted interactions today, every weight exactly 1. n_eff is 19, below the threshold of 20, so the capability is UNPROVEN (§7.4).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        }
+      ],
+      "expect": {
+        "a": 20,
+        "b": 1,
+        "mean": 0.9523809523809523,
+        "sd": 0.0454029804402663,
+        "lcb": 0.894192492648707,
+        "n_eff": 19,
+        "state": "UNPROVEN",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "at-threshold",
+      "covers": "Twenty accepted interactions today, every weight exactly 1. n_eff is exactly 20, which is not below the threshold, so the capability is RATED (§7.4).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        }
+      ],
+      "expect": {
+        "a": 21,
+        "b": 1,
+        "mean": 0.9545454545454546,
+        "sd": 0.04343332208663223,
+        "lcb": 0.8988813089592267,
+        "n_eff": 20,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "half-life-fading",
+      "covers": "Accepted interactions at ages 0, 30, 60, 120 and 365 days. Each weight is 2^(-age/60): 1, 2^-0.5, 0.5, 0.25 and 2^(-365/60). Twenty-four interactions add up to an n_eff below 20, so a record that was RATED when it was fresh has faded to UNPROVEN (§7.2).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-09-18T12:00:00.000Z",
+          "age_days": 30,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-09-18T12:00:00.000Z",
+          "age_days": 30,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-09-18T12:00:00.000Z",
+          "age_days": 30,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-09-18T12:00:00.000Z",
+          "age_days": 30,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-08-19T12:00:00.000Z",
+          "age_days": 60,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-08-19T12:00:00.000Z",
+          "age_days": 60,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-08-19T12:00:00.000Z",
+          "age_days": 60,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-08-19T12:00:00.000Z",
+          "age_days": 60,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-06-20T12:00:00.000Z",
+          "age_days": 120,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-06-20T12:00:00.000Z",
+          "age_days": 120,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-06-20T12:00:00.000Z",
+          "age_days": 120,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-06-20T12:00:00.000Z",
+          "age_days": 120,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 21,
+          "action": "fact",
+          "interaction_id": "itx_021",
+          "ended_at": "2025-10-18T12:00:00.000Z",
+          "age_days": 365,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 22,
+          "action": "fact",
+          "interaction_id": "itx_022",
+          "ended_at": "2025-10-18T12:00:00.000Z",
+          "age_days": 365,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 23,
+          "action": "fact",
+          "interaction_id": "itx_023",
+          "ended_at": "2025-10-18T12:00:00.000Z",
+          "age_days": 365,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 24,
+          "action": "fact",
+          "interaction_id": "itx_024",
+          "ended_at": "2025-10-18T12:00:00.000Z",
+          "age_days": 365,
+          "derived_outcome": "OK"
+        }
+      ],
+      "expect": {
+        "a": 14.887419269288799,
+        "b": 1,
+        "mean": 0.9370571152526294,
+        "sd": 0.05909826213408322,
+        "lcb": 0.8613167825015883,
+        "n_eff": 13.887419269288799,
+        "state": "UNPROVEN",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.7071067811865476
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.7071067811865476
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.7071067811865476
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.7071067811865476
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.25
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.25
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.25
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.25
+          },
+          {
+            "interaction_id": "itx_021",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.014748036135651463
+          },
+          {
+            "interaction_id": "itx_022",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.014748036135651463
+          },
+          {
+            "interaction_id": "itx_023",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.014748036135651463
+          },
+          {
+            "interaction_id": "itx_024",
+            "outcome": "OK",
+            "v": 1,
+            "w": 0.014748036135651463
+          }
+        ]
+      }
+    },
+    {
+      "name": "ok-corrected",
+      "covers": "Ten interactions accepted at once and ten accepted after a correction. OK_CORRECTED contributes 0.6 to a and 0.4 to b (§5).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        }
+      ],
+      "expect": {
+        "a": 17,
+        "b": 5,
+        "mean": 0.7727272727272727,
+        "sd": 0.08738217774479899,
+        "lcb": 0.6607382737295383,
+        "n_eff": 20,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "failed-loudly",
+      "covers": "Twenty accepted interactions and four that failed and said so. FAILED contributes 0.15 (§5). Compare failed-silently.",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 21,
+          "action": "fact",
+          "interaction_id": "itx_021",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "FAILED"
+        },
+        {
+          "seq": 22,
+          "action": "fact",
+          "interaction_id": "itx_022",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "FAILED"
+        },
+        {
+          "seq": 23,
+          "action": "fact",
+          "interaction_id": "itx_023",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "FAILED"
+        },
+        {
+          "seq": 24,
+          "action": "fact",
+          "interaction_id": "itx_024",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "FAILED"
+        }
+      ],
+      "expect": {
+        "a": 21.599999999999994,
+        "b": 4.4,
+        "mean": 0.8307692307692308,
+        "sd": 0.07216024245882201,
+        "lcb": 0.7382886640340045,
+        "n_eff": 23.999999999999993,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_021",
+            "outcome": "FAILED",
+            "v": 0.15,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_022",
+            "outcome": "FAILED",
+            "v": 0.15,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_023",
+            "outcome": "FAILED",
+            "v": 0.15,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_024",
+            "outcome": "FAILED",
+            "v": 0.15,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "failed-silently",
+      "covers": "The same record as failed-loudly, except that the four failures were confident and wrong, found by the caller and attested. FAILED_SILENT contributes 0.0, so the lower bound is lower than in failed-loudly; the gap is the price of honesty (§5). The attestations override the derived outcome OK (§6.3).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 21,
+          "action": "fact",
+          "interaction_id": "itx_021",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 22,
+          "action": "attested",
+          "interaction_id": "itx_021",
+          "outcome": "FAILED_SILENT"
+        },
+        {
+          "seq": 23,
+          "action": "fact",
+          "interaction_id": "itx_022",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 24,
+          "action": "attested",
+          "interaction_id": "itx_022",
+          "outcome": "FAILED_SILENT"
+        },
+        {
+          "seq": 25,
+          "action": "fact",
+          "interaction_id": "itx_023",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 26,
+          "action": "attested",
+          "interaction_id": "itx_023",
+          "outcome": "FAILED_SILENT"
+        },
+        {
+          "seq": 27,
+          "action": "fact",
+          "interaction_id": "itx_024",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 28,
+          "action": "attested",
+          "interaction_id": "itx_024",
+          "outcome": "FAILED_SILENT"
+        }
+      ],
+      "expect": {
+        "a": 21,
+        "b": 5,
+        "mean": 0.8076923076923077,
+        "sd": 0.07584717670640534,
+        "lcb": 0.7104865660253786,
+        "n_eff": 24,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_021",
+            "outcome": "FAILED_SILENT",
+            "v": 0,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_022",
+            "outcome": "FAILED_SILENT",
+            "v": 0,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_023",
+            "outcome": "FAILED_SILENT",
+            "v": 0,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_024",
+            "outcome": "FAILED_SILENT",
+            "v": 0,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "declined-and-refused-excluded",
+      "covers": "Twenty accepted interactions plus interactions resolved to DECLINED, REFUSED, REFUSED_UNSTATED, UNAVAILABLE and UNREACHABLE. None of those codes enters the pool (§5, §7.1), and an attestation on a DECLINED interaction is rejected because there was no work to judge (§6.2 rule 5). The result equals at-threshold.",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 21,
+          "action": "fact",
+          "interaction_id": "itx_021",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "DECLINED"
+        },
+        {
+          "seq": 22,
+          "action": "fact",
+          "interaction_id": "itx_022",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "DECLINED"
+        },
+        {
+          "seq": 23,
+          "action": "fact",
+          "interaction_id": "itx_023",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "DECLINED"
+        },
+        {
+          "seq": 24,
+          "action": "fact",
+          "interaction_id": "itx_024",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "DECLINED"
+        },
+        {
+          "seq": 25,
+          "action": "fact",
+          "interaction_id": "itx_025",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "DECLINED"
+        },
+        {
+          "seq": 26,
+          "action": "fact",
+          "interaction_id": "itx_026",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "REFUSED"
+        },
+        {
+          "seq": 27,
+          "action": "fact",
+          "interaction_id": "itx_027",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "REFUSED"
+        },
+        {
+          "seq": 28,
+          "action": "fact",
+          "interaction_id": "itx_028",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "REFUSED"
+        },
+        {
+          "seq": 29,
+          "action": "fact",
+          "interaction_id": "itx_029",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "REFUSED_UNSTATED"
+        },
+        {
+          "seq": 30,
+          "action": "fact",
+          "interaction_id": "itx_030",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "UNAVAILABLE"
+        },
+        {
+          "seq": 31,
+          "action": "fact",
+          "interaction_id": "itx_031",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "UNREACHABLE"
+        },
+        {
+          "seq": 32,
+          "action": "fact",
+          "interaction_id": "itx_032",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "UNREACHABLE"
+        },
+        {
+          "seq": 33,
+          "action": "fact",
+          "interaction_id": "itx_033",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "DECLINED"
+        },
+        {
+          "seq": 34,
+          "action": "attested",
+          "interaction_id": "itx_033",
+          "outcome": "FAILED_SILENT"
+        }
+      ],
+      "expect": {
+        "a": 21,
+        "b": 1,
+        "mean": 0.9545454545454546,
+        "sd": 0.04343332208663223,
+        "lcb": 0.8988813089592267,
+        "n_eff": 20,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "value-judgment-reduced-weight",
+      "covers": "Twenty accepted interactions and fourteen value judgments on time and materials engagements (ten VALUE_OK, four VALUE_POOR). The engagement facts carry no derived outcome, and each judgment's weight is K_value = 0.5 times its decay weight (§6.6, §7.6), so the fourteen judgments add 7 to n_eff.",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 21,
+          "action": "fact",
+          "interaction_id": "itx_021",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 22,
+          "action": "attested",
+          "interaction_id": "itx_021",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 23,
+          "action": "fact",
+          "interaction_id": "itx_022",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 24,
+          "action": "attested",
+          "interaction_id": "itx_022",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 25,
+          "action": "fact",
+          "interaction_id": "itx_023",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 26,
+          "action": "attested",
+          "interaction_id": "itx_023",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 27,
+          "action": "fact",
+          "interaction_id": "itx_024",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 28,
+          "action": "attested",
+          "interaction_id": "itx_024",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 29,
+          "action": "fact",
+          "interaction_id": "itx_025",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 30,
+          "action": "attested",
+          "interaction_id": "itx_025",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 31,
+          "action": "fact",
+          "interaction_id": "itx_026",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 32,
+          "action": "attested",
+          "interaction_id": "itx_026",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 33,
+          "action": "fact",
+          "interaction_id": "itx_027",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 34,
+          "action": "attested",
+          "interaction_id": "itx_027",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 35,
+          "action": "fact",
+          "interaction_id": "itx_028",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 36,
+          "action": "attested",
+          "interaction_id": "itx_028",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 37,
+          "action": "fact",
+          "interaction_id": "itx_029",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 38,
+          "action": "attested",
+          "interaction_id": "itx_029",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 39,
+          "action": "fact",
+          "interaction_id": "itx_030",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 40,
+          "action": "attested",
+          "interaction_id": "itx_030",
+          "outcome": "VALUE_OK",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 41,
+          "action": "fact",
+          "interaction_id": "itx_031",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 42,
+          "action": "attested",
+          "interaction_id": "itx_031",
+          "outcome": "VALUE_POOR",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 43,
+          "action": "fact",
+          "interaction_id": "itx_032",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 44,
+          "action": "attested",
+          "interaction_id": "itx_032",
+          "outcome": "VALUE_POOR",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 45,
+          "action": "fact",
+          "interaction_id": "itx_033",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 46,
+          "action": "attested",
+          "interaction_id": "itx_033",
+          "outcome": "VALUE_POOR",
+          "form": "fdbk-value-v1"
+        },
+        {
+          "seq": 47,
+          "action": "fact",
+          "interaction_id": "itx_034",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": null
+        },
+        {
+          "seq": 48,
+          "action": "attested",
+          "interaction_id": "itx_034",
+          "outcome": "VALUE_POOR",
+          "form": "fdbk-value-v1"
+        }
+      ],
+      "expect": {
+        "a": 26,
+        "b": 3,
+        "mean": 0.896551724137931,
+        "sd": 0.05560177757447275,
+        "lcb": 0.8252924859984868,
+        "n_eff": 27,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_021",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_022",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_023",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_024",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_025",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_026",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_027",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_028",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_029",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_030",
+            "outcome": "VALUE_OK",
+            "v": 1,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_031",
+            "outcome": "VALUE_POOR",
+            "v": 0,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_032",
+            "outcome": "VALUE_POOR",
+            "v": 0,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_033",
+            "outcome": "VALUE_POOR",
+            "v": 0,
+            "w": 0.5
+          },
+          {
+            "interaction_id": "itx_034",
+            "outcome": "VALUE_POOR",
+            "v": 0,
+            "w": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "name": "publisher-head-start",
+      "covers": "A new agent of a publisher whose other agents are RATED for the capability, with a portfolio prior a0 = 9.5, b0 = 2.5 in place of the uniform one: the largest weight §7.5 allows, the equivalent of 10 effective events. Six accepted interactions follow. The prior lifts the mean and the lower bound above thin-record's, and n_eff counts the six direct events only, so the capability stays UNPROVEN: a head start, never an inheritance (§7.5).",
+      "prior": {
+        "a0": 9.5,
+        "b0": 2.5
+      },
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        }
+      ],
+      "expect": {
+        "a": 15.5,
+        "b": 2.5,
+        "mean": 0.8611111111111112,
+        "sd": 0.07933896813576102,
+        "lcb": 0.7594302895483198,
+        "n_eff": 6,
+        "state": "UNPROVEN",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "nda-breach-not-scored",
+      "covers": "Twenty accepted interactions, an upheld breach of an Agent NDA recorded about the subject (nda_resolved with the outcome NDA_BREACH), and an attestation that names NDA_BREACH, which is rejected (§6.2 rule 6). Neither enters the pool (§4.8, §5, §7.1), and the result equals at-threshold.",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 20,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 21,
+          "action": "attested",
+          "interaction_id": "itx_020",
+          "outcome": "NDA_BREACH"
+        },
+        {
+          "seq": 22,
+          "action": "nda_resolved",
+          "at": "2026-10-15T12:00:00.000Z",
+          "outcome": "NDA_BREACH",
+          "basis": "acknowledged"
+        }
+      ],
+      "expect": {
+        "a": 21,
+        "b": 1,
+        "mean": 0.9545454545454546,
+        "sd": 0.04343332208663223,
+        "lcb": 0.8988813089592267,
+        "n_eff": 20,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "overrides-amendments-exclusions-probes",
+      "covers": "Attestations, amendments, exclusions and probes together. An attestation overrides the derived outcome (§6.3); of two attestations on one interaction only the later scores (§6.2 rule 3); a self-dealing attestation is excluded (§6.4) and the derived outcome stands (§7.1); an attestation with no witnessed interaction is rejected (§6.2 rule 1); probes enter at 1.0 for PASS and 0.0 for FAIL with normal weight (§4.3); a CONTRACT violation contributes 0.0 (§5, §9).",
+      "events": [
+        {
+          "seq": 1,
+          "action": "fact",
+          "interaction_id": "itx_001",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 2,
+          "action": "fact",
+          "interaction_id": "itx_002",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 3,
+          "action": "fact",
+          "interaction_id": "itx_003",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 4,
+          "action": "fact",
+          "interaction_id": "itx_004",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 5,
+          "action": "fact",
+          "interaction_id": "itx_005",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 6,
+          "action": "fact",
+          "interaction_id": "itx_006",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 7,
+          "action": "fact",
+          "interaction_id": "itx_007",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 8,
+          "action": "fact",
+          "interaction_id": "itx_008",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 9,
+          "action": "fact",
+          "interaction_id": "itx_009",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 10,
+          "action": "fact",
+          "interaction_id": "itx_010",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 11,
+          "action": "fact",
+          "interaction_id": "itx_011",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 12,
+          "action": "fact",
+          "interaction_id": "itx_012",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 13,
+          "action": "fact",
+          "interaction_id": "itx_013",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 14,
+          "action": "fact",
+          "interaction_id": "itx_014",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 15,
+          "action": "fact",
+          "interaction_id": "itx_015",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 16,
+          "action": "fact",
+          "interaction_id": "itx_016",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 17,
+          "action": "fact",
+          "interaction_id": "itx_017",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 18,
+          "action": "attested",
+          "interaction_id": "itx_017",
+          "outcome": "FAILED"
+        },
+        {
+          "seq": 19,
+          "action": "fact",
+          "interaction_id": "itx_018",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 20,
+          "action": "attested",
+          "interaction_id": "itx_018",
+          "outcome": "FAILED_SILENT"
+        },
+        {
+          "seq": 21,
+          "action": "attested",
+          "interaction_id": "itx_018",
+          "outcome": "OK_CORRECTED"
+        },
+        {
+          "seq": 22,
+          "action": "fact",
+          "interaction_id": "itx_019",
+          "ended_at": "2026-10-18T12:00:00.000Z",
+          "age_days": 0,
+          "derived_outcome": "OK"
+        },
+        {
+          "seq": 23,
+          "action": "attested",
+          "interaction_id": "itx_019",
+          "outcome": "FAILED_SILENT",
+          "excluded": "self-dealing"
+        },
+        {
+          "seq": 24,
+          "action": "attested",
+          "interaction_id": "itx_999",
+          "outcome": "FAILED_SILENT"
+        },
+        {
+          "seq": 25,
+          "action": "fact",
+          "interaction_id": "itx_020",
+          "ended_at": "2026-10-08T12:00:00.000Z",
+          "age_days": 10,
+          "derived_outcome": "CONTRACT"
+        },
+        {
+          "seq": 26,
+          "action": "probed",
+          "interaction_id": "prb_021",
+          "ended_at": "2026-10-13T12:00:00.000Z",
+          "age_days": 5,
+          "result": "PASS"
+        },
+        {
+          "seq": 27,
+          "action": "probed",
+          "interaction_id": "prb_022",
+          "ended_at": "2026-10-13T12:00:00.000Z",
+          "age_days": 5,
+          "result": "PASS"
+        },
+        {
+          "seq": 28,
+          "action": "probed",
+          "interaction_id": "prb_023",
+          "ended_at": "2026-10-13T12:00:00.000Z",
+          "age_days": 5,
+          "result": "FAIL"
+        }
+      ],
+      "expect": {
+        "a": 20.637748625363386,
+        "b": 4.084773030822033,
+        "mean": 0.8347752269113676,
+        "sd": 0.07322604656414863,
+        "lcb": 0.7409287256347548,
+        "n_eff": 22.72252165618542,
+        "state": "RATED",
+        "pool": [
+          {
+            "interaction_id": "itx_001",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_002",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_003",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_004",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_005",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_006",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_007",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_008",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_009",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_010",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_011",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_012",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_013",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_014",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_015",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_016",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_017",
+            "outcome": "FAILED",
+            "v": 0.15,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_018",
+            "outcome": "OK_CORRECTED",
+            "v": 0.6,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_019",
+            "outcome": "OK",
+            "v": 1,
+            "w": 1
+          },
+          {
+            "interaction_id": "itx_020",
+            "outcome": "CONTRACT",
+            "v": 0,
+            "w": 0.8908987181403393
+          },
+          {
+            "interaction_id": "prb_021",
+            "outcome": "PASS",
+            "v": 1,
+            "w": 0.9438743126816935
+          },
+          {
+            "interaction_id": "prb_022",
+            "outcome": "PASS",
+            "v": 1,
+            "w": 0.9438743126816935
+          },
+          {
+            "interaction_id": "prb_023",
+            "outcome": "FAIL",
+            "v": 0,
+            "w": 0.9438743126816935
+          }
+        ]
+      }
+    }
+  ]
+}
