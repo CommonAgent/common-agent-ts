@@ -27,6 +27,9 @@ import {
   subjectKey,
   witnessChangeSigned,
   witnessCosigns,
+  witnessesFor,
+  witnessStart,
+  type ChangeAfter,
   type Commitment,
   type Cosignature,
   type Head,
@@ -51,6 +54,12 @@ const report = loadPinnedVectors("reputations/conformance/fdbk-report-v1.json").
 const signer = seedSigner(new Uint8Array(Buffer.from(report.test_key.seed_hex, "hex")));
 const commitments = (file: Record<string, unknown>) => Object.fromEntries((file.commitments as CommitmentVector[]).map((c) => [c.name, c]));
 const witnessesOf = (file: Record<string, unknown>) => (file.key_set as { witnesses: Witness[] }).witnesses;
+const changesOf = (file: Record<string, unknown>) => (file.key_set as { witness_changes: Array<{ change: WitnessChange; signatures: Cosignature[] }> }).witness_changes;
+const pinnedOf = (file: Record<string, unknown>) => file.pinned_witnesses as Witness[];
+/** The witnesses named for a seq: the pinned list moved along every change that takes effect before it (0.11.0-draft). */
+const namedFor = (file: Record<string, unknown>, seq: number) => witnessesFor(pinnedOf(file), changesOf(file), seq);
+const publishedOf = (file: Record<string, unknown>) =>
+  new Map((file.commitments as CommitmentVector[]).map((c) => [c.envelope.heads.seq, { commitment: c.envelope.heads, cosignatures: c.cosignatures }]));
 
 const slotKeyCase: CaseCheck = (c) => {
   const v = c.value as { a: string; b: string; folded: string; key: string };
@@ -72,8 +81,14 @@ const commitmentCase: CaseCheck = (c, file) => {
   expect(env).toEqual(v.envelope);
   expect(createHash("sha256").update(v.signed_bytes, "utf8").digest("hex")).toBe(v.signed_bytes_sha256);
   expect(erasuresDated(built, v.tombstones)).toBe("ok");
-  expect(cosignedByAll(built, v.cosignatures, witnessesOf(file))).toBe("ok");
-  expect(witnessCosigns(prev ? prev.envelope.heads : null, built)).toBe("ok");
+  const named = namedFor(file, built.seq);
+  expect(cosignedByAll(built, v.cosignatures, named)).toBe("ok");
+  for (const extra of v.cosignatures) expect(named.some((w) => w.id === extra.witness), `${extra.witness} is named for seq ${built.seq}`).toBe(true);
+  // Each named witness extends the last commitment it co-signed, or starts where its record starts.
+  for (const w of named) {
+    const last = prev && namedFor(file, prev.envelope.heads.seq).some((x) => x.id === w.id) ? prev.envelope.heads : null;
+    expect(witnessCosigns(last, built, last ? null : witnessStart(pinnedOf(file), changesOf(file), w.id) ?? null), w.id).toBe("ok");
+  }
   if (prev) {
     expect(followsFrom(prev.envelope.heads, built)).toBe("ok");
     expect(carriesForward(slotsOf(prev.heads, prev.tombstones), slots)).toBe("ok");
@@ -94,9 +109,11 @@ const proofCase: CaseCheck = (c, file) => {
 const witnessListCase: CaseCheck = (_c, file) => {
   const ks = file.key_set as { witnesses: Witness[]; witness_changes: Array<{ change: WitnessChange; signatures: Cosignature[] }> };
   let list = file.pinned_witnesses as Witness[];
+  let prior: ChangeAfter = null;
   for (const ch of ks.witness_changes) {
-    expect(witnessChangeSigned(list, ch.change, ch.signatures)).toBe("ok");
+    expect(witnessChangeSigned(list, ch.change, ch.signatures, { bureau: (file.key_set as { bureau: string }).bureau, published: publishedOf(file), prior })).toBe("ok");
     list = ch.change.witnesses;
+    prior = ch.change.after;
   }
   expect(list).toEqual(ks.witnesses);
 };
@@ -130,7 +147,12 @@ const mustFailCase: CaseCheck = (c, file) => {
     const branches = f.branches as Array<{ set: object; cosignatures: Cosignature[] }>;
     res = branches.some((b) => cosignedByAll({ ...by[f.commitment as string]!.envelope.heads, ...b.set }, b.cosignatures, witnesses) === "ok") ? "ok" : "no branch carries every named co-signer";
   } else if (f.check === "witness_change") {
-    res = witnessChangeSigned(witnesses, f.change as WitnessChange, f.signatures as Cosignature[]);
+    const from = f.from ? (f.from as string[]).map((id) => witnesses.find((w) => w.id === id)!) : witnesses;
+    res = witnessChangeSigned(from, f.change as WitnessChange, f.signatures as Cosignature[], { published: publishedOf(file) });
+  } else if (f.check === "join") {
+    const next = { ...by[f.commitment as string]!.envelope.heads, ...((f.set as object) ?? {}) };
+    res = witnessCosigns(null, next, witnessStart(pinnedOf(file), changesOf(file), f.witness as string) ?? null);
+    if (f.reason_code) expect(res).toBe(f.reason_code);
   } else {
     throw new Error(`no check for ${f.check}`);
   }

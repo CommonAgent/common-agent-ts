@@ -192,9 +192,12 @@ export interface Settlement {
   resize(request: ResizeRequest): Promise<SettlementAnswer<{ reservation: Reservation; delta?: number }>>;
   draw(request: DrawRequest): Promise<SettlementAnswer<DrawResult>>;
   charge(request: ChargeRequest): Promise<SettlementAnswer<{ state: SettlementState }>>;
-  release(request: ReleaseRequest): Promise<SettlementAnswer<{ released: number }>>;
+  /** What the hold handed back. A replay (`applied: false`) releases nothing, and carries the hold as the binding now reports it where it sends one, so the caller can say what had been left. */
+  release(request: ReleaseRequest): Promise<SettlementAnswer<{ released: number; reservation?: Reservation }>>;
   refund(request: RefundRequest): Promise<SettlementAnswer<{ amount?: number; state: SettlementState }>>;
   receipt(txnId: string): Promise<SettlementAnswer<{ receipt: Receipt }>>;
+  /** One reservation as the binding holds it (clearing read-reservation, §6.6, OPTIONAL). A binding without the door answers status 404; the binding is the authority on `drawn`. */
+  reservation(holdId: string): Promise<SettlementAnswer<{ reservation: Reservation }>>;
 }
 
 // ── NdaReference ───────────────────────────────────────────────────────────

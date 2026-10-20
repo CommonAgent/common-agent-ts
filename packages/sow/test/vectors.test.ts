@@ -24,6 +24,7 @@ import { suites as signatures, signatureCase } from "./core-signatures.js";
 import { suites as reviewWindow, windowCase } from "./core-review-window.js";
 import { suites as formation, formationCase } from "./core-formation.js";
 import { suites as formationMessages, messageCase } from "./core-formation-messages.js";
+import { suites as acts, actCase, pairCase } from "./core-acts.js";
 
 const byFile: Record<string, CollectedSuite[]> = {
   "sow-pricing.json": pricing,
@@ -39,6 +40,7 @@ const byFile: Record<string, CollectedSuite[]> = {
   "sow-review-window.json": reviewWindow,
   "sow-amendment-formation.json": formation,
   "sow-formation-messages.json": formationMessages,
+  "sow-acts.json": acts,
 };
 
 /** Files whose cases are list items, each checked on its own. */
@@ -47,6 +49,7 @@ const caseChecks: Record<string, (c: VectorCase) => void> = {
   "sow-review-window.json": windowCase,
   "sow-amendment-formation.json": formationCase,
   "sow-formation-messages.json": messageCase,
+  "sow-acts.json": actCase,
 };
 
 const pinned = new Map(pinnedVectorFiles("sow").map((f) => [f.path.split("/").pop()!, f]));
@@ -56,6 +59,7 @@ describeVectors("sow", {
     Object.entries(byFile).map(([file, suites]) => {
       const checks: Record<string, CaseCheck> = { document: (c) => runSection(suites, c.name) };
       if (caseChecks[file]) checks.cases = (c) => caseChecks[file]!(c);
+      if (file === "sow-acts.json") checks.pairs = (c) => pairCase(c);
       return [file, checks];
     }),
   ),

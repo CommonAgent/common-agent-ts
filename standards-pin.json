@@ -8,79 +8,79 @@
     {
       "local": "conformance/sow/sow-data-use.json",
       "path": "sow/conformance/sow-data-use.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "77f18df98483bc1bd3a1649f9631dfaa31bce3d0b9a7a53d52461072e17204a9"
     },
     {
       "local": "conformance/sow/sow-disputes.json",
       "path": "sow/conformance/sow-disputes.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "2a482023137898db75af8775aa9a23ca47061da143548110a6a190db57ef5a96"
     },
     {
       "local": "conformance/sow/sow-pricing.json",
       "path": "sow/conformance/sow-pricing.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "923153f96f3865eac3a184be2f6c8804a4a5aab121412a9fecf3c9854a796669"
     },
     {
       "local": "conformance/sow/sow-reporting.json",
       "path": "sow/conformance/sow-reporting.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "999d6e1139ee0d9df3d0c88497c8ff5609f4dd749d6b71c83dd53888de5ae7b2"
     },
     {
       "local": "conformance/sow/sow-subcontracting.json",
       "path": "sow/conformance/sow-subcontracting.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "91c19e2b564e3f67d113962e197b4bfd7ad171a5ed4da7e1e4934f529324bc8d"
     },
     {
       "local": "conformance/sow/sow-terms.json",
       "path": "sow/conformance/sow-terms.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "74e65920fb1389281f067fd2af8e13be30a574b1b6e15a6425bd018452b9d508"
     },
     {
       "local": "conformance/sow/sow-nda.json",
       "path": "sow/conformance/sow-nda.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "38385e5889368ea7c110c6b14b822131133b15c302b3ced0615d6ddccc363cbb"
     },
     {
       "local": "conformance/sow/sow-buyer-reference.json",
       "path": "sow/conformance/sow-buyer-reference.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "12e912c72ea3af805251d251b6ca279dae680d6635e7896156f3f17976a2af7f"
     },
     {
       "local": "conformance/sow/sow-provider-contact.json",
       "path": "sow/conformance/sow-provider-contact.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "dbddf0b7876b2d32e1ef02e5b64860188d8ac5b0e687e3ff084d29b47c75d150"
     },
     {
       "local": "conformance/sow/sow-signatures.json",
       "path": "sow/conformance/sow-signatures.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "ec4cc00a7ff11db305878ecf45fa4d60853d0b6f9a979911c0c3519d2abdc9e4"
     },
     {
       "local": "conformance/sow/sow-review-window.json",
       "path": "sow/conformance/sow-review-window.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "cdc58f5f377a04ff9dc894dda8863d94a0ec82c12b03cb1a8cc7547ca0ba2922"
     },
     {
       "local": "conformance/sow/sow-amendment-formation.json",
       "path": "sow/conformance/sow-amendment-formation.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "f2aa931078414cbd27abc8298598cc6720050cac8245ec492dc9ab677f3e9da4"
     },
     {
       "local": "conformance/sow/sow-formation-messages.json",
       "path": "sow/conformance/sow-formation-messages.json",
-      "tag": "sow-v0.29.0-draft",
+      "tag": "sow-v0.30.0-draft",
       "sha256": "090415b2ec52cb995bd6a2021d0e76f358ffcf671ba605eb319cfb355d88a178"
     },
     {
@@ -134,43 +134,43 @@
     {
       "local": "conformance/reputations/fdbk-score-1.json",
       "path": "reputations/conformance/fdbk-score-1.json",
-      "tag": "reputations-v0.10.0-draft",
+      "tag": "reputations-v0.11.0-draft",
       "sha256": "3d490ba207aa65ebd3fa0a33001691e76497c9ef8ac7e7980a1b7ccf617fc83a"
     },
     {
       "local": "conformance/reputations/fdbk-report-v1.json",
       "path": "reputations/conformance/fdbk-report-v1.json",
-      "tag": "reputations-v0.10.0-draft",
+      "tag": "reputations-v0.11.0-draft",
       "sha256": "0821919badaa13015ba5c88c342f00ce745caccf5efe29572292535ce415ff7c"
     },
     {
       "local": "conformance/reputations/fdbk-nda-claim-v1.json",
       "path": "reputations/conformance/fdbk-nda-claim-v1.json",
-      "tag": "reputations-v0.10.0-draft",
+      "tag": "reputations-v0.11.0-draft",
       "sha256": "383cdd4f601fbaee4786b23c9e9b3d1944effcbdf058a016e36190b9d0e35557"
     },
     {
       "local": "conformance/reputations/fdbk-nda-record-v1.json",
       "path": "reputations/conformance/fdbk-nda-record-v1.json",
-      "tag": "reputations-v0.10.0-draft",
+      "tag": "reputations-v0.11.0-draft",
       "sha256": "35756b82fecfb0aac65c7953490d0b623cd4a44c3da0c0dcfce555aba07a984d"
     },
     {
       "local": "conformance/reputations/fdbk-heads-v1.json",
       "path": "reputations/conformance/fdbk-heads-v1.json",
-      "tag": "reputations-v0.10.0-draft",
-      "sha256": "eaa7ec6e5e7505dd63942a3da032bd91bfa014c99bc242bf2522735dad86eb51"
+      "tag": "reputations-v0.11.0-draft",
+      "sha256": "9ede15cdac18591c26ba1e9e3855bdacdd3d25270ba55a0893887b6c18293c96"
     },
     {
       "local": "packages/reputations/casefolding-15.1.0.json",
       "path": "reputations/conformance/casefolding-15.1.0.json",
-      "tag": "reputations-v0.10.0-draft",
+      "tag": "reputations-v0.11.0-draft",
       "sha256": "bbb8de789ef53d2004f49bb4c96ae79be64c148d8e50b98026b9194e585723ff"
     },
     {
       "local": "packages/reputations/LICENSE-UNICODE",
       "path": "reputations/conformance/LICENSE-UNICODE",
-      "tag": "reputations-v0.10.0-draft",
+      "tag": "reputations-v0.11.0-draft",
       "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
     },
     {
@@ -184,6 +184,12 @@
       "path": "rfp/conformance/rfp-posting.json",
       "tag": "rfp-v0.11.0-draft",
       "sha256": "7332c0139fa0fb0229dca2f88ae27cec71131d1adc7fcaaee108fafcb2dc5dbf"
+    },
+    {
+      "local": "conformance/sow/sow-acts.json",
+      "path": "sow/conformance/sow-acts.json",
+      "tag": "sow-v0.30.0-draft",
+      "sha256": "57697ab4b1ec46660254efeedeb4640807627a61a1989246b882d1d3e282edc5"
     }
   ]
 }

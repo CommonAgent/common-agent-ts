@@ -5,6 +5,7 @@ describe("the conformance-file runner", () => {
   it("finds every file pinned for each contracting standard", () => {
     const names = (s: string) => pinnedVectorFiles(s).map((f) => f.path.split("/").pop()).sort();
     expect(names("sow")).toEqual([
+      "sow-acts.json",
       "sow-amendment-formation.json",
       "sow-buyer-reference.json",
       "sow-data-use.json",
@@ -30,7 +31,7 @@ describe("the conformance-file runner", () => {
       for (const f of pinnedVectorFiles(s)) expect(vectorCases(f).length, f.path).toBeGreaterThan(0);
     }
     const score = loadPinnedVectors("reputations/conformance/fdbk-score-1.json");
-    expect(score.tag).toBe("reputations-v0.10.0-draft");
+    expect(score.tag).toBe("reputations-v0.11.0-draft");
     const cases = vectorCases(score);
     expect(cases).toHaveLength(13);
     expect(cases[0]).toMatchObject({ group: "vectors", name: "empty-record" });

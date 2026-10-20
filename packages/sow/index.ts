@@ -35,11 +35,12 @@ export * from "./contact.js";
 export * from "./document.js";
 export * from "./lifecycle.js";
 export * from "./formation.js";
+export * from "./acts.js";
 
 /** The standard and the version this core is written against. */
 export const SOW_SPEC = {
   id: "sow",
   name: "Agent SoW",
-  version: "0.29.0-draft",
+  version: "0.30.0-draft",
   url: "https://agentsow.com/spec.html",
 } as const;
