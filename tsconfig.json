@@ -35,6 +35,12 @@
       ],
       "@common-agent/rfp/ports": [
         "./packages/rfp/ports.ts"
+      ],
+      "@common-agent/package": [
+        "./packages/package/index.ts"
+      ],
+      "@common-agent/package/ports": [
+        "./packages/package/ports.ts"
       ]
     }
   },

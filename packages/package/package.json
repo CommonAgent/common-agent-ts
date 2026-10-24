@@ -1,0 +1,63 @@
+{
+  "name": "@common-agent/package",
+  "version": "0.1.0",
+  "description": "Reference implementation of the Agent Package of the Common Agent Specification: pack an agent's spec and folder into a package, and validate a package, with a small command line tool.",
+  "keywords": [
+    "common-agent",
+    "agent-package",
+    "agent-plugins",
+    "agent-skills"
+  ],
+  "homepage": "https://commonagent.net/package.html",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CommonAgent/common-agent-ts.git",
+    "directory": "packages/package"
+  },
+  "bugs": {
+    "url": "https://github.com/CommonAgent/common-agent-ts/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./ports": {
+      "types": "./dist/ports.d.ts",
+      "default": "./dist/ports.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/cli.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "common-agent-pack": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "sideEffects": [
+    "./dist/bin.js"
+  ],
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@common-agent/crypto": "0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -19,6 +19,11 @@ as usual.
 `tools/monorepo-export.json` lists every file the export writes, and the
 source commit the current files came from.
 
+One package is the exception. `packages/package/`, the Agent Package and its
+command line tool, is written here, in this repository. The export never
+writes or removes a file under it, and a pull request that changes it is
+reviewed and merged here as usual.
+
 ## What a change must keep
 
 - **The conformance files are the authority.** When a package disagrees with
@@ -30,6 +35,9 @@ source commit the current files came from.
 - **The packages stay pure.** `node:crypto` and the other packages here are
   the only imports. No storage, no network, no clock but the one a caller
   passes in. Whatever a package needs from its host goes in its `ports.ts`.
+  The Agent Package also uses `node:zlib` for its archive, and its command
+  line tool, `packages/package/cli.ts`, is the one file that reads and writes
+  a disk.
 - **One crypto.** Canonical JSON, keys, signatures and their spellings live in
   `@common-agent/crypto`, so every standard reads them the same way.
 

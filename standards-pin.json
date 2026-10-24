@@ -6,6 +6,12 @@
   "repository": "https://github.com/CommonAgent/common-agent-standards",
   "files": [
     {
+      "local": "conformance/common-agent/offering-scope.json",
+      "path": "common-agent/conformance/offering-scope.json",
+      "tag": "1953b9e7428d0554a62c29fa497f8e03ba2a8b65",
+      "sha256": "617323d87679439758e22b637f29f136256398ae1669765c65c6b2570033a25e"
+    },
+    {
       "local": "conformance/sow/sow-data-use.json",
       "path": "sow/conformance/sow-data-use.json",
       "tag": "sow-v0.30.0-draft",

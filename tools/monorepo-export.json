@@ -13,6 +13,7 @@
     "LICENSE",
     "NOTICE",
     "README.md",
+    "conformance/common-agent/offering-scope.json",
     "conformance/mandate/mandate-checks.json",
     "conformance/mandate/mandate-documents.json",
     "conformance/mandate/mandate-ids.json",

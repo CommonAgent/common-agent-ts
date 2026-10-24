@@ -1,8 +1,8 @@
 # Common Agent reference implementation in TypeScript
 
 This repository is the reference implementation of the Common Agent
-contracting standards. It has one package per standard and a shared crypto
-package:
+contracting standards and of the Agent Package. It has one package per
+standard and a shared crypto package:
 
 | Package | Standard | Version implemented |
 |---|---|---|
@@ -11,6 +11,7 @@ package:
 | `@common-agent/mandate` | [Agent Mandate](https://agentmandate.net) | 0.8.0-draft |
 | `@common-agent/nda` | [Agent NDA](https://agentnda.net) | 0.2.0-draft |
 | `@common-agent/reputations` | [Agent Reputations](https://agentreputations.com) | 0.6.0-draft |
+| `@common-agent/package` | [Agent Package](https://commonagent.net/package.html), Section 12 of the Common Agent Specification, with the `common-agent-pack` command line tool | 0.30.0-draft |
 | `@common-agent/crypto` | Canonical JSON (RFC 8785), Ed25519 (RFC 8032), nkey keys and signature spellings, shared by all five | |
 
 The standards themselves, and the conformance files that test them, are in
@@ -30,6 +31,12 @@ implementation.
 A package uses another only where its standard refers to the other one. Agent
 SoW, Agent RFP and Agent NDA use Agent Mandate's types for the authority
 behind an act. Every package uses `@common-agent/crypto`.
+
+`@common-agent/package` packs an agent's folder into an Agent
+Package and validates a package. Its library is pure in the same way, and it
+also uses `node:zlib` for the archive's gzip layer. Its command line tool,
+`common-agent-pack`, is the one place in this repository that reads and
+writes a disk.
 
 ## Running the conformance vectors
 
