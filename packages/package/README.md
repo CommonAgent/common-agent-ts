@@ -1,27 +1,29 @@
 # Agent Package
 
 This package implements the Agent Package of the Common Agent Specification
-0.29.2-draft, Section 12 (https://commonagent.net/package.html, source in
+0.30.0-draft, Section 12 (https://commonagent.net/package.html, source in
 https://github.com/CommonAgent/common-agent-standards `common-agent/`). It
 turns an agent's folder into a package, and it checks a package against the
 mechanical checks of Section 12.10.
 
 A package is an Agent Plugin with two files beside its manifest. The draft
 Descriptor, `agent-descriptor.json`, holds every fact a caller can rely on.
-The install file, `agent-runtime-requirements.json`, holds every fact a host
-must act on. The manifest points at both by digest and copies nothing.
+The runtime requirements, `agent-runtime-requirements.json`, hold every fact
+a host must have or an installer must bind. The manifest points at both by
+digest, under `descriptor` and `runtime_requirements`, and copies nothing.
 `NOT.md`, `RECORDS.md` and `SYSTEMS.md` are generated from the two files,
 under `net.agentdoc.package/`.
 
 ## The file names
 
-The two authored files were called `descriptor.json` and `install.json`
-until they were renamed. This package writes only the new names. It reads
-the old names as aliases, with a warning, in an agent's folder and in a
-package, so a package built under them still validates. A package or folder
-that holds both names for one file is refused. The names are in `names.ts`.
-The specification, at 0.29.2-draft, still gives the old names in Section
-12.2; the change to the standard is to follow.
+Before Common Agent 0.30.0-draft the two authored files were
+`descriptor.json` and `install.json`, the manifest pointed at the second
+under `install`, and its format was `"agent-install-v1"`. As Section 12.2
+says, this package writes only the current names. It reads each former name
+where the current one is absent, and reads the current one where both are
+present, in an agent's folder and in a package, so a package built before
+the rename still validates. It warns each time it reads a former name, and
+each time it finds both. The names are in `names.ts`.
 
 The library holds no storage, makes no network calls and reads no clock. It
 reads the agent's folder through the `SourceTree` port and returns the
@@ -41,12 +43,13 @@ The tool is called `common-agent-pack`. To pack an agent's folder:
 The folder holds `agent-descriptor.json`, `agent-runtime-requirements.json`
 and `plugin.json` directly, and the skills under `skills/<id>/`. The
 manifest carries the agent's name, version and description, and the members
-only the build needs, such as `license`, `author` and `repository`. The
-packer takes the two authored files as written, fills the digest of each
-lockfile the runtime requirements name without one, points the manifest at
-both files by digest, and generates the three views and any SKILL.md an
-offering or a step lacks. A draft that does not say what the agent refuses or
-what records it leaves is refused, and the refusal names the part.
+only the build needs, such as `license`, `author` and `repository`. As Section 13.2
+says, building adds no fact the source did not state. The packer takes the
+two authored files as written and the skills they name, generates the three
+views and writes the manifest's digests. A missing skill is refused, and so
+is a lockfile whose digest is absent or wrong; the refusal gives the digest.
+A draft that does not say what the agent refuses or what records it leaves is
+refused, and the refusal names the part.
 
 It writes `<out>/<name>/`, the archive `<out>/<name>-<version>.tar.gz` and
 the build record `<out>/<name>-build.json`. The output folder defaults to
@@ -132,10 +135,10 @@ a problem.
 | File | What it holds |
 |---|---|
 | `index.ts` | The public face: `PACKAGE_SPEC`, `validateArchive` and everything below |
-| `names.ts` | The two authored files' names, and their names before the rename |
+| `names.ts` | The authored files' names, pointers and format, current and former |
 | `ports.ts` | What the library asks its host for: the `SourceTree` of the agent's folder, and a signer |
-| `types.ts` | The spec, the draft Descriptor, the install file, and a package as files |
-| `build.ts` | The packer and its refusals: the draft Descriptor, the install file, skills, the manifest |
+| `types.ts` | The spec, the draft Descriptor, the runtime requirements, and a package as files |
+| `build.ts` | The packer and its refusals: the draft Descriptor, the runtime requirements, skills, the manifest |
 | `validate.ts` | The checker of Section 12.10, with the check each problem comes from |
 | `manifest.ts` | The pinned Agent Plugins 1.0.0 manifest schema and the namespace |
 | `offering.ts` | The offering checks of Section 6.11 |

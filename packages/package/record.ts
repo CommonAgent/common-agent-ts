@@ -23,7 +23,7 @@ export interface BuildRecord {
   role: "agent-builder";
   act: "build";
   requested_by: string;
-  package: { name: string; version: string; schema: string; sha256: string; descriptor_sha256: string; install_sha256: string };
+  package: { name: string; version: string; schema: string; sha256: string; descriptor_sha256: string; runtime_requirements_sha256: string };
   shape: BuiltPackage["shape"];
   lockfiles: BuiltPackage["lockfiles"];
   checks: { kind: string; what: string }[];
@@ -55,7 +55,7 @@ export function buildRecord(built: BuiltPackage, { producedAt, requestedBy = "se
       schema: PLUGIN_SCHEMA_URL,
       sha256: built.sha256,
       descriptor_sha256: built.descriptor_sha256,
-      install_sha256: built.install_sha256,
+      runtime_requirements_sha256: built.runtime_requirements_sha256,
     },
     shape: built.shape,
     lockfiles: built.lockfiles,

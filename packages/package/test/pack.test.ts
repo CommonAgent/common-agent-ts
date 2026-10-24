@@ -4,7 +4,7 @@
 //   - the two judgment parts are never invented: a spec without refusals or
 //     without records is refused, naming the part;
 //   - one authored spelling: the manifest points at descriptor.json and
-//     install.json by digest and copies nothing, and the digests are right;
+//     agent-runtime-requirements.json by digest and copies nothing, and the digests are right;
 //   - a developer's own SKILL.md is packed as written, never regenerated;
 //   - a credential value never gets in, and neither does an address;
 //   - a hidden character is refused;
@@ -129,10 +129,10 @@ describe("pack: the happy path", () => {
     expect(manifest.$schema).toBe("https://agent-plugins.org/schemas/1.0.0/plugin.schema.json");
     const ext = manifest.extensions["net.agentdoc.package"];
     expect(ext.descriptor.path).toBe("agent-descriptor.json");
-    expect(ext.install.path).toBe("agent-runtime-requirements.json");
+    expect(ext.runtime_requirements.path).toBe("agent-runtime-requirements.json");
     expect(ext.descriptor.sha256).toBe(sha("agent-descriptor.json"));
-    expect(ext.install.sha256).toBe(sha("agent-runtime-requirements.json"));
-    expect(ext).toEqual({ descriptor: ext.descriptor, install: ext.install, built: true, draft: true });
+    expect(ext.runtime_requirements.sha256).toBe(sha("agent-runtime-requirements.json"));
+    expect(ext).toEqual({ descriptor: ext.descriptor, runtime_requirements: ext.runtime_requirements, built: true, draft: true });
     expect("agent" in manifest, "no member outside the pinned schema").toBe(false);
   });
 
@@ -150,7 +150,7 @@ describe("pack: the happy path", () => {
 
   it("writes the install file: names only, a ceiling for the spending system, the lockfile hashed", () => {
     const inst = JSON.parse(readFileSync(join(pkg, "agent-runtime-requirements.json"), "utf8"));
-    expect(inst.format).toBe("agent-install-v1");
+    expect(inst.format).toBe("agent-runtime-requirements-v1");
     expect(inst.systems[0]).toEqual({
       name: "text-to-speech",
       kind: "service",

@@ -29,8 +29,9 @@ REFUSES, needs and must RECORD), agent-runtime-requirements.json (what a host
 must have and do), plugin.json (its name, version, description and the
 build-only members such as license, author and repository) and its skills
 under skills/<id>/. The old names descriptor.json and install.json are read,
-with a warning. A skill already under skills/<id>/ is packed as written; a
-missing one is generated. Two parts are never invented: if the descriptor
+with a warning. Building adds nothing the folder did not state: it generates the
+views and the manifest's digests, and a missing skill is refused. Two parts
+are never invented: if the descriptor
 does not say what the agent refuses or what it records, pack refuses and
 names the part. Credentials are named, never carried.
 

@@ -11,7 +11,7 @@ standard and a shared crypto package:
 | `@common-agent/mandate` | [Agent Mandate](https://agentmandate.net) | 0.8.0-draft |
 | `@common-agent/nda` | [Agent NDA](https://agentnda.net) | 0.2.0-draft |
 | `@common-agent/reputations` | [Agent Reputations](https://agentreputations.com) | 0.6.0-draft |
-| `@common-agent/package` | [Agent Package](https://commonagent.net/package.html), Section 12 of the Common Agent Specification, with the `common-agent-pack` command line tool | 0.29.2-draft |
+| `@common-agent/package` | [Agent Package](https://commonagent.net/package.html), Section 12 of the Common Agent Specification, with the `common-agent-pack` command line tool | 0.30.0-draft |
 | `@common-agent/crypto` | Canonical JSON (RFC 8785), Ed25519 (RFC 8032), nkey keys and signature spellings, shared by all five | |
 
 The standards themselves, and the conformance files that test them, are in

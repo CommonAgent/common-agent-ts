@@ -94,12 +94,23 @@ describe("packing an agent's folder", () => {
     expect(existsSync(join(r.out?.package_dir, "descriptor.json"))).toBe(false);
   });
 
-  it("refuses a folder that holds both names for one file", () => {
-    const { dir } = agentFolder();
-    cpSync(join(dir, "agent-descriptor.json"), join(dir, "descriptor.json"));
+  it("reads the current name where a folder holds both, and warns", () => {
+    const { dir, first } = agentFolder();
+    writeFileSync(join(dir, "descriptor.json"), "{ not even JSON");
     const r = run([dir, "--json", "--out", tmp("out-")]);
-    expect(r.code).toBe(1);
-    expect(r.out?.refused).toMatch(/holds both agent-descriptor\.json and descriptor\.json/);
+    expect(r.code, r.stdout).toBe(0);
+    expect(r.out?.sha256).toBe(first.sha256);
+    expect(r.out?.warnings).toEqual(["both agent-descriptor.json and descriptor.json are present; agent-descriptor.json is read and descriptor.json is ignored"]);
+  });
+
+  it("reads the former format, writes the current one, and warns", () => {
+    const { dir, first } = agentFolder();
+    const p = join(dir, "agent-runtime-requirements.json");
+    writeFileSync(p, JSON.stringify({ ...readJson(p), format: "agent-install-v1" }));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code, r.stdout).toBe(0);
+    expect(r.out?.sha256).toBe(first.sha256);
+    expect(r.out?.warnings[0]).toMatch(/format "agent-install-v1", read as "agent-runtime-requirements-v1"/);
   });
 
   it("never invents what the agent refuses or records", () => {
@@ -114,9 +125,16 @@ describe("packing an agent's folder", () => {
     expect(r.stderr).toMatch(/Add "refusals" to .*agent-descriptor\.json/);
   });
 
-  it("generates a SKILL.md an offering lacks, and fills a lockfile's digest", () => {
+  it("refuses a missing skill, since building adds nothing the source did not state", () => {
     const { dir } = agentFolder();
     rmSync(join(dir, "skills", "summarize", "SKILL.md"));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code).toBe(1);
+    expect(r.out?.refused).toMatch(/has no skills\/summarize\/SKILL\.md/);
+  });
+
+  it("refuses a lockfile without its digest, and gives the digest", () => {
+    const { dir } = agentFolder();
     mkdirSync(join(dir, "skills", "summarize", "scripts"), { recursive: true });
     writeFileSync(join(dir, "skills", "summarize", "scripts", "package-lock.json"), "{}\n");
     const rp = join(dir, "agent-runtime-requirements.json");
@@ -124,10 +142,14 @@ describe("packing an agent's folder", () => {
     inst.dependencies = [{ skill: "summarize", lockfile: "skills/summarize/scripts/package-lock.json" }];
     writeFileSync(rp, JSON.stringify(inst));
     const r = run([dir, "--json", "--out", tmp("out-")]);
-    expect(r.code, r.stdout).toBe(0);
-    const md = readFileSync(join(r.out?.package_dir, "skills", "summarize", "SKILL.md"), "utf8");
-    expect(md.startsWith("---\nname: summarize\n")).toBe(true);
-    expect(r.out?.lockfiles[0].sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(r.code).toBe(1);
+    const sha = /it is ([0-9a-f]{64})$/.exec(r.out?.refused)?.[1] as string;
+    expect(sha).toBeTruthy();
+    inst.dependencies[0].sha256 = sha;
+    writeFileSync(rp, JSON.stringify(inst));
+    const ok = run([dir, "--json", "--out", tmp("out-")]);
+    expect(ok.code, ok.stdout).toBe(0);
+    expect(ok.out?.lockfiles[0].sha256).toBe(sha);
   });
 
   it("refuses a draft that carries a subject", () => {
@@ -144,24 +166,26 @@ describe("packing a folder written by hand", () => {
   function handWritten(): string {
     const dir = join(tmp("hand-"), "notes-taker");
     mkdirSync(join(dir, "skills", "take-notes"), { recursive: true });
+    writeFileSync(join(dir, "skills", "take-notes", "SKILL.md"), "---\nname: take-notes\ndescription: when a transcript arrives\n---\n# Take notes\n");
     writeFileSync(join(dir, "plugin.json"), JSON.stringify({ name: "notes-taker", version: "0.2.0", description: "Takes notes from a meeting transcript.", license: "MIT" }));
     writeFileSync(join(dir, "agent-descriptor.json"), JSON.stringify({
       format: "agent-descriptor-v1", agent_version: "0.2.0", does: "Takes notes from a meeting transcript.",
       offerings: [{ id: "take-notes", name: "Take notes", does: "Turns a transcript into notes.", inputs: [{ name: "transcript", kind: "text", required: true }] }],
       refusals: "inventing what nobody said.", records: [{ name: "the notes as sent", when: "per_task" }],
     }));
-    writeFileSync(join(dir, "agent-runtime-requirements.json"), JSON.stringify({ format: "agent-install-v1", runtimes: [], binaries: [], dependencies: [], systems: [], ceilings: [], directories: [] }));
+    writeFileSync(join(dir, "agent-runtime-requirements.json"), JSON.stringify({ format: "agent-runtime-requirements-v1", runtimes: [], binaries: [], dependencies: [], systems: [], ceilings: [], directories: [] }));
     return dir;
   }
 
-  it("packs it, generating the skill, the views and the README", () => {
+  it("packs it, generating only the views and the digests", () => {
     const r = run([handWritten(), "--json", "--out", tmp("out-")]);
     expect(r.code, r.stdout).toBe(0);
     expect(r.out?.version).toBe("0.2.0");
     const m = readJson(join(r.out?.package_dir, "plugin.json"));
     expect(m.$schema).toBe("https://agent-plugins.org/schemas/1.0.0/plugin.schema.json");
     expect(m.license).toBe("MIT");
-    for (const f of ["skills/take-notes/SKILL.md", "net.agentdoc.package/RECORDS.md", "README.md"]) expect(existsSync(join(r.out?.package_dir, f)), f).toBe(true);
+    for (const f of ["skills/take-notes/SKILL.md", "net.agentdoc.package/RECORDS.md", "net.agentdoc.package/NOT.md", "net.agentdoc.package/SYSTEMS.md"]) expect(existsSync(join(r.out?.package_dir, f)), f).toBe(true);
+    expect(existsSync(join(r.out?.package_dir, "README.md")), "no README is invented").toBe(false);
   });
 
   it("refuses versions that disagree", () => {
@@ -213,11 +237,14 @@ describe("validating under the old names", () => {
     renameSync(join(dir, "agent-runtime-requirements.json"), join(dir, "install.json"));
     const mp = join(dir, "plugin.json");
     const m = readJson(mp);
-    m.extensions["net.agentdoc.package"].descriptor.path = "descriptor.json";
-    m.extensions["net.agentdoc.package"].install.path = "install.json";
+    const ns = m.extensions["net.agentdoc.package"];
+    ns.descriptor.path = "descriptor.json";
+    ns.install = { ...ns.runtime_requirements, path: "install.json" };
+    delete ns.runtime_requirements;
     writeFileSync(mp, `${JSON.stringify(m, null, 2)}\n`);
     const v = run(["validate", dir, "--json"]);
     expect(v.code, v.stdout).toBe(0);
-    expect(v.out?.warnings).toHaveLength(2);
+    expect(v.out?.warnings).toHaveLength(3);
+    expect(v.out?.warnings).toContain("the pointer install is read as the pointer runtime_requirements, its name since Common Agent 0.30.0-draft; use the pointer runtime_requirements");
   });
 });

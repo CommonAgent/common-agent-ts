@@ -5,7 +5,19 @@
  * check here. The README lists what it does not check.
  */
 import { PACKAGE_NS, manifestProblem } from "./manifest.js";
-import { AUTHORED_FILES, DESCRIPTOR_FILE, RUNTIME_REQUIREMENTS_FILE, legacyWarning, resolveName, type AuthoredKind } from "./names.js";
+import {
+  AUTHORED_FILES,
+  DESCRIPTOR_FILE,
+  RUNTIME_REQUIREMENTS_FILE,
+  RUNTIME_REQUIREMENTS_FORMAT,
+  fileWarnings,
+  formatWarning,
+  pointerWarnings,
+  resolveName,
+  resolvePointer,
+  runtimeFormat,
+  type AuthoredKind,
+} from "./names.js";
 import { isDataUseProblem, offeringScopeProblems, type SystemRef } from "./offering.js";
 import { hasSkillFrontmatter } from "./skill.js";
 import { codepointName, hiddenInFile, sha256Hex, utf8Text } from "./text.js";
@@ -33,7 +45,7 @@ export interface Issue {
 /** What the validator found. */
 export interface Validation {
   ok: boolean;
-  /** Each problem with the check that found it: layout, manifest, descriptor, offering, how-run, install, systems, ceilings, dependencies, skills, mcp, views or hidden. */
+  /** Each problem with the check that found it: layout, manifest, descriptor, offering, how-run, runtime-requirements, systems, ceilings, dependencies, skills, mcp, views or hidden. */
   issues: Issue[];
   /** The manifest's name and version, when it has them. */
   name: string | null;
@@ -121,9 +133,7 @@ export function validatePackage(files: PackageFiles): Validation {
   const located: Record<AuthoredKind, string> = { descriptor: DESCRIPTOR_FILE, runtime: RUNTIME_REQUIREMENTS_FILE };
   for (const kind of ["descriptor", "runtime"] as const) {
     const r = resolveName((p) => files.has(p), kind);
-    const f = AUTHORED_FILES[kind];
-    if (r.both) add("layout", `${f.name} and ${f.legacy} are both present; a package carries one of them`);
-    if (r.legacy) warnings.push(legacyWarning(kind));
+    warnings.push(...fileWarnings(r, kind));
     if (r.path) located[kind] = r.path;
   }
   const descPath = located.descriptor;
@@ -142,7 +152,10 @@ export function validatePackage(files: PackageFiles): Validation {
       const ext = isObj(manifest.extensions) ? manifest.extensions[PACKAGE_NS] : undefined;
       if (!isObj(ext)) problem(`plugin.json has no extensions entry for ${PACKAGE_NS}`);
       else {
-        for (const [member, path] of [["descriptor", descPath], ["install", instPath]] as const) {
+        for (const [kind, path] of [["descriptor", descPath], ["runtime", instPath]] as const) {
+          const rp = resolvePointer(ext, kind);
+          warnings.push(...pointerWarnings(rp, kind));
+          const member = rp.path ?? AUTHORED_FILES[kind].pointer;
           const p = ext[member];
           if (!isObj(p) || p.path !== path || typeof p.sha256 !== "string") problem(`plugin.json ${PACKAGE_NS}.${member} is { "path": "${path}", "sha256": "<digest>" }, pointing at the file the package carries`);
           else {
@@ -203,13 +216,15 @@ export function validatePackage(files: PackageFiles): Validation {
     }
   }
 
-  section = "install";
-  // The install file (12.4): names, never values; the same systems as the Descriptor.
+  section = "runtime-requirements";
+  // The runtime requirements (12.4): names, never values; the same systems as the Descriptor.
   const credentialed = new Set<string>();
   if (inst !== undefined) {
     if (!isObj(inst)) problem(`${instPath} is a JSON object`);
     else {
-      if (inst.format !== "agent-install-v1") problem(`${instPath} format is "agent-install-v1"`);
+      const fmt = runtimeFormat(inst.format);
+      if (fmt === null) problem(`${instPath} format is "${RUNTIME_REQUIREMENTS_FORMAT}"`);
+      else if (fmt === "legacy") warnings.push(formatWarning(instPath));
       for (const k of ["runtimes", "binaries", "dependencies", "systems", "ceilings", "directories"]) if (!Array.isArray(inst[k])) problem(`${instPath} ${k} is a list`);
       if (addresses(inst).length) problem(`${instPath} carries an address; it names things and the host resolves the names`);
       const systems = Array.isArray(inst.systems) ? inst.systems : [];
@@ -232,7 +247,7 @@ export function validatePackage(files: PackageFiles): Validation {
           continue;
         }
         if (!["runtime", "platform"].includes(c.enforced_by as string)) add("ceilings", `${instPath} ceiling on ${String(c.system)} says who enforces it, enforced_by runtime or platform (12.4 section 4)`);
-        else if (c.enforced_by === "platform" && credentialed.has(c.system as string)) add("ceilings", `${instPath} ceiling on ${String(c.system)}: the scripts reach it with a credential the install file names, so enforced_by is runtime`);
+        else if (c.enforced_by === "platform" && credentialed.has(c.system as string)) add("ceilings", `${instPath} ceiling on ${String(c.system)}: the scripts reach it with a credential the runtime requirements name, so enforced_by is runtime`);
       }
       for (const s of spending) if (!ceilings.some((c) => isObj(c) && c.system === s)) add("ceilings", `system ${s} spends and has no ceiling`);
       const deps = Array.isArray(inst.dependencies) ? inst.dependencies : [];

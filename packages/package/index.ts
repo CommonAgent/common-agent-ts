@@ -9,7 +9,7 @@ import type { PackageFiles } from "./types.js";
 import { validatePackage, type Validation } from "./validate.js";
 
 /** The standard this package implements, and the version of it. */
-export const PACKAGE_SPEC = Object.freeze({ standard: "Common Agent Specification, Section 12", version: "0.29.2-draft" });
+export const PACKAGE_SPEC = Object.freeze({ standard: "Common Agent Specification, Section 12", version: "0.30.0-draft" });
 
 export { ArchiveError, readArchive, walkOrder, writeArchive, type ReadArchive } from "./archive.js";
 export {
@@ -40,8 +40,18 @@ export {
   LEGACY_RUNTIME_REQUIREMENTS_FILE,
   MANIFEST_FILE,
   RUNTIME_REQUIREMENTS_FILE,
-  legacyWarning,
+  DESCRIPTOR_POINTER,
+  LEGACY_RUNTIME_REQUIREMENTS_FORMAT,
+  LEGACY_RUNTIME_REQUIREMENTS_POINTER,
+  RUNTIME_REQUIREMENTS_FORMAT,
+  RUNTIME_REQUIREMENTS_POINTER,
+  fileWarnings,
+  formatWarning,
+  nameWarnings,
+  pointerWarnings,
   resolveName,
+  resolvePointer,
+  runtimeFormat,
   type AuthoredKind,
   type ResolvedName,
 } from "./names.js";

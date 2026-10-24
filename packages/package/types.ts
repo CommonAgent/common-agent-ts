@@ -1,6 +1,6 @@
 /**
  * The shapes the packer reads and writes. The spec is what a person writes
- * (agent.json); the draft Descriptor and the install file are the two
+ * (agent.json); the draft Descriptor and the runtime requirements are the two
  * authored files of a package (Common Agent 12.3 and 12.4).
  */
 
@@ -123,7 +123,7 @@ export interface DraftDescriptor {
   [k: string]: unknown;
 }
 
-/** One system entry in the install file. */
+/** One system entry in the runtime requirements. */
 export interface InstallSystem {
   name: string;
   kind: string;
@@ -133,16 +133,17 @@ export interface InstallSystem {
   settings?: { env: string; purpose?: string }[];
 }
 
-/** One lockfile the install file names, with its digest. */
+/** One lockfile the runtime requirements name, with its digest. */
 export interface Lockfile {
   skill: string;
   lockfile: string;
   sha256: string;
 }
 
-/** The install file (Common Agent 12.4): every host-facing fact, as names and never values. */
+/** The runtime requirements (Common Agent 12.4): every host-facing fact, as names and never values. */
 export interface InstallFile {
-  format: "agent-install-v1";
+  /** "agent-runtime-requirements-v1"; "agent-install-v1" before Common Agent 0.30.0-draft. */
+  format: string;
   runtimes: { name: string; version?: string }[];
   binaries: { name: string; purpose?: string }[];
   dependencies: Lockfile[];

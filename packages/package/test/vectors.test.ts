@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { pinnedVectorFiles, REPO_ROOT } from "../../vectors/index.js";
 import { PACKAGE_NS } from "../manifest.js";
-import { resolveName } from "../names.js";
+import { resolveName, resolvePointer } from "../names.js";
 import { offeringScopeProblems } from "../offering.js";
 import { dumps, sha256Hex, utf8Bytes, utf8Text } from "../text.js";
 import type { DraftDescriptor, InstallFile, PackageFiles } from "../types.js";
@@ -95,8 +95,9 @@ function packageFor(c: Case): PackageFiles {
   const instPath = resolveName(has, "runtime").path as string;
   if (c.rehash) {
     const m = readJson("plugin.json");
-    m.extensions[PACKAGE_NS].descriptor.sha256 = sha256Hex(files.get(descPath) as Uint8Array);
-    m.extensions[PACKAGE_NS].install.sha256 = sha256Hex(files.get(instPath) as Uint8Array);
+    const ns = m.extensions[PACKAGE_NS];
+    ns[resolvePointer(ns, "descriptor").path as string].sha256 = sha256Hex(files.get(descPath) as Uint8Array);
+    ns[resolvePointer(ns, "runtime").path as string].sha256 = sha256Hex(files.get(instPath) as Uint8Array);
     files.set("plugin.json", utf8Bytes(dumps(m)));
   }
   if (c.regenerate) {

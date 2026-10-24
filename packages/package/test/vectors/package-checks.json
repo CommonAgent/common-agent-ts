@@ -1,17 +1,17 @@
 {
-  "comment": "Agent Package checker fixture (Common Agent 12.10, with 12.2 to 12.6). Every case is a package: the base package below with the case's edits applied in order. A set edit writes a file's text, a delete edit removes a file, a move edit renames a file, and a json edit sets (or, with remove, deletes) the member at a JSON Pointer (RFC 6901) and writes the file back in the package's one spelling, two-space indented with a final newline. Where a case says rehash, the manifest's two digests are then recomputed over the two authored files, under whichever names the package uses; where it says regenerate, NOT.md, RECORDS.md and SYSTEMS.md are generated again from them. Both are done so that a case fails for its own reason and no other. The draft Descriptor is agent-descriptor.json and the install file is agent-runtime-requirements.json; a checker reads their names before the rename, descriptor.json and install.json, as aliases and warns, and a valid case that says warnings gives the number of warnings it expects. A checker MUST accept every valid case and MUST refuse every invalid one, and the check each invalid case names is one that refuses it. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation.",
+  "comment": "Agent Package checker fixture (Common Agent 12.10, with 12.2 to 12.6). Every case is a package: the base package below with the case's edits applied in order. A set edit writes a file's text, a delete edit removes a file, a move edit renames a file, and a json edit sets (or, with remove, deletes) the member at a JSON Pointer (RFC 6901) and writes the file back in the package's one spelling, two-space indented with a final newline. Where a case says rehash, the manifest's two digests are then recomputed over the two authored files, under whichever names the package uses; where it says regenerate, NOT.md, RECORDS.md and SYSTEMS.md are generated again from them. Both are done so that a case fails for its own reason and no other. The draft Descriptor is agent-descriptor.json; the runtime requirements are agent-runtime-requirements.json, pointed at under runtime_requirements, with format agent-runtime-requirements-v1. A checker reads each name used before 0.30.0-draft (descriptor.json, install.json, the pointer install, the format agent-install-v1) where the current one is absent, and prefers the current one where both are present (12.2); a valid case that says warnings gives the number of warnings a checker that reports each former name, and each pair, gives. A checker MUST accept every valid case and MUST refuse every invalid one, and the check each invalid case names is one that refuses it. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation.",
   "version": 1,
-  "spec": "SPEC.md 12.10 (the checker), 12.2 (layout), 12.3 (the draft Descriptor), 12.4 (the install file), 12.5 (skills and the generated views), 12.6 (the rules)",
+  "spec": "SPEC.md at Common Agent 0.30.0-draft: 12.10 (the checker), 12.2 (layout and the former names), 12.3 (the draft Descriptor), 12.4 (the runtime requirements), 12.5 (skills and the generated views), 12.6 (the rules)",
   "checks": {
-    "layout": "the files of 12.2 are present, each authored file under one name only, and the JSON files parse",
+    "layout": "the files of 12.2 are present, under their names or their former names, and the JSON files parse",
     "manifest": "plugin.json validates against the pinned Agent Plugins 1.0.0 schema, points at the two authored files by path and digest, is a draft, and carries an address only in $schema, homepage, repository and each from entry's repository",
     "descriptor": "the draft Descriptor carries no subject, acts_for or shape, says what the agent refuses and records, and carries no address outside a can_use entry's schema",
     "offering": "each offering passes the declaration checks of 6.11",
     "how-run": "no job or step declares a how that 12.3 refuses, and every run sits on a job whose how allows one and uses only the placeholders 12.3 lists",
-    "install": "the install file has its sections, no address of any kind, and well-formed job_seconds and answer",
-    "systems": "the system names of the Descriptor and the install file are the same set, read through the role alias",
+    "runtime-requirements": "the runtime requirements have their format and sections, no address of any kind, and well-formed job_seconds and answer",
+    "systems": "the system names of the Descriptor and the runtime requirements are the same set, read through the role alias",
     "ceilings": "every spending system has a ceiling, every ceiling names the side that enforces it, and a ceiling over a system the scripts reach with a named credential says runtime",
-    "dependencies": "every lockfile the install file names is in the package with the digest it names",
+    "dependencies": "every lockfile the runtime requirements name is in the package with the digest they give",
     "skills": "one skill per offering and per step, no skill without one, and each SKILL.md carries name and description in its frontmatter",
     "mcp": "every mcp.json server is a declared system, and mcp.json carries no address",
     "views": "NOT.md, RECORDS.md and SYSTEMS.md match a fresh generation byte for byte",
@@ -24,8 +24,8 @@
       "skills/fetch/scripts/package-lock.json": "{\"name\":\"fetch\",\"lockfileVersion\":3,\"packages\":{}}\n",
       "skills/fetch/scripts/fetch.mjs": "// Fetches the document named in the request.\nconsole.log('fetched');\n",
       "agent-descriptor.json": "{\n  \"format\": \"agent-descriptor-v1\",\n  \"agent_version\": \"1.0.0\",\n  \"does\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"offerings\": [\n    {\n      \"id\": \"summarize\",\n      \"name\": \"Summarize a document\",\n      \"inputs\": [\n        {\n          \"name\": \"document\",\n          \"kind\": \"document\",\n          \"required\": true\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"brief\",\n          \"kind\": \"text/markdown\",\n          \"when\": \"per_task\"\n        }\n      ],\n      \"steps\": [\n        {\n          \"id\": \"fetch\",\n          \"name\": \"Fetch the document\"\n        }\n      ]\n    }\n  ],\n  \"refusals\": \"summarizing a document it could not read.\\nadding a claim the document does not make.\",\n  \"escalates\": [\n    \"a document marked confidential.\"\n  ],\n  \"records\": [\n    {\n      \"name\": \"the document as received\",\n      \"when\": \"per_task\",\n      \"file\": \"*/document\"\n    },\n    {\n      \"name\": \"the brief as sent\",\n      \"when\": \"per_task\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"access\": \"trigger\",\n      \"needs\": \"to read the brief aloud\",\n      \"leaves\": true\n    },\n    {\n      \"name\": \"documents\",\n      \"access\": \"read\",\n      \"needs\": \"to read the document\"\n    }\n  ]\n}\n",
-      "agent-runtime-requirements.json": "{\n  \"format\": \"agent-install-v1\",\n  \"runtimes\": [\n    {\n      \"name\": \"node\",\n      \"version\": \">=20\"\n    }\n  ],\n  \"binaries\": [],\n  \"dependencies\": [\n    {\n      \"skill\": \"fetch\",\n      \"lockfile\": \"skills/fetch/scripts/package-lock.json\",\n      \"sha256\": \"d5e0209440bfcfcf1af3422aaab2db36d6c41c4e455c1aec3cec9b652ef15aed\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"kind\": \"service\",\n      \"credential\": \"speech-key\",\n      \"env\": \"SPEECH_TOKEN\",\n      \"spends\": {\n        \"unit\": \"characters\"\n      }\n    },\n    {\n      \"name\": \"documents\",\n      \"kind\": \"directory\"\n    }\n  ],\n  \"ceilings\": [\n    {\n      \"system\": \"speech\",\n      \"per\": \"task\",\n      \"enforced_by\": \"runtime\"\n    }\n  ],\n  \"directories\": [\n    {\n      \"name\": \"records\",\n      \"purpose\": \"every record the descriptor names\"\n    },\n    {\n      \"name\": \"work\",\n      \"purpose\": \"inputs and drafts in progress\"\n    }\n  ]\n}\n",
-      "plugin.json": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/plugin.schema.json\",\n  \"name\": \"brief-summarizer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"keywords\": [\n    \"built-agent\",\n    \"draft\",\n    \"summarize\",\n    \"fetch\"\n  ],\n  \"extensions\": {\n    \"net.agentdoc.package\": {\n      \"descriptor\": {\n        \"path\": \"agent-descriptor.json\",\n        \"sha256\": \"e7c39971a875fe9e0aadc1269bfc8024275082a2f5746369207ae6b37d289bea\"\n      },\n      \"install\": {\n        \"path\": \"agent-runtime-requirements.json\",\n        \"sha256\": \"869965e1ed8c6aee822baf82551b34ba4dcb55db517041929172cf91051d50e7\"\n      },\n      \"built\": true,\n      \"draft\": true\n    }\n  }\n}\n",
+      "agent-runtime-requirements.json": "{\n  \"format\": \"agent-runtime-requirements-v1\",\n  \"runtimes\": [\n    {\n      \"name\": \"node\",\n      \"version\": \">=20\"\n    }\n  ],\n  \"binaries\": [],\n  \"dependencies\": [\n    {\n      \"skill\": \"fetch\",\n      \"lockfile\": \"skills/fetch/scripts/package-lock.json\",\n      \"sha256\": \"d5e0209440bfcfcf1af3422aaab2db36d6c41c4e455c1aec3cec9b652ef15aed\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"kind\": \"service\",\n      \"credential\": \"speech-key\",\n      \"env\": \"SPEECH_TOKEN\",\n      \"spends\": {\n        \"unit\": \"characters\"\n      }\n    },\n    {\n      \"name\": \"documents\",\n      \"kind\": \"directory\"\n    }\n  ],\n  \"ceilings\": [\n    {\n      \"system\": \"speech\",\n      \"per\": \"task\",\n      \"enforced_by\": \"runtime\"\n    }\n  ],\n  \"directories\": [\n    {\n      \"name\": \"records\",\n      \"purpose\": \"every record the descriptor names\"\n    },\n    {\n      \"name\": \"work\",\n      \"purpose\": \"inputs and drafts in progress\"\n    }\n  ]\n}\n",
+      "plugin.json": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/plugin.schema.json\",\n  \"name\": \"brief-summarizer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"keywords\": [\n    \"built-agent\",\n    \"draft\",\n    \"summarize\",\n    \"fetch\"\n  ],\n  \"extensions\": {\n    \"net.agentdoc.package\": {\n      \"descriptor\": {\n        \"path\": \"agent-descriptor.json\",\n        \"sha256\": \"e7c39971a875fe9e0aadc1269bfc8024275082a2f5746369207ae6b37d289bea\"\n      },\n      \"runtime_requirements\": {\n        \"path\": \"agent-runtime-requirements.json\",\n        \"sha256\": \"707f9b5e11583901965c09522dfa170bd4c7dbb136f4e470f957f834442562a1\"\n      },\n      \"built\": true,\n      \"draft\": true\n    }\n  }\n}\n",
       "net.agentdoc.package/NOT.md": "# Where this agent stops\n\nsummarizing a document it could not read.\nadding a claim the document does not make.\n\n## What always goes to a person\n\n- a document marked confidential.\n",
       "net.agentdoc.package/RECORDS.md": "# The records this agent must leave\n\nThis is the contract. The agent leaves the following behind, on\nevery run.\n\n- the document as received — at `*/document`\n- the brief as sent\n\nAn agent that leaves less than this does not do this job,\nwhatever else it does well.\n",
       "net.agentdoc.package/SYSTEMS.md": "# The systems this agent needs\n\nNamed by what the work needs rather than by product. The access level\nis the most this work needs; a deployment that grants more is granting\nmore than the job requires.\n\n| System | Kind | Access | What the access is for |\n|---|---|---|---|\n| speech | service | trigger | to read the brief aloud; credential `speech-key`, spends per characters, the caller's material is sent to it |\n| documents | directory | read | to read the document |\n\nWhoever deploys this agent binds these systems to their own,\nand places any named credential. Nothing here names a product.\n",
@@ -188,7 +188,7 @@
       "why": "the two members beside the five sections"
     },
     {
-      "case": "legacy_file_names",
+      "case": "names_before_0_30",
       "edits": [
         {
           "op": "move",
@@ -202,6 +202,12 @@
         },
         {
           "op": "json",
+          "path": "install.json",
+          "pointer": "/format",
+          "value": "agent-install-v1"
+        },
+        {
+          "op": "json",
           "path": "plugin.json",
           "pointer": "/extensions/net.agentdoc.package/descriptor/path",
           "value": "descriptor.json"
@@ -209,15 +215,25 @@
         {
           "op": "json",
           "path": "plugin.json",
-          "pointer": "/extensions/net.agentdoc.package/install/path",
-          "value": "install.json"
+          "pointer": "/extensions/net.agentdoc.package/install",
+          "value": {
+            "path": "install.json",
+            "sha256": ""
+          }
+        },
+        {
+          "op": "json",
+          "path": "plugin.json",
+          "pointer": "/extensions/net.agentdoc.package/runtime_requirements",
+          "remove": true
         }
       ],
-      "warnings": 2,
-      "why": "a package built before the rename still validates, with a warning for each old name"
+      "rehash": true,
+      "warnings": 4,
+      "why": "a package built before 0.30.0-draft still validates, with a warning for each former name"
     },
     {
-      "case": "legacy_descriptor_name_only",
+      "case": "former_descriptor_name_only",
       "edits": [
         {
           "op": "move",
@@ -232,7 +248,84 @@
         }
       ],
       "warnings": 1,
-      "why": "one file under its old name, the other under its new one"
+      "why": "one file under its former name, the other under its current one"
+    },
+    {
+      "case": "former_pointer_only",
+      "edits": [
+        {
+          "op": "json",
+          "path": "plugin.json",
+          "pointer": "/extensions/net.agentdoc.package/install",
+          "value": {
+            "path": "agent-runtime-requirements.json",
+            "sha256": ""
+          }
+        },
+        {
+          "op": "json",
+          "path": "plugin.json",
+          "pointer": "/extensions/net.agentdoc.package/runtime_requirements",
+          "remove": true
+        }
+      ],
+      "rehash": true,
+      "warnings": 1,
+      "why": "the pointer install where runtime_requirements is absent"
+    },
+    {
+      "case": "former_format_only",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/format",
+          "value": "agent-install-v1"
+        }
+      ],
+      "rehash": true,
+      "warnings": 1,
+      "why": "the format agent-install-v1 is read as agent-runtime-requirements-v1"
+    },
+    {
+      "case": "both_descriptor_names",
+      "edits": [
+        {
+          "op": "set",
+          "path": "descriptor.json",
+          "text": "not even JSON"
+        }
+      ],
+      "warnings": 1,
+      "why": "where both names are present the current one is read, and the former is ignored"
+    },
+    {
+      "case": "both_runtime_requirements_names",
+      "edits": [
+        {
+          "op": "set",
+          "path": "install.json",
+          "text": "not even JSON"
+        }
+      ],
+      "warnings": 1,
+      "why": "where both names are present the current one is read, and the former is ignored"
+    },
+    {
+      "case": "both_pointers",
+      "edits": [
+        {
+          "op": "json",
+          "path": "plugin.json",
+          "pointer": "/extensions/net.agentdoc.package/install",
+          "value": {
+            "path": "nowhere.json",
+            "sha256": "0"
+          }
+        }
+      ],
+      "warnings": 1,
+      "why": "where both pointers are present the current one is read"
     },
     {
       "case": "mcp_server_declared",
@@ -247,30 +340,6 @@
     }
   ],
   "invalid": [
-    {
-      "case": "both_descriptor_names",
-      "check": "layout",
-      "edits": [
-        {
-          "op": "set",
-          "path": "descriptor.json",
-          "text": "{\n  \"format\": \"agent-descriptor-v1\",\n  \"agent_version\": \"1.0.0\",\n  \"does\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"offerings\": [\n    {\n      \"id\": \"summarize\",\n      \"name\": \"Summarize a document\",\n      \"inputs\": [\n        {\n          \"name\": \"document\",\n          \"kind\": \"document\",\n          \"required\": true\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"brief\",\n          \"kind\": \"text/markdown\",\n          \"when\": \"per_task\"\n        }\n      ],\n      \"steps\": [\n        {\n          \"id\": \"fetch\",\n          \"name\": \"Fetch the document\"\n        }\n      ]\n    }\n  ],\n  \"refusals\": \"summarizing a document it could not read.\\nadding a claim the document does not make.\",\n  \"escalates\": [\n    \"a document marked confidential.\"\n  ],\n  \"records\": [\n    {\n      \"name\": \"the document as received\",\n      \"when\": \"per_task\",\n      \"file\": \"*/document\"\n    },\n    {\n      \"name\": \"the brief as sent\",\n      \"when\": \"per_task\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"access\": \"trigger\",\n      \"needs\": \"to read the brief aloud\",\n      \"leaves\": true\n    },\n    {\n      \"name\": \"documents\",\n      \"access\": \"read\",\n      \"needs\": \"to read the document\"\n    }\n  ]\n}\n"
-        }
-      ],
-      "why": "a package carries the draft Descriptor under one name"
-    },
-    {
-      "case": "both_runtime_requirements_names",
-      "check": "layout",
-      "edits": [
-        {
-          "op": "set",
-          "path": "install.json",
-          "text": "{\n  \"format\": \"agent-install-v1\",\n  \"runtimes\": [\n    {\n      \"name\": \"node\",\n      \"version\": \">=20\"\n    }\n  ],\n  \"binaries\": [],\n  \"dependencies\": [\n    {\n      \"skill\": \"fetch\",\n      \"lockfile\": \"skills/fetch/scripts/package-lock.json\",\n      \"sha256\": \"d5e0209440bfcfcf1af3422aaab2db36d6c41c4e455c1aec3cec9b652ef15aed\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"kind\": \"service\",\n      \"credential\": \"speech-key\",\n      \"env\": \"SPEECH_TOKEN\",\n      \"spends\": {\n        \"unit\": \"characters\"\n      }\n    },\n    {\n      \"name\": \"documents\",\n      \"kind\": \"directory\"\n    }\n  ],\n  \"ceilings\": [\n    {\n      \"system\": \"speech\",\n      \"per\": \"task\",\n      \"enforced_by\": \"runtime\"\n    }\n  ],\n  \"directories\": [\n    {\n      \"name\": \"records\",\n      \"purpose\": \"every record the descriptor names\"\n    },\n    {\n      \"name\": \"work\",\n      \"purpose\": \"inputs and drafts in progress\"\n    }\n  ]\n}\n"
-        }
-      ],
-      "why": "a package carries the install file under one name"
-    },
     {
       "case": "manifest_points_at_old_name",
       "check": "manifest",
@@ -525,7 +594,7 @@
     },
     {
       "case": "install_address",
-      "check": "install",
+      "check": "runtime-requirements",
       "edits": [
         {
           "op": "json",
@@ -539,7 +608,7 @@
     },
     {
       "case": "install_missing_section",
-      "check": "install",
+      "check": "runtime-requirements",
       "edits": [
         {
           "op": "json",
