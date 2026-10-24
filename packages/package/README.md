@@ -3,15 +3,25 @@
 This package implements the Agent Package of the Common Agent Specification
 0.29.2-draft, Section 12 (https://commonagent.net/package.html, source in
 https://github.com/CommonAgent/common-agent-standards `common-agent/`). It
-turns an agent's spec and folder into a package, and it checks a package
-against the mechanical checks of Section 12.10.
+turns an agent's folder into a package, and it checks a package against the
+mechanical checks of Section 12.10.
 
 A package is an Agent Plugin with two files beside its manifest. The draft
-Descriptor, `descriptor.json`, holds every fact a caller can rely on. The
-install file, `install.json`, holds every fact a host must act on. The
-manifest points at both by digest and copies nothing. `NOT.md`, `RECORDS.md`
-and `SYSTEMS.md` are generated from the two files, under
-`net.agentdoc.package/`.
+Descriptor, `agent-descriptor.json`, holds every fact a caller can rely on.
+The install file, `agent-runtime-requirements.json`, holds every fact a host
+must act on. The manifest points at both by digest and copies nothing.
+`NOT.md`, `RECORDS.md` and `SYSTEMS.md` are generated from the two files,
+under `net.agentdoc.package/`.
+
+## The file names
+
+The two authored files were called `descriptor.json` and `install.json`
+until they were renamed. This package writes only the new names. It reads
+the old names as aliases, with a warning, in an agent's folder and in a
+package, so a package built under them still validates. A package or folder
+that holds both names for one file is refused. The names are in `names.ts`.
+The specification, at 0.29.2-draft, still gives the old names in Section
+12.2; the change to the standard is to follow.
 
 The library holds no storage, makes no network calls and reads no clock. It
 reads the agent's folder through the `SourceTree` port and returns the
@@ -24,10 +34,19 @@ disk.
 
     npx @common-agent/package --help
 
-The tool is called `common-agent-pack`. To pack a folder that holds
-`agent.json`, or a spec file named directly:
+The tool is called `common-agent-pack`. To pack an agent's folder:
 
-    common-agent-pack <folder-or-spec.json> [--out <dir>] [--json] [--seed-file <file>]
+    common-agent-pack <agent-folder> [--out <dir>] [--json] [--seed-file <file>]
+
+The folder holds `agent-descriptor.json`, `agent-runtime-requirements.json`
+and `plugin.json` directly, and the skills under `skills/<id>/`. The
+manifest carries the agent's name, version and description, and the members
+only the build needs, such as `license`, `author` and `repository`. The
+packer takes the two authored files as written, fills the digest of each
+lockfile the runtime requirements name without one, points the manifest at
+both files by digest, and generates the three views and any SKILL.md an
+offering or a step lacks. A draft that does not say what the agent refuses or
+what records it leaves is refused, and the refusal names the part.
 
 It writes `<out>/<name>/`, the archive `<out>/<name>-<version>.tar.gz` and
 the build record `<out>/<name>-build.json`. The output folder defaults to
@@ -43,9 +62,10 @@ To check a package folder or its archive:
 It lists every problem it finds, each with the check that found it, and
 exits 1 when there is one.
 
-## The spec
+## The spec, which is deprecated
 
-The spec names the agent, says in one sentence what it does, and lists its
+The packer still reads a spec, `agent.json` in the folder or a spec file
+named directly, and says that it is deprecated each time. The spec names the agent, says in one sentence what it does, and lists its
 jobs, the systems it needs by name, what it refuses, what records it must
 leave, and what a host must have. Two parts are never invented. When the spec
 does not say what the agent refuses or what records it leaves, the packer
@@ -95,19 +115,24 @@ spending service with neither is refused.
 ## Using the library
 
 ```ts
-import { buildPackage, buildRecord, validatePackage, validateArchive } from "@common-agent/package";
+import { buildFromFolder, buildRecord, validatePackage, validateArchive } from "@common-agent/package";
 
-const built = buildPackage(spec, source, { mtime: Math.floor(Date.now() / 1000) });
+const built = buildFromFolder(source, { mtime: Math.floor(Date.now() / 1000) });
 const record = buildRecord(built, { producedAt: new Date(), signer });
 const check = validatePackage(built.files);
 ```
 
-`buildPackage` throws a `PackRefusal`, whose `missing` names the part when one
-is missing. Every package it returns passes `validatePackage`.
+`buildFromFolder`, and the deprecated `buildPackage(spec, source)`, throw a
+`PackRefusal`, whose `missing` names the part when one is missing. Every
+package they return passes `validatePackage`, and its `warnings` list what
+the packer read but would rather not have, such as an old file name.
+`validatePackage` returns `warnings` in the same way, and a warning is never
+a problem.
 
 | File | What it holds |
 |---|---|
 | `index.ts` | The public face: `PACKAGE_SPEC`, `validateArchive` and everything below |
+| `names.ts` | The two authored files' names, and their names before the rename |
 | `ports.ts` | What the library asks its host for: the `SourceTree` of the agent's folder, and a signer |
 | `types.ts` | The spec, the draft Descriptor, the install file, and a package as files |
 | `build.ts` | The packer and its refusals: the draft Descriptor, the install file, skills, the manifest |

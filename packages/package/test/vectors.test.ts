@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { pinnedVectorFiles, REPO_ROOT } from "../../vectors/index.js";
 import { PACKAGE_NS } from "../manifest.js";
+import { resolveName } from "../names.js";
 import { offeringScopeProblems } from "../offering.js";
 import { dumps, sha256Hex, utf8Bytes, utf8Text } from "../text.js";
 import type { DraftDescriptor, InstallFile, PackageFiles } from "../types.js";
@@ -39,6 +40,7 @@ describe("offering-scope.json: the declaration cases (Section 6.11)", () => {
 type Edit =
   | { op: "set"; path: string; text: string }
   | { op: "delete"; path: string }
+  | { op: "move"; path: string; to: string }
   | { op: "json"; path: string; pointer: string; value?: unknown; remove?: boolean };
 interface Case {
   case: string;
@@ -46,6 +48,7 @@ interface Case {
   rehash?: boolean;
   regenerate?: boolean;
   check?: string;
+  warnings?: number;
   why: string;
 }
 interface Fixture {
@@ -72,6 +75,10 @@ function packageFor(c: Case): PackageFiles {
   for (const e of c.edits) {
     if (e.op === "set") files.set(e.path, utf8Bytes(e.text));
     else if (e.op === "delete") files.delete(e.path);
+    else if (e.op === "move") {
+      files.set(e.to, files.get(e.path) as Uint8Array);
+      files.delete(e.path);
+    }
     else {
       const doc = readJson(e.path);
       const [parent, key] = at(doc, e.pointer);
@@ -83,14 +90,17 @@ function packageFor(c: Case): PackageFiles {
       files.set(e.path, utf8Bytes(dumps(doc)));
     }
   }
+  const has = (p: string) => files.has(p);
+  const descPath = resolveName(has, "descriptor").path as string;
+  const instPath = resolveName(has, "runtime").path as string;
   if (c.rehash) {
     const m = readJson("plugin.json");
-    m.extensions[PACKAGE_NS].descriptor.sha256 = sha256Hex(files.get("descriptor.json") as Uint8Array);
-    m.extensions[PACKAGE_NS].install.sha256 = sha256Hex(files.get("install.json") as Uint8Array);
+    m.extensions[PACKAGE_NS].descriptor.sha256 = sha256Hex(files.get(descPath) as Uint8Array);
+    m.extensions[PACKAGE_NS].install.sha256 = sha256Hex(files.get(instPath) as Uint8Array);
     files.set("plugin.json", utf8Bytes(dumps(m)));
   }
   if (c.regenerate) {
-    const views = generatedViews(readJson("descriptor.json") as DraftDescriptor, readJson("install.json") as InstallFile, PACKAGE_NS);
+    const views = generatedViews(readJson(descPath) as DraftDescriptor, readJson(instPath) as InstallFile, PACKAGE_NS);
     for (const [p, text] of Object.entries(views)) files.set(p, utf8Bytes(text));
   }
   return files;
@@ -101,6 +111,7 @@ describe("package-checks.json: the checker of Section 12.10", () => {
     it(`accepts ${c.case}`, () => {
       const v = validatePackage(packageFor(c));
       expect(v.problems, c.why).toEqual([]);
+      expect(v.warnings, c.why).toHaveLength(c.warnings ?? 0);
     });
   }
   for (const c of fixture.invalid) {

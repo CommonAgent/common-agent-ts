@@ -16,6 +16,7 @@
  */
 import { writeArchive, ArchiveError } from "./archive.js";
 import { PACKAGE_NS, PLUGIN_SCHEMA_URL, manifestProblem } from "./manifest.js";
+import { AUTHORED_FILES, DESCRIPTOR_FILE, MANIFEST_FILE, RUNTIME_REQUIREMENTS_FILE, legacyWarning, resolveName } from "./names.js";
 import { isDataUseProblem, offeringScopeProblems } from "./offering.js";
 import type { SourceTree } from "./ports.js";
 import { hasSkillFrontmatter, skillMd, type Copied } from "./skill.js";
@@ -203,7 +204,7 @@ export function installFile(spec: AgentSpec, systems: SystemSpec[], lockfiles: L
     ceilings,
     directories,
   };
-  if (dumps(doc).includes("://")) throw new PackRefusal("install.json must not carry an address; name the system's role and the credential, and bind at install");
+  if (dumps(doc).includes("://")) throw new PackRefusal(`${RUNTIME_REQUIREMENTS_FILE} must not carry an address; name the system's role and the credential, and bind at install`);
   return doc;
 }
 
@@ -221,6 +222,7 @@ function inside(base: string, rel: string): string | null {
   return parts.join("/");
 }
 
+
 /** What the packer built. */
 export interface BuiltPackage {
   name: string;
@@ -231,7 +233,9 @@ export interface BuiltPackage {
   archive: Uint8Array;
   /** SHA-256 over the archive bytes: the package's digest. */
   sha256: string;
+  /** SHA-256 over agent-descriptor.json. */
   descriptor_sha256: string;
+  /** SHA-256 over agent-runtime-requirements.json. */
   install_sha256: string;
   skills: string[];
   /** How many skill folders the developer wrote and were packed as written. */
@@ -239,6 +243,8 @@ export interface BuiltPackage {
   systems: string[];
   lockfiles: Lockfile[];
   shape: { skills: number; systems: number; refuses: number; records: number };
+  /** What the packer read that it would rather not have: an old file name, a deprecated input. */
+  warnings: string[];
 }
 
 /** Options the host passes in. */
@@ -247,8 +253,73 @@ export interface BuildOptions {
   mtime?: number;
 }
 
+type Meta = Omit<BuiltPackage, "files" | "archive" | "sha256" | "descriptor_sha256" | "install_sha256" | "name" | "version">;
+
 /**
- * Build the package from a spec. Takes the spec, the folder it sits in (as a
+ * What both inputs end in: the two authored files written under their names,
+ * the manifest pointing at them, the views generated, a README where the
+ * package has none, the hidden-character scan, the package's own validator,
+ * and the archive.
+ */
+function finish(files: PackageFiles, desc: DraftDescriptor, inst: InstallFile, manifestHead: Record<string, unknown>, extension: Record<string, unknown>, meta: Meta, opts: BuildOptions): BuiltPackage {
+  const put = (path: string, data: string) => files.set(path, utf8Bytes(data));
+  const descText = dumps(desc);
+  const instText = dumps(inst);
+  put(DESCRIPTOR_FILE, descText);
+  put(RUNTIME_REQUIREMENTS_FILE, instText);
+  const descriptor_sha256 = sha256Hex(descText);
+  const install_sha256 = sha256Hex(instText);
+  const manifest = {
+    ...manifestHead,
+    extensions: {
+      ...((manifestHead.extensions as Record<string, unknown> | undefined) ?? {}),
+      [PACKAGE_NS]: {
+        ...extension,
+        [AUTHORED_FILES.descriptor.member]: { path: DESCRIPTOR_FILE, sha256: descriptor_sha256 },
+        [AUTHORED_FILES.runtime.member]: { path: RUNTIME_REQUIREMENTS_FILE, sha256: install_sha256 },
+        built: true,
+        draft: true,
+      },
+    },
+  };
+  const bad = manifestProblem(manifest);
+  if (bad) throw new PackRefusal(bad);
+  const name = manifestHead.name as string;
+  const version = manifestHead.version as string;
+  put(MANIFEST_FILE, dumps(manifest));
+  for (const [path, text] of Object.entries(generatedViews(desc, inst, PACKAGE_NS))) put(path, text);
+  if (!files.has("README.md")) {
+    put(
+      "README.md",
+      `# ${name}\n\nAn Agent Package: an Agent Plugin carrying a draft Agent Descriptor (what\nthe agent does, refuses, needs and records) and its runtime requirements\n(what a host must have and do). It carries ${meta.skills.length} skill(s). Nobody has run\nit: this is a draft to review, not a vouched-for agent.\n`,
+    );
+  }
+  for (const [rel, bytes] of files) {
+    const hit = hiddenInFile(bytes);
+    if (hit) throw new PackRefusal(`${rel} carries a hidden character ${codepointName(hit.codepoint)} at offset ${hit.offset}; a package must not`);
+  }
+  // The packer never hands over a package its own validator refuses.
+  const problems = validatePackage(files).problems;
+  if (problems.length) throw new PackRefusal(`the package would not conform: ${problems.join("; ")}`);
+
+  let archive: Uint8Array;
+  try {
+    archive = writeArchive(files, name, opts.mtime ?? 0);
+  } catch (e) {
+    if (e instanceof ArchiveError) throw new PackRefusal(e.message);
+    throw e;
+  }
+  return { name, version, files, archive, sha256: sha256Hex(archive), descriptor_sha256, install_sha256, ...meta };
+}
+
+/** The warning a spec input carries. */
+export const SPEC_DEPRECATED =
+  "packing from a spec (agent.json) is deprecated; keep agent-descriptor.json, agent-runtime-requirements.json and plugin.json in the agent's folder and pack the folder";
+
+/**
+ * Build the package from a spec (agent.json). Deprecated: an agent's folder
+ * now holds its two authored files and its manifest directly, and
+ * buildFromFolder packs that. Takes the spec, the folder it sits in (as a
  * SourceTree) and returns what it built, or throws a PackRefusal. A skill
  * folder that already exists under `skills/<slug>/` in the spec's folder is
  * copied whole, its SKILL.md kept as written, and only its missing pieces
@@ -325,10 +396,9 @@ export function buildPackage(specIn: unknown, source: SourceTree, opts: BuildOpt
   let kept = 0;
   for (const j of jobs) {
     const d = `skills/${j.slug}`;
-    const existing = `skills/${j.slug}`;
-    if (source.kind(existing) === "directory") {
+    if (source.kind(d) === "directory") {
       // The developer's own skill folder: copied whole, SKILL.md as written.
-      for (const f of source.list(existing)) put(`${d}/${f}`, source.read(`${existing}/${f}`));
+      for (const f of source.list(d)) put(`${d}/${f}`, source.read(`${d}/${f}`));
       kept++;
     }
     const copied: Copied = { scripts: [], references: [], assets: [] };
@@ -356,13 +426,9 @@ export function buildPackage(specIn: unknown, source: SourceTree, opts: BuildOpt
   const desc = draftDescriptor(spec, jobs, systems, refuses, escalates, records);
   const inst = installFile(spec, systems, lockfiles);
   const descNames = new Set((desc.systems ?? []).map((s) => s.name));
-  if (descNames.size !== inst.systems.length || inst.systems.some((s) => !descNames.has(s.name))) throw new PackRefusal("the descriptor and the install file name different systems");
-  const descText = dumps(desc);
-  const instText = dumps(inst);
-  put("descriptor.json", descText);
-  put("install.json", instText);
+  if (descNames.size !== inst.systems.length || inst.systems.some((s) => !descNames.has(s.name))) throw new PackRefusal("the descriptor and the runtime requirements name different systems");
 
-  const manifest = {
+  const manifestHead = {
     $schema: PLUGIN_SCHEMA_URL,
     name,
     version,
@@ -372,52 +438,132 @@ export function buildPackage(specIn: unknown, source: SourceTree, opts: BuildOpt
     ...(spec.homepage ? { homepage: spec.homepage } : {}),
     ...(spec.repository ? { repository: spec.repository } : {}),
     keywords: ["built-agent", "draft", ...jobs.map((j) => j.slug)],
-    extensions: {
-      [PACKAGE_NS]: {
-        descriptor: { path: "descriptor.json", sha256: sha256Hex(descText) },
-        install: { path: "install.json", sha256: sha256Hex(instText) },
-        built: true,
-        draft: true,
-      },
-    },
   };
-  const bad = manifestProblem(manifest);
-  if (bad) throw new PackRefusal(bad);
-  put("plugin.json", dumps(manifest));
-  for (const [path, text] of Object.entries(generatedViews(desc, inst, PACKAGE_NS))) put(path, text);
-  if (!files.has("README.md")) {
-    put(
-      "README.md",
-      `# ${name}\n\nAn Agent Package: an Agent Plugin carrying a draft Agent Descriptor (what\nthe agent does, refuses, needs and records) and an install file (what a\nhost must have and do). It carries ${jobs.length} skill(s). Nobody has run\nit: this is a draft to review, not a vouched-for agent.\n`,
-    );
-  }
-  for (const [rel, bytes] of files) {
-    const hit = hiddenInFile(bytes);
-    if (hit) throw new PackRefusal(`${rel} carries a hidden character ${codepointName(hit.codepoint)} at offset ${hit.offset}; a package must not`);
-  }
-  // The packer never hands over a package its own validator refuses.
-  const problems = validatePackage(files).problems;
-  if (problems.length) throw new PackRefusal(`the package would not conform: ${problems.join("; ")}`);
-
-  let archive: Uint8Array;
-  try {
-    archive = writeArchive(files, name, opts.mtime ?? 0);
-  } catch (e) {
-    if (e instanceof ArchiveError) throw new PackRefusal(e.message);
-    throw e;
-  }
-  return {
-    name,
-    version,
-    files,
-    archive,
-    sha256: sha256Hex(archive),
-    descriptor_sha256: manifest.extensions[PACKAGE_NS].descriptor.sha256,
-    install_sha256: manifest.extensions[PACKAGE_NS].install.sha256,
+  return finish(files, desc, inst, manifestHead, {}, {
     skills: jobs.map((j) => j.slug),
     skills_kept: kept,
     systems: systems.map((s) => s.name as string),
     lockfiles,
     shape: { skills: jobs.length, systems: systems.length, refuses: refuses.length, records: records.length },
+    warnings: [SPEC_DEPRECATED],
+  }, opts);
+}
+
+const readJsonFile = (source: SourceTree, path: string): Record<string, unknown> => {
+  let v: unknown;
+  try {
+    v = JSON.parse(utf8Text(source.read(path)));
+  } catch (e) {
+    throw new PackRefusal(`${path} is not valid JSON: ${(e as Error).message}`);
+  }
+  if (!v || typeof v !== "object" || Array.isArray(v)) throw new PackRefusal(`${path} is a JSON object`);
+  return v as Record<string, unknown>;
+};
+
+/** Whether a folder holds an agent's authored files, under their names or their old names, beside a plugin.json. */
+export function isAgentFolder(source: SourceTree): boolean {
+  const has = (p: string) => source.kind(p) === "file";
+  return has(MANIFEST_FILE) && (["descriptor", "runtime"] as const).some((k) => resolveName(has, k).path !== null);
+}
+
+/**
+ * Build the package from an agent's folder, the way an agent is now kept:
+ * the folder holds `agent-descriptor.json`, `agent-runtime-requirements.json`
+ * and `plugin.json` (with the build-only members, such as license, author and
+ * repository), and its skills under `skills/<id>/`. The old file names
+ * `descriptor.json` and `install.json` are read as aliases, with a warning.
+ *
+ * The packer takes the two authored files as written, in the one spelling,
+ * fills each lockfile's digest the runtime requirements leave out (and
+ * refuses one that does not match), points the manifest at both by digest,
+ * generates the views and any SKILL.md an offering or step lacks, and
+ * archives the result. It invents nothing: a descriptor that does not say
+ * what the agent refuses or what records it leaves is refused, naming the
+ * part. The result always passes validatePackage.
+ */
+export function buildFromFolder(source: SourceTree, opts: BuildOptions = {}): BuiltPackage {
+  const warnings: string[] = [];
+  const has = (p: string) => source.kind(p) === "file";
+  if (!has(MANIFEST_FILE)) throw new PackRefusal(`the agent's folder has no ${MANIFEST_FILE}`, MANIFEST_FILE);
+  const located = { descriptor: "", runtime: "" };
+  for (const kind of ["descriptor", "runtime"] as const) {
+    const r = resolveName(has, kind);
+    const f = AUTHORED_FILES[kind];
+    if (r.both) throw new PackRefusal(`the agent's folder holds both ${f.name} and ${f.legacy}; keep ${f.name} only`);
+    if (!r.path) throw new PackRefusal(`the agent's folder has no ${f.name}`, f.name);
+    if (r.legacy) warnings.push(legacyWarning(kind));
+    located[kind] = r.path;
+  }
+  const manifestIn = readJsonFile(source, MANIFEST_FILE);
+  const desc = readJsonFile(source, located.descriptor) as DraftDescriptor;
+  const inst = readJsonFile(source, located.runtime) as InstallFile;
+
+  const name = manifestIn.name;
+  if (typeof name !== "string" || !NAME_RE.test(name)) throw new PackRefusal(`${MANIFEST_FILE} name "${String(name)}" must be lowercase letters, digits and hyphens`, "name");
+  if (typeof manifestIn.description !== "string" || !manifestIn.description.trim()) throw new PackRefusal(`${MANIFEST_FILE} needs a description, one sentence on what the agent does`, "description");
+  if (typeof desc.refusals !== "string" || !desc.refusals.trim()) {
+    throw new PackRefusal(`${DESCRIPTOR_FILE} does not say what the agent refuses; a package must carry it and it is not something to invent`, "refusals");
+  }
+  if (!Array.isArray(desc.records) || !desc.records.length) {
+    throw new PackRefusal(`${DESCRIPTOR_FILE} does not say what records the agent must leave; a package must carry it and it is not something to invent`, "records");
+  }
+  if (!Array.isArray(desc.offerings) || !desc.offerings.length) throw new PackRefusal(`${DESCRIPTOR_FILE} has no offering; at least one is what a caller orders`, "offerings");
+
+  const files: PackageFiles = new Map();
+  for (const f of source.kind("skills") === "directory" ? source.list("skills") : []) files.set(`skills/${f}`, source.read(`skills/${f}`));
+  for (const f of ["mcp.json", "README.md"]) if (has(f)) files.set(f, source.read(f));
+
+  // A skill for every offering and every step: the developer's as written,
+  // or one generated from what the descriptor says the job is.
+  const jobs: Offering[] = [];
+  for (const o of desc.offerings) if (o && typeof o === "object") jobs.push(o, ...(Array.isArray(o.steps) ? o.steps : []));
+  let kept = 0;
+  const ids: string[] = [];
+  for (const o of jobs) {
+    if (typeof o.id !== "string" || !SLUG_RE.test(o.id)) throw new PackRefusal(`each offering and step has an id (lowercase-hyphen); bad: ${JSON.stringify(o.id)}`);
+    if (ids.includes(o.id)) continue;
+    ids.push(o.id);
+    const md = files.get(`skills/${o.id}/SKILL.md`);
+    if (md) {
+      kept++;
+      if (!hasSkillFrontmatter(utf8Text(md))) throw new PackRefusal(`skills/${o.id}/SKILL.md needs frontmatter with name and description (the Agent Skills format)`);
+      continue;
+    }
+    const under = (kind: string) => [...files.keys()].filter((p) => p.startsWith(`skills/${o.id}/${kind}/`)).map((p) => p.slice(`skills/${o.id}/${kind}/`.length));
+    const job: JobSpec = { slug: o.id, title: String(o.name ?? o.id), ...(typeof o.does === "string" ? { when: o.does } : {}), inputs: o.inputs, outputs: o.outputs };
+    files.set(`skills/${o.id}/SKILL.md`, utf8Bytes(skillMd(job, name, { scripts: under("scripts"), references: under("references"), assets: under("assets") })));
+  }
+
+  // Each lockfile's digest: filled where the file leaves it out, held where it gives one.
+  const lockfiles: Lockfile[] = [];
+  for (const d of Array.isArray(inst.dependencies) ? inst.dependencies : []) {
+    if (!d || typeof d.lockfile !== "string") continue;
+    const bytes = files.get(d.lockfile);
+    if (!bytes) throw new PackRefusal(`${located.runtime} names the lockfile ${d.lockfile}, which the agent's folder does not hold`);
+    const sha = sha256Hex(bytes);
+    if (d.sha256 !== undefined && d.sha256 !== sha) throw new PackRefusal(`${located.runtime} names ${d.lockfile} by a digest the file does not have`);
+    d.sha256 = sha;
+    lockfiles.push(d);
+  }
+
+  const { extensions: extIn, ...head } = manifestIn;
+  const extensions = { ...((extIn as Record<string, unknown> | undefined) ?? {}) };
+  const own = (extensions[PACKAGE_NS] as Record<string, unknown> | undefined) ?? {};
+  delete extensions[PACKAGE_NS];
+  const { descriptor: _d, install: _i, built: _b, draft: _r, ...keep } = own;
+  const manifestHead = {
+    $schema: PLUGIN_SCHEMA_URL,
+    ...head,
+    version: typeof head.version === "string" ? head.version : String(desc.agent_version ?? "1.0.0"),
+    ...(Object.keys(extensions).length ? { extensions } : {}),
   };
+  const systems = (Array.isArray(desc.systems) ? desc.systems : []).map((s) => systemName(s));
+  return finish(files, desc, inst, manifestHead, keep, {
+    skills: ids,
+    skills_kept: kept,
+    systems,
+    lockfiles,
+    shape: { skills: ids.length, systems: systems.length, refuses: desc.refusals.split("\n").filter((l) => l.trim()).length, records: desc.records.length },
+    warnings,
+  }, opts);
 }

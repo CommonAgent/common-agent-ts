@@ -5,6 +5,7 @@
  * check here. The README lists what it does not check.
  */
 import { PACKAGE_NS, manifestProblem } from "./manifest.js";
+import { AUTHORED_FILES, DESCRIPTOR_FILE, RUNTIME_REQUIREMENTS_FILE, legacyWarning, resolveName, type AuthoredKind } from "./names.js";
 import { isDataUseProblem, offeringScopeProblems, type SystemRef } from "./offering.js";
 import { hasSkillFrontmatter } from "./skill.js";
 import { codepointName, hiddenInFile, sha256Hex, utf8Text } from "./text.js";
@@ -38,6 +39,8 @@ export interface Validation {
   name: string | null;
   version: string | null;
   problems: string[];
+  /** What the validator read but would rather not have, such as an authored file under its old name. A warning is not a problem. */
+  warnings: string[];
 }
 
 const parseJson = (files: PackageFiles, path: string, add: (check: string, message: string) => void): unknown => {
@@ -113,6 +116,18 @@ export function validatePackage(files: PackageFiles): Validation {
   let section = "manifest";
   const add = (check: string, message: string) => issues.push({ check, message });
   const problem = (message: string) => add(section, message);
+  // The two authored files, under their names or, with a warning, their old ones.
+  const warnings: string[] = [];
+  const located: Record<AuthoredKind, string> = { descriptor: DESCRIPTOR_FILE, runtime: RUNTIME_REQUIREMENTS_FILE };
+  for (const kind of ["descriptor", "runtime"] as const) {
+    const r = resolveName((p) => files.has(p), kind);
+    const f = AUTHORED_FILES[kind];
+    if (r.both) add("layout", `${f.name} and ${f.legacy} are both present; a package carries one of them`);
+    if (r.legacy) warnings.push(legacyWarning(kind));
+    if (r.path) located[kind] = r.path;
+  }
+  const descPath = located.descriptor;
+  const instPath = located.runtime;
 
   // The manifest, against the pinned schema, with its pointers and digests (12.2).
   const manifest = parseJson(files, "plugin.json", add) as Record<string, unknown> | undefined;
@@ -127,7 +142,7 @@ export function validatePackage(files: PackageFiles): Validation {
       const ext = isObj(manifest.extensions) ? manifest.extensions[PACKAGE_NS] : undefined;
       if (!isObj(ext)) problem(`plugin.json has no extensions entry for ${PACKAGE_NS}`);
       else {
-        for (const [member, path] of [["descriptor", "descriptor.json"], ["install", "install.json"]] as const) {
+        for (const [member, path] of [["descriptor", descPath], ["install", instPath]] as const) {
           const p = ext[member];
           if (!isObj(p) || p.path !== path || typeof p.sha256 !== "string") problem(`plugin.json ${PACKAGE_NS}.${member} is { "path": "${path}", "sha256": "<digest>" }`);
           else {
@@ -145,21 +160,21 @@ export function validatePackage(files: PackageFiles): Validation {
 
   section = "descriptor";
   // The draft Descriptor (12.3 and Section 6, as far as a package checks it).
-  const desc = parseJson(files, "descriptor.json", add) as DraftDescriptor | undefined;
-  const inst = parseJson(files, "install.json", add) as InstallFile | undefined;
+  const desc = parseJson(files, descPath, add) as DraftDescriptor | undefined;
+  const inst = parseJson(files, instPath, add) as InstallFile | undefined;
   const skillIds = new Set<string>();
   let descSystems: SystemRef[] = [];
   if (desc !== undefined) {
-    if (!isObj(desc)) problem("descriptor.json is a JSON object");
+    if (!isObj(desc)) problem(`${descPath} is a JSON object`);
     else {
-      if (desc.format !== "agent-descriptor-v1") problem(`descriptor.json format is "agent-descriptor-v1"`);
-      for (const k of ["subject", "acts_for", "shape"]) if (k in desc) problem(`descriptor.json carries ${k}; a draft carries no ${k}`);
-      if (typeof desc.refusals !== "string" || !desc.refusals.trim()) problem("descriptor.json says what the agent refuses, in refusals");
-      if (!Array.isArray(desc.records) || !desc.records.length) problem("descriptor.json says what records the agent must leave, in records");
+      if (desc.format !== "agent-descriptor-v1") problem(`${descPath} format is "agent-descriptor-v1"`);
+      for (const k of ["subject", "acts_for", "shape"]) if (k in desc) problem(`${descPath} carries ${k}; a draft carries no ${k}`);
+      if (typeof desc.refusals !== "string" || !desc.refusals.trim()) problem(`${descPath} says what the agent refuses, in refusals`);
+      if (!Array.isArray(desc.records) || !desc.records.length) problem(`${descPath} says what records the agent must leave, in records`);
       else for (const r of desc.records) if (!isObj(r) || typeof r.name !== "string" || !["per_task", "standing"].includes(r.when as string)) problem("each record is { name, when: per_task or standing, file? }");
       descSystems = Array.isArray(desc.systems) ? desc.systems : [];
-      for (const a of addresses(desc)) if (!/\.can_use\[\d+\]\.schema$/.test(a.path)) problem(`descriptor.json carries an address in ${a.path}`);
-      if (!Array.isArray(desc.offerings) || !desc.offerings.length) problem("descriptor.json has at least one offering");
+      for (const a of addresses(desc)) if (!/\.can_use\[\d+\]\.schema$/.test(a.path)) problem(`${descPath} carries an address in ${a.path}`);
+      if (!Array.isArray(desc.offerings) || !desc.offerings.length) problem(`${descPath} has at least one offering`);
       else
         for (const o of desc.offerings) {
           if (!isObj(o) || typeof o.id !== "string") {
@@ -168,7 +183,7 @@ export function validatePackage(files: PackageFiles): Validation {
           }
           if (skillIds.has(o.id)) problem(`offering ${o.id} is declared twice; each offering has exactly one skill`);
           skillIds.add(o.id);
-          for (const p of offeringScopeProblems(o, { systems: descSystems })) if (!isDataUseProblem(p)) add("offering", `descriptor.json offering ${p}`);
+          for (const p of offeringScopeProblems(o, { systems: descSystems })) if (!isDataUseProblem(p)) add("offering", `${descPath} offering ${p}`);
           for (const p of howRunProblems(o, `offering ${o.id}`)) add("how-run", p);
           if (o.steps !== undefined) {
             if (!Array.isArray(o.steps)) problem(`offering ${o.id}: steps is a list`);
@@ -180,7 +195,7 @@ export function validatePackage(files: PackageFiles): Validation {
                 }
                 if (s.steps !== undefined) problem(`offering ${o.id}: step ${s.id} has steps of its own; steps are one level deep`);
                 skillIds.add(s.id);
-                for (const p of offeringScopeProblems(s, { systems: descSystems })) if (!isDataUseProblem(p)) add("offering", `descriptor.json step ${p}`);
+                for (const p of offeringScopeProblems(s, { systems: descSystems })) if (!isDataUseProblem(p)) add("offering", `${descPath} step ${p}`);
                 for (const p of howRunProblems(s, `step ${s.id}`)) add("how-run", p);
               }
           }
@@ -192,23 +207,23 @@ export function validatePackage(files: PackageFiles): Validation {
   // The install file (12.4): names, never values; the same systems as the Descriptor.
   const credentialed = new Set<string>();
   if (inst !== undefined) {
-    if (!isObj(inst)) problem("install.json is a JSON object");
+    if (!isObj(inst)) problem(`${instPath} is a JSON object`);
     else {
-      if (inst.format !== "agent-install-v1") problem(`install.json format is "agent-install-v1"`);
-      for (const k of ["runtimes", "binaries", "dependencies", "systems", "ceilings", "directories"]) if (!Array.isArray(inst[k])) problem(`install.json ${k} is a list`);
-      if (addresses(inst).length) problem("install.json carries an address; it names things and the host resolves the names");
+      if (inst.format !== "agent-install-v1") problem(`${instPath} format is "agent-install-v1"`);
+      for (const k of ["runtimes", "binaries", "dependencies", "systems", "ceilings", "directories"]) if (!Array.isArray(inst[k])) problem(`${instPath} ${k} is a list`);
+      if (addresses(inst).length) problem(`${instPath} carries an address; it names things and the host resolves the names`);
       const systems = Array.isArray(inst.systems) ? inst.systems : [];
       const spending = new Set<string>();
       for (const s of systems) {
         const n = systemName(s);
-        if (!["directory", "mcp", "service"].includes(s?.kind)) problem(`install.json system ${n}: kind is directory, mcp or service`);
+        if (!["directory", "mcp", "service"].includes(s?.kind)) problem(`${instPath} system ${n}: kind is directory, mcp or service`);
         if (s?.credential) credentialed.add(n);
         if (s?.spends) spending.add(n);
       }
       if (isObj(desc)) {
         const a = new Set(descSystems.map(systemName));
         const b = new Set(systems.map(systemName));
-        if (a.size !== b.size || [...a].some((x) => !b.has(x)) || a.size !== descSystems.length || b.size !== systems.length) add("systems", "the descriptor and the install file name different systems");
+        if (a.size !== b.size || [...a].some((x) => !b.has(x)) || a.size !== descSystems.length || b.size !== systems.length) add("systems", "the descriptor and the runtime requirements name different systems");
       }
       const ceilings = Array.isArray(inst.ceilings) ? inst.ceilings : [];
       for (const c of ceilings) {
@@ -216,8 +231,8 @@ export function validatePackage(files: PackageFiles): Validation {
           add("ceilings", "each ceiling names a spending system and per task or day");
           continue;
         }
-        if (!["runtime", "platform"].includes(c.enforced_by as string)) add("ceilings", `install.json ceiling on ${String(c.system)} says who enforces it, enforced_by runtime or platform (12.4 section 4)`);
-        else if (c.enforced_by === "platform" && credentialed.has(c.system as string)) add("ceilings", `install.json ceiling on ${String(c.system)}: the scripts reach it with a credential the install file names, so enforced_by is runtime`);
+        if (!["runtime", "platform"].includes(c.enforced_by as string)) add("ceilings", `${instPath} ceiling on ${String(c.system)} says who enforces it, enforced_by runtime or platform (12.4 section 4)`);
+        else if (c.enforced_by === "platform" && credentialed.has(c.system as string)) add("ceilings", `${instPath} ceiling on ${String(c.system)}: the scripts reach it with a credential the install file names, so enforced_by is runtime`);
       }
       for (const s of spending) if (!ceilings.some((c) => isObj(c) && c.system === s)) add("ceilings", `system ${s} spends and has no ceiling`);
       const deps = Array.isArray(inst.dependencies) ? inst.dependencies : [];
@@ -227,11 +242,11 @@ export function validatePackage(files: PackageFiles): Validation {
           continue;
         }
         const b = files.get(d.lockfile);
-        if (!b) add("dependencies", `install.json names the lockfile ${d.lockfile}, which the package does not carry`);
-        else if (sha256Hex(b) !== d.sha256) add("dependencies", `install.json names ${d.lockfile} by a digest the file does not have`);
+        if (!b) add("dependencies", `${instPath} names the lockfile ${d.lockfile}, which the package does not carry`);
+        else if (sha256Hex(b) !== d.sha256) add("dependencies", `${instPath} names ${d.lockfile} by a digest the file does not have`);
       }
-      if (inst.job_seconds !== undefined && !(Number.isSafeInteger(inst.job_seconds) && (inst.job_seconds as number) > 0)) problem("install.json job_seconds is a whole number of seconds above zero");
-      if (inst.answer !== undefined && !(isObj(inst.answer) && typeof inst.answer.piece === "string" && inst.answer.piece)) problem(`install.json answer is { "piece": "<name>" }`);
+      if (inst.job_seconds !== undefined && !(Number.isSafeInteger(inst.job_seconds) && (inst.job_seconds as number) > 0)) problem(`${instPath} job_seconds is a whole number of seconds above zero`);
+      if (inst.answer !== undefined && !(isObj(inst.answer) && typeof inst.answer.piece === "string" && inst.answer.piece)) problem(`${instPath} answer is { "piece": "<name>" }`);
     }
   }
 
@@ -270,7 +285,7 @@ export function validatePackage(files: PackageFiles): Validation {
     for (const [path, text] of Object.entries(generatedViews(desc, inst, PACKAGE_NS))) {
       const b = files.get(path);
       if (!b) problem(`${path} is missing`);
-      else if (utf8Text(b) !== text) problem(`${path} is not what the descriptor and the install file generate; it is never edited by hand`);
+      else if (utf8Text(b) !== text) problem(`${path} is not what the descriptor and the runtime requirements generate; it is never edited by hand`);
     }
   }
 
@@ -281,5 +296,5 @@ export function validatePackage(files: PackageFiles): Validation {
     if (hit) problem(`${rel} carries a hidden character ${codepointName(hit.codepoint)} at offset ${hit.offset}; a package must not`);
   }
 
-  return { ok: issues.length === 0, name, version, issues, problems: issues.map((i) => i.message) };
+  return { ok: issues.length === 0, name, version, issues, problems: issues.map((i) => i.message), warnings };
 }

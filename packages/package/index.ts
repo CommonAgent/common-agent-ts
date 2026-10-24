@@ -24,12 +24,27 @@ export {
   SYSTEM_KINDS,
   VALUE_KINDS,
   WHEN,
+  SPEC_DEPRECATED,
+  buildFromFolder,
   buildPackage,
+  isAgentFolder,
   draftDescriptor,
   installFile,
   type BuildOptions,
   type BuiltPackage,
 } from "./build.js";
+export {
+  AUTHORED_FILES,
+  DESCRIPTOR_FILE,
+  LEGACY_DESCRIPTOR_FILE,
+  LEGACY_RUNTIME_REQUIREMENTS_FILE,
+  MANIFEST_FILE,
+  RUNTIME_REQUIREMENTS_FILE,
+  legacyWarning,
+  resolveName,
+  type AuthoredKind,
+  type ResolvedName,
+} from "./names.js";
 export { PACKAGE_NS, PLUGIN_SCHEMA, PLUGIN_SCHEMA_URL, manifestProblem } from "./manifest.js";
 export { AUTHORITY_VALUES, CEILING_KEYS, FOCUS_VALUES, SCOPE_VALUES, isDataUseProblem, offeringScopeProblems, type DataUse, type SystemRef } from "./offering.js";
 export type { KeyedSigner, SourceTree } from "./ports.js";
@@ -55,7 +70,7 @@ export function validateArchive(bytes: Uint8Array): Validation & { files?: Packa
   try {
     read = readArchive(bytes);
   } catch (e) {
-    if (e instanceof ArchiveError) return { ok: false, name: null, version: null, issues: [{ check: "layout", message: e.message }], problems: [e.message] };
+    if (e instanceof ArchiveError) return { ok: false, name: null, version: null, issues: [{ check: "layout", message: e.message }], problems: [e.message], warnings: [] };
     throw e;
   }
   const v = validatePackage(read.files);

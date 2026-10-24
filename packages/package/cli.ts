@@ -10,7 +10,8 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { signerFromUserSeed } from "@common-agent/crypto";
-import { PackRefusal, buildPackage } from "./build.js";
+import { PackRefusal, buildFromFolder, buildPackage, isAgentFolder } from "./build.js";
+import { DESCRIPTOR_FILE, MANIFEST_FILE, RUNTIME_REQUIREMENTS_FILE } from "./names.js";
 import { validateArchive, withIssue } from "./index.js";
 import type { SourceTree } from "./ports.js";
 import { buildRecord } from "./record.js";
@@ -18,18 +19,24 @@ import { dumps } from "./text.js";
 import type { PackageFiles } from "./types.js";
 import { validatePackage, type Validation } from "./validate.js";
 
-export const USAGE = `usage: common-agent-pack <folder-or-spec.json> [--out <dir>] [--json] [--seed-file <file>]
+export const USAGE = `usage: common-agent-pack <agent-folder> [--out <dir>] [--json] [--seed-file <file>]
        common-agent-pack validate <package-folder-or-archive> [--json]
 
 Turn a working agent into an Agent Package (Common Agent Specification,
-Section 12, https://commonagent.net/package.html). The folder holds
-agent.json, the spec (or name the spec file directly): the agent's name, one
-sentence on what it does, its jobs, the systems it needs by name, what it
-REFUSES, what it must RECORD, and what a host must have. A skill folder
-already under <folder>/skills/<slug>/ is packed as written; anything else is
-generated from the spec. Two parts are never invented: if the spec does not
-say what the agent refuses or what it records, pack refuses and names the
-part. Credentials are named, never carried: a value in the spec is refused.
+Section 12, https://commonagent.net/package.html). The agent's folder holds
+agent-descriptor.json (what a caller can rely on: what the agent does,
+REFUSES, needs and must RECORD), agent-runtime-requirements.json (what a host
+must have and do), plugin.json (its name, version, description and the
+build-only members such as license, author and repository) and its skills
+under skills/<id>/. The old names descriptor.json and install.json are read,
+with a warning. A skill already under skills/<id>/ is packed as written; a
+missing one is generated. Two parts are never invented: if the descriptor
+does not say what the agent refuses or what it records, pack refuses and
+names the part. Credentials are named, never carried.
+
+A spec, agent.json in the folder or a spec file named directly, is still
+read, and is deprecated.
+
 Writes <out>/<name>/, <out>/<name>-<version>.tar.gz and the build record
 <out>/<name>-build.json; --out defaults to <folder>/dist. The record is
 signed when --seed-file names a file holding an nkey user seed, and is
@@ -117,18 +124,23 @@ function cmdPack(target: string, f: Flags, io: Io): number {
     io.err(`${target} does not exist\n\n${USAGE}`);
     return 1;
   }
-  const specPath = statSync(t).isDirectory() ? join(t, "agent.json") : t;
-  const srcBase = dirname(specPath);
-  if (!existsSync(specPath)) {
-    io.err(`${srcBase} has no agent.json; write the spec first (common-agent-pack --help)`);
-    return 1;
-  }
-  let spec: unknown;
-  try {
-    spec = JSON.parse(readFileSync(specPath, "utf8"));
-  } catch (e) {
-    io.err(`${specPath} is not valid JSON: ${(e as Error).message}`);
-    return 1;
+  // An agent's folder holds its two authored files and plugin.json; a spec
+  // (agent.json, or a spec file named directly) is the deprecated input.
+  const folderMode = statSync(t).isDirectory() && isAgentFolder(diskSource(t));
+  const specPath = folderMode ? null : statSync(t).isDirectory() ? join(t, "agent.json") : t;
+  const srcBase = specPath ? dirname(specPath) : t;
+  let spec: unknown = null;
+  if (specPath) {
+    if (!existsSync(specPath)) {
+      io.err(`${srcBase} holds neither ${DESCRIPTOR_FILE}, ${RUNTIME_REQUIREMENTS_FILE} and ${MANIFEST_FILE} nor agent.json (common-agent-pack --help)`);
+      return 1;
+    }
+    try {
+      spec = JSON.parse(readFileSync(specPath, "utf8"));
+    } catch (e) {
+      io.err(`${specPath} is not valid JSON: ${(e as Error).message}`);
+      return 1;
+    }
   }
   let signer;
   if (f.seedFile) {
@@ -144,16 +156,19 @@ function cmdPack(target: string, f: Flags, io: Io): number {
 
   let built;
   try {
-    built = buildPackage(spec, diskSource(srcBase), { mtime: Math.floor(now.getTime() / 1000) });
+    const opts = { mtime: Math.floor(now.getTime() / 1000) };
+    built = specPath ? buildPackage(spec, diskSource(srcBase), opts) : buildFromFolder(diskSource(srcBase), opts);
   } catch (e) {
     if (!(e instanceof PackRefusal)) throw e;
     if (f.json) {
       io.out(JSON.stringify({ ok: false, act: "refuse", refused: e.message, missing: e.missing }, null, 2));
       return 1;
     }
-    io.err(`✗ not packed: ${e.message}${e.missing ? `\n  Add "${e.missing}" to ${specPath} and pack again.` : ""}`);
+    const where = specPath ?? (e.missing === "refusals" || e.missing === "records" || e.missing === "offerings" ? join(srcBase, DESCRIPTOR_FILE) : srcBase);
+    io.err(`\u2717 not packed: ${e.message}${e.missing ? `\n  Add "${e.missing}" to ${where} and pack again.` : ""}`);
     return 1;
   }
+  if (!f.json) for (const w of built.warnings) io.err(`  warning: ${w}`);
 
   const pkgDir = join(outDir, built.name);
   // The package folder is replaced whole, so it must not be, or hold, the folder being packed.
@@ -171,7 +186,7 @@ function cmdPack(target: string, f: Flags, io: Io): number {
   }
   const tarball = join(outDir, `${built.name}-${built.version}.tar.gz`);
   writeFileSync(tarball, built.archive);
-  const requestedBy = (spec as { requested_by?: unknown }).requested_by;
+  const requestedBy = (spec as { requested_by?: unknown } | null)?.requested_by;
   const record = buildRecord(built, { producedAt: now, requestedBy: typeof requestedBy === "string" ? requestedBy : "self", signer });
   const recordPath = join(outDir, `${built.name}-build.json`);
   writeFileSync(recordPath, dumps(record));
@@ -206,9 +221,10 @@ function cmdValidate(target: string, f: Flags, io: Io): number {
     v = rest;
   }
   if (f.json) {
-    io.out(JSON.stringify({ ok: v.ok, act: "validate", target: t, name: v.name, version: v.version, issues: v.issues }, null, 2));
+    io.out(JSON.stringify({ ok: v.ok, act: "validate", target: t, name: v.name, version: v.version, issues: v.issues, warnings: v.warnings }, null, 2));
     return v.ok ? 0 : 1;
   }
+  for (const w of v.warnings) io.err(`  warning: ${w}`);
   if (v.ok) {
     io.out(`✓ ${v.name} ${v.version ?? ""} passes every check of Section 12.10 this tool makes`.replace("  ", " "));
     return 0;

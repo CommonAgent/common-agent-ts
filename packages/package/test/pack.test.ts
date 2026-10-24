@@ -128,16 +128,16 @@ describe("pack: the happy path", () => {
     const manifest = JSON.parse(readFileSync(join(pkg, "plugin.json"), "utf8"));
     expect(manifest.$schema).toBe("https://agent-plugins.org/schemas/1.0.0/plugin.schema.json");
     const ext = manifest.extensions["net.agentdoc.package"];
-    expect(ext.descriptor.path).toBe("descriptor.json");
-    expect(ext.install.path).toBe("install.json");
-    expect(ext.descriptor.sha256).toBe(sha("descriptor.json"));
-    expect(ext.install.sha256).toBe(sha("install.json"));
+    expect(ext.descriptor.path).toBe("agent-descriptor.json");
+    expect(ext.install.path).toBe("agent-runtime-requirements.json");
+    expect(ext.descriptor.sha256).toBe(sha("agent-descriptor.json"));
+    expect(ext.install.sha256).toBe(sha("agent-runtime-requirements.json"));
     expect(ext).toEqual({ descriptor: ext.descriptor, install: ext.install, built: true, draft: true });
     expect("agent" in manifest, "no member outside the pinned schema").toBe(false);
   });
 
   it("writes the draft descriptor: no subject, refusals one per line, records and escalates", () => {
-    const desc = JSON.parse(readFileSync(join(pkg, "descriptor.json"), "utf8"));
+    const desc = JSON.parse(readFileSync(join(pkg, "agent-descriptor.json"), "utf8"));
     expect(desc.format).toBe("agent-descriptor-v1");
     expect("subject" in desc).toBe(false);
     expect(desc.refusals).toBe("stating how long a change takes.\ninventing a fact the brief did not give.");
@@ -149,7 +149,7 @@ describe("pack: the happy path", () => {
   });
 
   it("writes the install file: names only, a ceiling for the spending system, the lockfile hashed", () => {
-    const inst = JSON.parse(readFileSync(join(pkg, "install.json"), "utf8"));
+    const inst = JSON.parse(readFileSync(join(pkg, "agent-runtime-requirements.json"), "utf8"));
     expect(inst.format).toBe("agent-install-v1");
     expect(inst.systems[0]).toEqual({
       name: "text-to-speech",
@@ -190,7 +190,7 @@ describe("pack: the happy path", () => {
     const record = JSON.parse(readFileSync(r.out?.record, "utf8"));
     expect(r.out?.record).toBe(join(dir, "dist", "explainer-maker-build.json"));
     expect(record.package.sha256).toBe(r.out?.sha256);
-    expect(record.package.descriptor_sha256).toBe(sha("descriptor.json"));
+    expect(record.package.descriptor_sha256).toBe(sha("agent-descriptor.json"));
     expect(record.draft).toBe(true);
     expect(record.checks).toEqual([{ kind: "unrun", what: "nobody has run the agent this package describes" }]);
     expect(record.lockfiles).toHaveLength(1);
@@ -343,12 +343,12 @@ describe("the command line", () => {
     expect(none.code).toBe(1);
     expect(none.stderr).toMatch(/^usage:/);
   });
-  it("refuses a folder with no agent.json", () => {
+  it("refuses a folder that holds no agent, and no spec", () => {
     const dir = mkdtempSync(join(tmpdir(), "pack-empty-"));
     cleanups.push(dir);
     const r = run([dir]);
     expect(r.code).toBe(1);
-    expect(r.stderr).toMatch(/has no agent\.json/);
+    expect(r.stderr).toMatch(/holds neither agent-descriptor\.json, agent-runtime-requirements\.json and plugin\.json nor agent\.json/);
   });
   it("takes the spec file by name, and --out", () => {
     const dir = folder();
@@ -386,7 +386,7 @@ describe("the command line", () => {
     writeFileSync(not, `${readFileSync(not, "utf8")}One more line.\n`);
     const v = run(["validate", r.out?.package_dir]);
     expect(v.code).toBe(1);
-    expect(v.stderr).toMatch(/NOT\.md is not what the descriptor and the install file generate/);
+    expect(v.stderr).toMatch(/NOT\.md is not what the descriptor and the runtime requirements generate/);
   });
 });
 
