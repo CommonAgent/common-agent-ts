@@ -10,11 +10,13 @@ export default defineConfig({
     alias: [
       { find: "@common-agent/reputations/ports", replacement: here("./packages/reputations/ports.ts") },
       { find: "@common-agent/mandate/ports", replacement: here("./packages/mandate/ports.ts") },
+      { find: "@common-agent/package/ports", replacement: here("./packages/package/ports.ts") },
       { find: "@common-agent/reputations", replacement: here("./packages/reputations/index.ts") },
       { find: "@common-agent/nda/ports", replacement: here("./packages/nda/ports.ts") },
       { find: "@common-agent/sow/ports", replacement: here("./packages/sow/ports.ts") },
       { find: "@common-agent/rfp/ports", replacement: here("./packages/rfp/ports.ts") },
       { find: "@common-agent/mandate", replacement: here("./packages/mandate/index.ts") },
+      { find: "@common-agent/package", replacement: here("./packages/package/index.ts") },
       { find: "@common-agent/crypto", replacement: here("./packages/crypto/index.ts") },
       { find: "@common-agent/nda", replacement: here("./packages/nda/index.ts") },
       { find: "@common-agent/sow", replacement: here("./packages/sow/index.ts") },

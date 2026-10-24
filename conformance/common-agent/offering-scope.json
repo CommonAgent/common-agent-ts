@@ -1,0 +1,174 @@
+{
+  "comment": "Offering scope conformance fixture (Common Agent 6.11 and 6.12, with 4.6 and 4.7). Pins where implementations drift: which offering declarations a registry accepts and refuses by scope, focus, workspace, authority and ceilings; the boundary's checks in order (offering, workspace, authority with spend_limit, budget) and the refusal each one gives, with its decided_by; that shape, removed in 0.28.0-draft, is ignored by a reader and reported by a checker; how acts_for is read; and that a search by the work wanted never returns an open-ended offering. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation; change the fixture only with a spec change alongside.",
+  "version": 2,
+  "spec": "SPEC.md 6.11 (scope and authority), 6.12 (the former shape), 6.2 (acts_for), 4.6 (no default route), 4.7 (decided_by)",
+  "code": "SCOPE_REFUSED",
+  "reasons": ["workspace", "authority", "spend_limit", "focus"],
+  "vocabularies": {
+    "scope": ["task-specific", "open-with-focus", "open-ended"],
+    "focus": ["software", "documents", "data", "research", "operations"],
+    "authority": ["reads-files", "writes-files", "reads-systems", "updates-systems", "triggers-systems", "runs-commands", "reaches-network", "sends-messages", "spends-money"],
+    "decided_by": ["rule", "model", "person"],
+    "acts_for": ["person", "organization", "anyone"],
+    "memory": ["remembers-across-jobs", "starts-clean-each-job"]
+  },
+  "declarations": {
+    "comment": "Each case is one offering, checked inside a Descriptor whose systems[] is the one given here, and whose data use is the one given here. valid cases MUST be accepted and invalid ones MUST be refused by a registry. read_as is what a reader takes the offering's scope to be.",
+    "systems": [ { "name": "tickets", "access": "write", "needs": "to update the tickets the work is about" } ],
+    "data_use": { "retention_max_days": 30, "processors": ["example model service"], "memory": "starts-clean-each-job" },
+    "valid": [
+      {
+        "case": "no_scope_is_task_specific",
+        "offering": { "id": "summarize", "name": "Summarize", "does": "Summarizes one document.", "inputs": [ { "name": "document", "kind": "document", "required": true } ], "outputs": [ { "name": "summary", "kind": "text/markdown", "when": "per_task" } ] },
+        "read_as": "task-specific"
+      },
+      {
+        "case": "task_specific_with_authority",
+        "offering": { "id": "close-ticket", "name": "Close a ticket", "does": "Closes a ticket and records why.", "scope": "task-specific", "inputs": [ { "name": "ticket", "kind": "identifier", "required": true } ], "outputs": [ { "name": "note", "kind": "text", "when": "per_task" } ], "authority": ["updates-systems"] },
+        "read_as": "task-specific"
+      },
+      {
+        "case": "open_with_focus_full",
+        "offering": {
+          "id": "change-a-repository", "name": "Change a repository", "does": "Makes the change an instruction asks for in one code repository.",
+          "scope": "open-with-focus", "focus": "software", "role": "role-code-writer",
+          "inputs": [ { "name": "instruction", "kind": "text", "required": true } ],
+          "outputs": [ { "name": "change", "kind": "identifier", "when": "per_task" }, { "name": "summary", "kind": "text/markdown", "when": "per_task" } ],
+          "workspace": [ { "kind": "git", "access": "read-write", "for": "the repository the change is made in" } ],
+          "authority": ["reads-files", "writes-files", "runs-commands"],
+          "authority_decided_by": "rule",
+          "ceilings": { "job_seconds": { "most": 3600, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 20000000, "currency": "USD" }, "decided_by": "rule" } }
+        },
+        "read_as": "open-with-focus"
+      },
+      {
+        "case": "open_with_focus_without_role",
+        "offering": {
+          "id": "tidy-documents", "name": "Tidy documents", "does": "Edits and arranges the documents in one folder as instructed.",
+          "scope": "open-with-focus", "focus": "documents",
+          "inputs": [ { "name": "instruction", "kind": "text", "required": true } ],
+          "outputs": [ { "name": "summary", "kind": "text", "when": "per_task" } ],
+          "workspace": [ { "kind": "folder", "access": "read-write", "for": "the folder of documents" } ],
+          "authority": ["reads-files", "writes-files"],
+          "ceilings": { "job_seconds": { "most": 900, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 2000000, "currency": "USD" }, "decided_by": "model" } }
+        },
+        "read_as": "open-with-focus",
+        "note": "role is RECOMMENDED, not required; a ceiling decided by the model is valid and is never shown as enforced"
+      },
+      {
+        "case": "open_ended_with_spending",
+        "offering": {
+          "id": "errands", "name": "Errands", "does": "Does what it is asked, within its authority and ceilings.",
+          "scope": "open-ended",
+          "inputs": [ { "name": "instruction", "kind": "text", "required": true } ],
+          "outputs": [ { "name": "report", "kind": "text", "when": "per_task" } ],
+          "authority": ["reaches-network", "sends-messages", "spends-money"],
+          "ceilings": {
+            "job_seconds": { "most": 600, "decided_by": "rule" },
+            "cost_per_job": { "most": { "amount_micro": 1000000, "currency": "USD" }, "decided_by": "rule" },
+            "spend_per_job": { "most": { "amount_micro": 50000000, "currency": "USD" }, "decided_by": "rule" },
+            "messages_per_job": { "most": 5, "decided_by": "rule" }
+          }
+        },
+        "read_as": "open-ended"
+      },
+      {
+        "case": "open_ended_empty_authority",
+        "offering": {
+          "id": "talk", "name": "Talk", "does": "Answers any question in words.",
+          "scope": "open-ended",
+          "inputs": [ { "name": "instruction", "kind": "text", "required": true } ],
+          "outputs": [ { "name": "answer", "kind": "text", "when": "per_task" } ],
+          "authority": [],
+          "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 100000, "currency": "USD" }, "decided_by": "rule" } }
+        },
+        "read_as": "open-ended",
+        "note": "an empty authority is a statement: nothing beyond inputs and outputs"
+      }
+    ],
+    "invalid": [
+      { "case": "unknown_authority", "offering": { "id": "a", "name": "A", "does": "x", "authority": ["reads-files", "deletes-everything"] }, "why": "authority is a closed list, and one unknown value makes the whole list unreadable" },
+      { "case": "focus_missing", "offering": { "id": "b", "name": "B", "does": "x", "scope": "open-with-focus", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "workspace": [], "authority": [], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "open-with-focus declares its focus" },
+      { "case": "focus_not_in_vocabulary", "offering": { "id": "c", "name": "C", "does": "x", "scope": "open-with-focus", "focus": "marketing", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "workspace": [], "authority": [], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "focus is a closed vocabulary" },
+      { "case": "workspace_missing", "offering": { "id": "d", "name": "D", "does": "x", "scope": "open-with-focus", "focus": "data", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "authority": [], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "open-with-focus declares its workspace, even when it is empty" },
+      { "case": "workspace_with_address", "offering": { "id": "e", "name": "E", "does": "x", "scope": "open-with-focus", "focus": "software", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "workspace": [ { "kind": "git", "access": "read-write", "for": "x", "uri": "https://git.example/repo" } ], "authority": ["writes-files"], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "a workspace carries shapes and never an address" },
+      { "case": "open_with_focus_no_outputs", "offering": { "id": "f", "name": "F", "does": "x", "scope": "open-with-focus", "focus": "research", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [], "workspace": [], "authority": [], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "open-with-focus declares at least one deliverable" },
+      { "case": "open_ended_no_authority", "offering": { "id": "g", "name": "G", "does": "x", "scope": "open-ended", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "open-ended declares its authority" },
+      { "case": "open_ended_no_ceilings", "offering": { "id": "h", "name": "H", "does": "x", "scope": "open-ended", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "authority": [] }, "why": "open-ended declares its ceilings" },
+      { "case": "open_missing_cost_per_job", "offering": { "id": "i", "name": "I", "does": "x", "scope": "open-ended", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "authority": [], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" } } }, "why": "an open offering's ceilings include job_seconds and cost_per_job" },
+      { "case": "spends_money_without_spend_ceiling", "offering": { "id": "j", "name": "J", "does": "x", "scope": "open-ended", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "authority": ["spends-money"], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "spend_per_job is required where authority includes spends-money" },
+      { "case": "sends_messages_without_message_ceiling", "offering": { "id": "k", "name": "K", "does": "x", "scope": "open-ended", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "authority": ["sends-messages"], "ceilings": { "job_seconds": { "most": 60, "decided_by": "rule" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "messages_per_job is required where authority includes sends-messages" },
+      { "case": "systems_authority_without_system", "offering": { "id": "l", "name": "L", "does": "x", "authority": ["triggers-systems"] }, "why": "triggers-systems needs a systems[] entry with access trigger, and this Descriptor declares only write" },
+      { "case": "ceiling_decided_by_unknown", "offering": { "id": "m", "name": "M", "does": "x", "scope": "open-ended", "inputs": [ { "name": "instruction", "kind": "text", "required": true } ], "outputs": [ { "name": "r", "kind": "text", "when": "per_task" } ], "authority": [], "ceilings": { "job_seconds": { "most": 60, "decided_by": "hope" }, "cost_per_job": { "most": { "amount_micro": 1, "currency": "USD" }, "decided_by": "rule" } } }, "why": "a ceiling's decided_by is rule or model" }
+    ],
+    "descriptor_level": {
+      "invalid": [
+        { "case": "agent_level_scope", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "x", "scope": "open-ended" }, "why": "scope is declared on each offering and never at agent level" },
+        { "case": "carries_shape", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "x", "acts_for": "anyone", "shape": { "memory": "keeps" } }, "why": "shape was removed in 0.28.0-draft; a checker reports it, and a consumer ignores it as an unknown member" },
+        { "case": "acts_for_unknown", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "x", "acts_for": "everyone" }, "why": "acts_for is person, organization or anyone" },
+        { "case": "organization_name_beside_person", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "x", "acts_for": "person", "organization_name": "Example Co" }, "why": "organization_name appears only beside organization" }
+      ],
+      "valid": [
+        { "case": "acts_for_organization_named", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "x", "acts_for": "organization", "organization_name": "Example Co" } },
+        { "case": "draft_without_acts_for", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "x" }, "note": "a draft has no subject and carries no acts_for" }
+      ]
+    }
+  },
+  "unrecognised": {
+    "comment": "How a reader reads a value it does not recognise.",
+    "cases": [
+      { "case": "unknown_scope", "offering": { "scope": "open-within-reason" }, "read_as": { "scope": "open-ended" } },
+      { "case": "unknown_focus", "offering": { "scope": "open-with-focus", "focus": "marketing" }, "read_as": { "scope": "open-ended", "focus": "not_stated" } },
+      { "case": "unknown_authority_value", "offering": { "authority": ["reads-files", "deletes-everything"] }, "read_as": { "authority": "not_stated" } },
+      { "case": "absent_authority_task_specific", "offering": {}, "read_as": { "scope": "task-specific", "authority": "not_stated" } },
+      { "case": "bare_number_limit", "limits": { "requests_per_hour": 60 }, "read_as": { "requests_per_hour": { "most": 60, "decided_by": "not_stated" } } },
+      { "case": "refusal_without_decided_by", "refusal": { "code": "OFFERING_NOT_FOUND", "reason": "no such offering" }, "read_as": { "decided_by": "not_stated" } },
+      { "case": "descriptor_without_acts_for", "descriptor": { "format": "agent-descriptor-v1", "agent_version": "1", "does": "Answers questions about the weather.", "interaction": "service", "subject": { "id": "test-key", "handle": "weather@example.org" } }, "read_as": { "acts_for": "not_stated" }, "note": "never guessed from does, interaction or anything else; such a Descriptor does not meet the floor (4.9), and a reader still reads it" }
+    ]
+  },
+  "boundary": {
+    "comment": "The checks of 4.6 and 6.11, by rule and before anything that thinks sees the request, in order: offering, workspace, authority (with spend_limit), budget. Every case runs against one of the valid offerings above, named in the request. expect.ok true means admitted; otherwise expect names the refusal code, its reason, and its decided_by. A request that fails two checks is refused for the first. The not-found refusal is spelled by the binding; these cases use Agent Messaging's spelling, OFFERING_NOT_FOUND. The budget check is Section 5.4's, and its refusal is the budget's own.",
+    "cases": [
+      { "case": "undeclared_offering", "request": { "offering": "do-anything", "text": "book me a flight" }, "expect": { "ok": false, "code": "OFFERING_NOT_FOUND", "decided_by": "rule" } },
+      { "case": "resource_kind_outside_workspace", "request": { "offering": "change-a-repository", "text": "fix the failing test", "resources": [ { "uri": "https://drive.example/folder", "kind": "folder", "access": "read-write" } ] }, "expect": { "ok": false, "code": "SCOPE_REFUSED", "reason": "workspace", "decided_by": "rule" } },
+      { "case": "resource_access_as_declared", "request": { "offering": "tidy-documents", "text": "tidy them", "resources": [ { "uri": "https://drive.example/folder", "kind": "folder", "access": "read-write" } ] }, "expect": { "ok": true }, "note": "read-write is the declared access, so it is not wider" },
+      { "case": "authority_not_declared", "request": { "offering": "change-a-repository", "text": "fix the failing test", "resources": [ { "uri": "https://git.example/repo", "kind": "git", "access": "read-write" } ], "authority": ["writes-files", "reaches-network"] }, "expect": { "ok": false, "code": "SCOPE_REFUSED", "reason": "authority", "decided_by": "rule" } },
+      { "case": "workspace_before_authority", "request": { "offering": "change-a-repository", "text": "x", "resources": [ { "uri": "https://drive.example/folder", "kind": "folder", "access": "read" } ], "authority": ["spends-money"] }, "expect": { "ok": false, "code": "SCOPE_REFUSED", "reason": "workspace", "decided_by": "rule" } },
+      { "case": "spends_money_without_spend_limit", "request": { "offering": "errands", "text": "buy printer paper" }, "expect": { "ok": false, "code": "SCOPE_REFUSED", "reason": "spend_limit", "decided_by": "rule" }, "note": "no authority member allows the offering's whole list, which includes spends-money" },
+      { "case": "spend_limit_over_ceiling", "request": { "offering": "errands", "text": "buy printer paper", "spend_limit": { "amount_micro": 60000000, "currency": "USD" } }, "expect": { "ok": false, "code": "SCOPE_REFUSED", "reason": "spend_limit", "decided_by": "rule" } },
+      { "case": "narrowed_authority_needs_no_spend_limit", "request": { "offering": "errands", "text": "find the cheapest printer paper", "authority": ["reaches-network"] }, "expect": { "ok": true } },
+      { "case": "inside_every_bound", "request": { "offering": "change-a-repository", "text": "fix the failing test", "resources": [ { "uri": "https://git.example/repo", "kind": "git", "access": "read-write" } ], "authority": ["reads-files", "writes-files"] }, "expect": { "ok": true } },
+      { "case": "outside_focus_is_model_decided", "request": { "offering": "change-a-repository", "text": "write me a poem about autumn", "resources": [ { "uri": "https://git.example/repo", "kind": "git", "access": "read" } ] }, "boundary": "admitted", "expect": { "ok": false, "code": "SCOPE_REFUSED", "reason": "focus", "decided_by": "model" }, "note": "every boundary check passes; the refusal comes after them, from the model, and a refusal with reason focus marked rule fails" }
+    ]
+  },
+  "decided_by": {
+    "comment": "Which refusals are decided by what. An implementation MUST NOT mark rule a refusal a model made.",
+    "cases": [
+      { "refusal": "the typed not-found refusal for an undeclared offering (OFFERING_NOT_FOUND on Agent Messaging)", "decided_by": "rule" },
+      { "refusal": "SCOPE_REFUSED reason workspace, authority or spend_limit", "decided_by": "rule" },
+      { "refusal": "SCOPE_REFUSED reason focus", "decided_by": "model" },
+      { "refusal": "TRIAL_REFUSED, any reason", "decided_by": "rule" },
+      { "refusal": "RUN_CONFIG_REFUSED, any reason", "decided_by": "rule" },
+      { "refusal": "INPUT_NOT_UNDERSTOOD from the mechanical reading of a script offering", "decided_by": "rule" },
+      { "refusal": "an order the receiving owner declined", "decided_by": "person" }
+    ]
+  },
+  "shape_mapping": {
+    "comment": "Section 6.12: shape was removed in 0.28.0-draft. A reader ignores it as an unknown member and maps nothing from it. Through 0.27.x a reader mapped these members; that mapping ends here.",
+    "cases": [
+      { "shape": { "memory": "keeps" }, "maps_to": "ignored" },
+      { "shape": { "model": "example/model-a" }, "maps_to": "ignored" },
+      { "shape": { "fleet": true }, "maps_to": "ignored", "note": "fleet is read only from the identity-level member" },
+      { "shape": { "fleet": false }, "descriptor_also": { "fleet": true }, "maps_to": { "fleet": true } },
+      { "shape": { "kind": "plugin-on-harness", "harness": "example-harness", "steps": "chosen", "tools_runtime": "discovered" }, "maps_to": "ignored" }
+    ]
+  },
+  "directory": {
+    "comment": "A search by the work wanted never returns an open-ended offering. The catalog holds the offerings 'summarize', 'change-a-repository' and 'talk' from the valid declarations above.",
+    "cases": [
+      { "search": { "work": "summarize a document" }, "may_return": ["summarize"], "must_not_return": ["talk"] },
+      { "search": { "work": "fix a bug in my code" }, "may_return": ["change-a-repository"], "must_not_return": ["talk"], "show_as": { "change-a-repository": "open-with-focus" } },
+      { "search": { "scope": "open-ended" }, "may_return": ["talk"] }
+    ]
+  }
+}
