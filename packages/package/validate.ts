@@ -65,7 +65,7 @@ function addresses(v: unknown, path = ""): { path: string; value: string }[] {
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 
 /** The problems with one job's or step's `how` and `run`. */
-function howRunProblems(o: Record<string, unknown>, where: string, isStep: boolean): string[] {
+function howRunProblems(o: Record<string, unknown>, where: string): string[] {
   const out: string[] = [];
   const how = o.how;
   if (how !== undefined) {
@@ -81,7 +81,6 @@ function howRunProblems(o: Record<string, unknown>, where: string, isStep: boole
   }
   const run = o.run;
   if (run !== undefined) {
-    if (isStep) out.push(`${where}: run sits on a job, not on a step`);
     const h = isObj(how) ? how : {};
     if (h.control !== "script" || h.intelligence === "open") out.push(`${where}: run needs how.control script and an intelligence that is not open`);
     if (!isObj(run)) out.push(`${where}: run is an object`);
@@ -167,9 +166,10 @@ export function validatePackage(files: PackageFiles): Validation {
             problem("each offering is an object with an id");
             continue;
           }
+          if (skillIds.has(o.id)) problem(`offering ${o.id} is declared twice; each offering has exactly one skill`);
           skillIds.add(o.id);
           for (const p of offeringScopeProblems(o, { systems: descSystems })) if (!isDataUseProblem(p)) add("offering", `descriptor.json offering ${p}`);
-          for (const p of howRunProblems(o, `offering ${o.id}`, false)) add("how-run", p);
+          for (const p of howRunProblems(o, `offering ${o.id}`)) add("how-run", p);
           if (o.steps !== undefined) {
             if (!Array.isArray(o.steps)) problem(`offering ${o.id}: steps is a list`);
             else
@@ -180,7 +180,8 @@ export function validatePackage(files: PackageFiles): Validation {
                 }
                 if (s.steps !== undefined) problem(`offering ${o.id}: step ${s.id} has steps of its own; steps are one level deep`);
                 skillIds.add(s.id);
-                for (const p of howRunProblems(s, `step ${s.id}`, true)) add("how-run", p);
+                for (const p of offeringScopeProblems(s, { systems: descSystems })) if (!isDataUseProblem(p)) add("offering", `descriptor.json step ${p}`);
+                for (const p of howRunProblems(s, `step ${s.id}`)) add("how-run", p);
               }
           }
         }

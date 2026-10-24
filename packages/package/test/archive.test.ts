@@ -57,6 +57,11 @@ describe("the archive", () => {
     expect(() => writeArchive(new Map([[`skills/a/${"x".repeat(101)}`, utf8Bytes("x")]]), "demo")).toThrow(/too long for a tar header/);
   });
 
+  it("refuses a folder path too long, in bytes, for the prefix field", () => {
+    const deep = `skills/x/${"\u00e9".repeat(80)}/${"\u00e9".repeat(40)}/f.txt`;
+    expect(() => writeArchive(new Map([[deep, utf8Bytes("x")]]), "demo")).toThrow(/too long for a tar header/);
+  });
+
   it("refuses an archive that is not gzip, or holds a link, or two top folders", () => {
     expect(() => readArchive(utf8Bytes("plain text"))).toThrow(ArchiveError);
     const link = tarOf([{ name: "demo/x", type: "2", body: "" }]);
@@ -68,6 +73,13 @@ describe("the archive", () => {
     expect(() => readArchive(two)).toThrow(/more than one top folder/);
     const escape = tarOf([{ name: "demo/../x", type: "0", body: "x" }]);
     expect(() => readArchive(escape)).toThrow(/leaves the package/);
+    const back = tarOf([{ name: "demo/..\\..\\x", type: "0", body: "x" }]);
+    expect(() => readArchive(back)).toThrow(/leaves the package/);
+    const twice = tarOf([
+      { name: "demo/a", type: "0", body: "a" },
+      { name: "demo/a", type: "0", body: "b" },
+    ]);
+    expect(() => readArchive(twice)).toThrow(/appears twice/);
   });
 
   it("says when the archive's folder is not the package's name", () => {

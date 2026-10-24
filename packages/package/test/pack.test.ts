@@ -13,7 +13,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { afterAll, describe, expect, it } from "vitest";
 import { base32Encode, crc16, signerFromRawSeed } from "@common-agent/crypto";
@@ -357,6 +357,28 @@ describe("the command line", () => {
     expect(r.code, r.stderr).toBe(0);
     expect(r.out?.package_dir).toBe(join(out, "explainer-maker"));
   });
+  it("refuses an --out that would replace the folder being packed", () => {
+    const named = join(mkdtempSync(join(tmpdir(), "pack-out-")), "explainer-maker");
+    cleanups.push(dirname(named));
+    mkdirSync(named);
+    const plain = clone(SPEC) as typeof SPEC & { jobs: Record<string, unknown>[] };
+    delete plain.jobs[1].scripts;
+    delete plain.jobs[1].lockfile;
+    writeFileSync(join(named, "agent.json"), JSON.stringify(plain));
+    const clash = run([named, "--out", dirname(named)]);
+    expect(clash.code).toBe(1);
+    expect(clash.stderr).toMatch(/would replace the folder being packed/);
+    expect(existsSync(join(named, "agent.json")), "the source is left alone").toBe(true);
+  });
+
+  it("records a lockfile named with ./ by its path in the package", () => {
+    const spec = clone(SPEC);
+    spec.jobs[1].lockfile = "./scripts/package-lock.json";
+    const r = pack(folder(spec));
+    expect(r.code, r.stderr + r.stdout).toBe(0);
+    expect(r.out?.lockfiles[0].lockfile).toBe("skills/check-the-fit/scripts/package-lock.json");
+  });
+
   it("says a hand-edited package does not conform", () => {
     const dir = folder();
     const r = pack(dir);

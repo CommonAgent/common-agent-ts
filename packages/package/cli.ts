@@ -8,7 +8,7 @@
  *   common-agent-pack validate <package-folder-or-archive> [--json]
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { signerFromUserSeed } from "@common-agent/crypto";
 import { PackRefusal, buildPackage } from "./build.js";
 import { validateArchive, withIssue } from "./index.js";
@@ -155,8 +155,14 @@ function cmdPack(target: string, f: Flags, io: Io): number {
     return 1;
   }
 
-  mkdirSync(outDir, { recursive: true });
   const pkgDir = join(outDir, built.name);
+  // The package folder is replaced whole, so it must not be, or hold, the folder being packed.
+  const within = relative(pkgDir, srcBase);
+  if (within === "" || (!within.startsWith("..") && !isAbsolute(within))) {
+    io.err(`${pkgDir} would replace the folder being packed; choose another --out`);
+    return 1;
+  }
+  mkdirSync(outDir, { recursive: true });
   rmSync(pkgDir, { recursive: true, force: true });
   for (const [rel, bytes] of built.files) {
     const p = join(pkgDir, ...rel.split("/"));

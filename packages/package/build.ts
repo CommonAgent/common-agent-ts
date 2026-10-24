@@ -184,7 +184,7 @@ export function installFile(spec: AgentSpec, systems: SystemSpec[], lockfiles: L
     const reached = entries.find((e) => e.name === c.system) as InstallSystem;
     const side = reached.credential ? "runtime" : reached.kind === "mcp" ? "platform" : null;
     if (!side) {
-      throw new PackRefusal(`system ${c.system}: cannot tell which side applies its ceiling; a spending service the scripts call needs the credential they read and the variable they read it from`);
+      throw new PackRefusal(`system ${c.system}: cannot tell which side applies its ceiling; a spending service the scripts call names the credential they read`);
     }
     ceilings.push({ system: c.system, per: c.per, enforced_by: side, ...("suggested" in c ? { suggested: c.suggested } : {}) });
   }
@@ -343,7 +343,7 @@ export function buildPackage(specIn: unknown, source: SourceTree, opts: BuildOpt
       const lp = typeof j.lockfile === "string" ? inside(d, j.lockfile) : null;
       const bytes = lp === null ? undefined : files.get(lp);
       if (!bytes) throw new PackRefusal(`job ${j.slug}: lockfile ${j.lockfile} is not in the skill; name it under scripts or references`);
-      lockfiles.push({ skill: j.slug, lockfile: `skills/${j.slug}/${j.lockfile}`, sha256: sha256Hex(bytes) });
+      lockfiles.push({ skill: j.slug, lockfile: lp as string, sha256: sha256Hex(bytes) });
     }
     const md = files.get(`${d}/SKILL.md`);
     if (md) {

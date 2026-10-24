@@ -32,7 +32,7 @@ export function walkOrder(files: Iterable<string>): string[] {
   }
   const out: string[] = [];
   const visit = (n: Node, prefix: string) => {
-    const names = [...new Set([...n.files, ...n.dirs.keys()])].sort((a, b) => a.localeCompare(b));
+    const names = [...new Set([...n.files, ...n.dirs.keys()])].sort((a, b) => a.localeCompare(b, "en"));
     for (const name of names) {
       const sub = n.dirs.get(name);
       if (sub) visit(sub, `${prefix}${name}/`);
@@ -49,7 +49,7 @@ function header(nameIn: string, size: number, type: string, mode: number, mtime:
   let prefix = "";
   if (Buffer.byteLength(name) > 100) {
     const cut = name.lastIndexOf("/", 154);
-    if (cut <= 0 || Buffer.byteLength(name.slice(cut + 1)) > 100) throw new ArchiveError(`a path inside the package is too long for a tar header: ${name}`);
+    if (cut <= 0 || Buffer.byteLength(name.slice(cut + 1)) > 100 || Buffer.byteLength(name.slice(0, cut)) > 155) throw new ArchiveError(`a path inside the package is too long for a tar header: ${name}`);
     prefix = name.slice(0, cut);
     name = name.slice(cut + 1);
   }
@@ -155,7 +155,7 @@ export function readArchive(bytes: Uint8Array): ReadArchive {
     longName = null;
     paxPath = null;
     name = name.replace(/^\.\//, "");
-    if (name.startsWith("/") || name.split("/").includes("..")) throw new ArchiveError(`an entry's path leaves the package: ${name}`);
+    if (name.startsWith("/") || name.includes("\\") || name.split("/").includes("..")) throw new ArchiveError(`an entry's path leaves the package: ${name}`);
     const first = name.split("/")[0];
     if (top === null) top = first;
     else if (first !== top) throw new ArchiveError(`the archive holds more than one top folder: ${top} and ${first}`);
@@ -163,6 +163,7 @@ export function readArchive(bytes: Uint8Array): ReadArchive {
     if (type !== "0") throw new ArchiveError(`${name} is not a regular file or a directory (tar type ${type}); a package is files`);
     const rel = name.slice(first.length + 1);
     if (!rel) throw new ArchiveError(`${name} is a file where the package folder should be`);
+    if (files.has(rel)) throw new ArchiveError(`${name} appears twice in the archive`);
     files.set(rel, new Uint8Array(body));
   }
   if (top === null) throw new ArchiveError("the archive is empty");
