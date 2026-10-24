@@ -144,7 +144,7 @@ export function validatePackage(files: PackageFiles): Validation {
       else {
         for (const [member, path] of [["descriptor", descPath], ["install", instPath]] as const) {
           const p = ext[member];
-          if (!isObj(p) || p.path !== path || typeof p.sha256 !== "string") problem(`plugin.json ${PACKAGE_NS}.${member} is { "path": "${path}", "sha256": "<digest>" }`);
+          if (!isObj(p) || p.path !== path || typeof p.sha256 !== "string") problem(`plugin.json ${PACKAGE_NS}.${member} is { "path": "${path}", "sha256": "<digest>" }, pointing at the file the package carries`);
           else {
             const b = files.get(path);
             if (b && sha256Hex(b) !== p.sha256) problem(`plugin.json names ${path} by a digest the file does not have`);

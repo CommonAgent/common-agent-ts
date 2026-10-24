@@ -28,6 +28,8 @@ import { validatePackage } from "./validate.js";
 /** A refusal to pack: the spec is missing a part a builder must not invent, or it is malformed. `missing` names the part when it is one. */
 export class PackRefusal extends Error {
   readonly missing: string | null;
+  /** What the packer had read, and warned about, before it refused. */
+  warnings: string[] = [];
   constructor(reason: string, missing: string | null = null) {
     super(reason);
     this.name = "PackRefusal";
@@ -483,6 +485,15 @@ export function isAgentFolder(source: SourceTree): boolean {
  */
 export function buildFromFolder(source: SourceTree, opts: BuildOptions = {}): BuiltPackage {
   const warnings: string[] = [];
+  try {
+    return packFolder(source, opts, warnings);
+  } catch (e) {
+    if (e instanceof PackRefusal) e.warnings = [...warnings];
+    throw e;
+  }
+}
+
+function packFolder(source: SourceTree, opts: BuildOptions, warnings: string[]): BuiltPackage {
   const has = (p: string) => source.kind(p) === "file";
   if (!has(MANIFEST_FILE)) throw new PackRefusal(`the agent's folder has no ${MANIFEST_FILE}`, MANIFEST_FILE);
   const located = { descriptor: "", runtime: "" };
@@ -494,6 +505,7 @@ export function buildFromFolder(source: SourceTree, opts: BuildOptions = {}): Bu
     if (r.legacy) warnings.push(legacyWarning(kind));
     located[kind] = r.path;
   }
+  if (has("agent.json")) warnings.push(`agent.json beside ${AUTHORED_FILES.descriptor.name} is ignored; the folder's authored files are what is packed`);
   const manifestIn = readJsonFile(source, MANIFEST_FILE);
   const desc = readJsonFile(source, located.descriptor) as DraftDescriptor;
   const inst = readJsonFile(source, located.runtime) as InstallFile;
@@ -502,21 +514,32 @@ export function buildFromFolder(source: SourceTree, opts: BuildOptions = {}): Bu
   if (typeof name !== "string" || !NAME_RE.test(name)) throw new PackRefusal(`${MANIFEST_FILE} name "${String(name)}" must be lowercase letters, digits and hyphens`, "name");
   if (typeof manifestIn.description !== "string" || !manifestIn.description.trim()) throw new PackRefusal(`${MANIFEST_FILE} needs a description, one sentence on what the agent does`, "description");
   if (typeof desc.refusals !== "string" || !desc.refusals.trim()) {
-    throw new PackRefusal(`${DESCRIPTOR_FILE} does not say what the agent refuses; a package must carry it and it is not something to invent`, "refusals");
+    throw new PackRefusal(`${located.descriptor} does not say what the agent refuses; a package must carry it and it is not something to invent`, "refusals");
   }
   if (!Array.isArray(desc.records) || !desc.records.length) {
-    throw new PackRefusal(`${DESCRIPTOR_FILE} does not say what records the agent must leave; a package must carry it and it is not something to invent`, "records");
+    throw new PackRefusal(`${located.descriptor} does not say what records the agent must leave; a package must carry it and it is not something to invent`, "records");
   }
-  if (!Array.isArray(desc.offerings) || !desc.offerings.length) throw new PackRefusal(`${DESCRIPTOR_FILE} has no offering; at least one is what a caller orders`, "offerings");
+  if (manifestIn.version !== undefined && typeof manifestIn.version !== "string") throw new PackRefusal(`${MANIFEST_FILE} version must be a string`);
+  if (typeof manifestIn.version === "string" && desc.agent_version !== undefined && String(desc.agent_version) !== manifestIn.version) {
+    throw new PackRefusal(`${MANIFEST_FILE} says version ${manifestIn.version} and ${located.descriptor} says agent_version ${String(desc.agent_version)}; they are one version`);
+  }
+  if (!Array.isArray(desc.offerings) || !desc.offerings.length) throw new PackRefusal(`${located.descriptor} has no offering; at least one is what a caller orders`, "offerings");
 
   const files: PackageFiles = new Map();
   for (const f of source.kind("skills") === "directory" ? source.list("skills") : []) files.set(`skills/${f}`, source.read(`skills/${f}`));
   for (const f of ["mcp.json", "README.md"]) if (has(f)) files.set(f, source.read(f));
+  const carried = new Set([MANIFEST_FILE, located.descriptor, located.runtime, "mcp.json", "README.md", "agent.json"]);
+  for (const f of source.list(".")) {
+    const top = f.split("/")[0];
+    if (top === "skills" || top === "dist" || top === "node_modules" || top === "net.agentdoc.package" || carried.has(f) || top.startsWith(".")) continue;
+    warnings.push(`${f} is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md and skills/`);
+  }
 
   // A skill for every offering and every step: the developer's as written,
   // or one generated from what the descriptor says the job is.
   const jobs: Offering[] = [];
   for (const o of desc.offerings) if (o && typeof o === "object") jobs.push(o, ...(Array.isArray(o.steps) ? o.steps : []));
+  for (const o of jobs) if (!o || typeof o !== "object") throw new PackRefusal(`each offering and step in ${located.descriptor} is an object`);
   let kept = 0;
   const ids: string[] = [];
   for (const o of jobs) {
@@ -539,16 +562,19 @@ export function buildFromFolder(source: SourceTree, opts: BuildOptions = {}): Bu
   for (const d of Array.isArray(inst.dependencies) ? inst.dependencies : []) {
     if (!d || typeof d.lockfile !== "string") continue;
     const bytes = files.get(d.lockfile);
-    if (!bytes) throw new PackRefusal(`${located.runtime} names the lockfile ${d.lockfile}, which the agent's folder does not hold`);
+    if (!bytes) throw new PackRefusal(`${located.runtime} names the lockfile ${d.lockfile}, which is not under the skills the folder holds; a lockfile lives in its skill's folder`);
     const sha = sha256Hex(bytes);
-    if (d.sha256 !== undefined && d.sha256 !== sha) throw new PackRefusal(`${located.runtime} names ${d.lockfile} by a digest the file does not have`);
+    if (typeof d.sha256 === "string" && d.sha256 && d.sha256 !== sha) throw new PackRefusal(`${located.runtime} names ${d.lockfile} by a digest the file does not have`);
     d.sha256 = sha;
-    lockfiles.push(d);
+    const skill = typeof d.skill === "string" ? d.skill : (/^skills\/([^/]+)\//.exec(d.lockfile)?.[1] ?? "");
+    lockfiles.push({ skill, lockfile: d.lockfile, sha256: sha });
   }
 
   const { extensions: extIn, ...head } = manifestIn;
   const extensions = { ...((extIn as Record<string, unknown> | undefined) ?? {}) };
-  const own = (extensions[PACKAGE_NS] as Record<string, unknown> | undefined) ?? {};
+  const ownIn = extensions[PACKAGE_NS];
+  if (ownIn !== undefined && (!ownIn || typeof ownIn !== "object" || Array.isArray(ownIn))) throw new PackRefusal(`${MANIFEST_FILE} extensions.${PACKAGE_NS} is an object`);
+  const own = (ownIn as Record<string, unknown> | undefined) ?? {};
   delete extensions[PACKAGE_NS];
   const { descriptor: _d, install: _i, built: _b, draft: _r, ...keep } = own;
   const manifestHead = {

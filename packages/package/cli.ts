@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, wri
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { signerFromUserSeed } from "@common-agent/crypto";
 import { PackRefusal, buildFromFolder, buildPackage, isAgentFolder } from "./build.js";
-import { DESCRIPTOR_FILE, MANIFEST_FILE, RUNTIME_REQUIREMENTS_FILE } from "./names.js";
+import { DESCRIPTOR_FILE, LEGACY_DESCRIPTOR_FILE, LEGACY_RUNTIME_REQUIREMENTS_FILE, MANIFEST_FILE, RUNTIME_REQUIREMENTS_FILE } from "./names.js";
 import { validateArchive, withIssue } from "./index.js";
 import type { SourceTree } from "./ports.js";
 import { buildRecord } from "./record.js";
@@ -127,6 +127,10 @@ function cmdPack(target: string, f: Flags, io: Io): number {
   // An agent's folder holds its two authored files and plugin.json; a spec
   // (agent.json, or a spec file named directly) is the deprecated input.
   const folderMode = statSync(t).isDirectory() && isAgentFolder(diskSource(t));
+  if (!statSync(t).isDirectory() && [DESCRIPTOR_FILE, RUNTIME_REQUIREMENTS_FILE, MANIFEST_FILE, LEGACY_DESCRIPTOR_FILE, LEGACY_RUNTIME_REQUIREMENTS_FILE].includes(basename(t))) {
+    io.err(`${target} is one of an agent's files; pack the folder that holds it, ${dirname(t)}`);
+    return 1;
+  }
   const specPath = folderMode ? null : statSync(t).isDirectory() ? join(t, "agent.json") : t;
   const srcBase = specPath ? dirname(specPath) : t;
   let spec: unknown = null;
@@ -161,10 +165,11 @@ function cmdPack(target: string, f: Flags, io: Io): number {
   } catch (e) {
     if (!(e instanceof PackRefusal)) throw e;
     if (f.json) {
-      io.out(JSON.stringify({ ok: false, act: "refuse", refused: e.message, missing: e.missing }, null, 2));
+      io.out(JSON.stringify({ ok: false, act: "refuse", refused: e.message, missing: e.missing, warnings: e.warnings }, null, 2));
       return 1;
     }
-    const where = specPath ?? (e.missing === "refusals" || e.missing === "records" || e.missing === "offerings" ? join(srcBase, DESCRIPTOR_FILE) : srcBase);
+    for (const w of e.warnings) io.err(`  warning: ${w}`);
+    const where = specPath ?? (e.missing === "refusals" || e.missing === "records" || e.missing === "offerings" ? join(srcBase, e.message.split(" ")[0]) : srcBase);
     io.err(`\u2717 not packed: ${e.message}${e.missing ? `\n  Add "${e.missing}" to ${where} and pack again.` : ""}`);
     return 1;
   }

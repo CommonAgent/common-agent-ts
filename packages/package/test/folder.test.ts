@@ -140,6 +140,72 @@ describe("packing an agent's folder", () => {
   });
 });
 
+describe("packing a folder written by hand", () => {
+  function handWritten(): string {
+    const dir = join(tmp("hand-"), "notes-taker");
+    mkdirSync(join(dir, "skills", "take-notes"), { recursive: true });
+    writeFileSync(join(dir, "plugin.json"), JSON.stringify({ name: "notes-taker", version: "0.2.0", description: "Takes notes from a meeting transcript.", license: "MIT" }));
+    writeFileSync(join(dir, "agent-descriptor.json"), JSON.stringify({
+      format: "agent-descriptor-v1", agent_version: "0.2.0", does: "Takes notes from a meeting transcript.",
+      offerings: [{ id: "take-notes", name: "Take notes", does: "Turns a transcript into notes.", inputs: [{ name: "transcript", kind: "text", required: true }] }],
+      refusals: "inventing what nobody said.", records: [{ name: "the notes as sent", when: "per_task" }],
+    }));
+    writeFileSync(join(dir, "agent-runtime-requirements.json"), JSON.stringify({ format: "agent-install-v1", runtimes: [], binaries: [], dependencies: [], systems: [], ceilings: [], directories: [] }));
+    return dir;
+  }
+
+  it("packs it, generating the skill, the views and the README", () => {
+    const r = run([handWritten(), "--json", "--out", tmp("out-")]);
+    expect(r.code, r.stdout).toBe(0);
+    expect(r.out?.version).toBe("0.2.0");
+    const m = readJson(join(r.out?.package_dir, "plugin.json"));
+    expect(m.$schema).toBe("https://agent-plugins.org/schemas/1.0.0/plugin.schema.json");
+    expect(m.license).toBe("MIT");
+    for (const f of ["skills/take-notes/SKILL.md", "net.agentdoc.package/RECORDS.md", "README.md"]) expect(existsSync(join(r.out?.package_dir, f)), f).toBe(true);
+  });
+
+  it("refuses versions that disagree", () => {
+    const dir = handWritten();
+    const p = join(dir, "plugin.json");
+    writeFileSync(p, JSON.stringify({ ...readJson(p), version: "2.0.0" }));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code).toBe(1);
+    expect(r.out?.refused).toMatch(/they are one version/);
+  });
+
+  it("refuses a step that is not an object, rather than failing", () => {
+    const dir = handWritten();
+    const p = join(dir, "agent-descriptor.json");
+    const d = readJson(p);
+    d.offerings[0].steps = [null];
+    writeFileSync(p, JSON.stringify(d));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code).toBe(1);
+    expect(r.out?.refused).toMatch(/is an object/);
+  });
+
+  it("warns about a file it does not pack, and keeps the warnings when it refuses", () => {
+    const dir = handWritten();
+    writeFileSync(join(dir, "notes.txt"), "scratch\n");
+    const ok = run([dir, "--json", "--out", tmp("out-")]);
+    expect(ok.out?.warnings).toEqual(["notes.txt is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md and skills/"]);
+    renameSync(join(dir, "agent-descriptor.json"), join(dir, "descriptor.json"));
+    const p = join(dir, "descriptor.json");
+    writeFileSync(p, JSON.stringify({ ...readJson(p), records: [] }));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code).toBe(1);
+    expect(r.out?.refused).toMatch(/^descriptor.json does not say what records/);
+    expect(r.out?.warnings.some((w: string) => /descriptor.json is read as/.test(w))).toBe(true);
+  });
+
+  it("asks for the folder when given one of its files", () => {
+    const dir = handWritten();
+    const r = run([join(dir, "agent-descriptor.json")]);
+    expect(r.code).toBe(1);
+    expect(r.stderr).toMatch(/pack the folder that holds it/);
+  });
+});
+
 describe("validating under the old names", () => {
   it("passes a package built before the rename, with a warning for each old name", () => {
     const { dir } = agentFolder();

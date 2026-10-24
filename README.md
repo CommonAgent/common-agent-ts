@@ -32,7 +32,7 @@ A package uses another only where its standard refers to the other one. Agent
 SoW, Agent RFP and Agent NDA use Agent Mandate's types for the authority
 behind an act. Every package uses `@common-agent/crypto`.
 
-`@common-agent/package` packs an agent's spec and folder into an Agent
+`@common-agent/package` packs an agent's folder into an Agent
 Package and validates a package. Its library is pure in the same way, and it
 also uses `node:zlib` for the archive's gzip layer. Its command line tool,
 `common-agent-pack`, is the one place in this repository that reads and
