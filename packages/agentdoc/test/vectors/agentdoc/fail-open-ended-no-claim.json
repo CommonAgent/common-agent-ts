@@ -1,0 +1,374 @@
+{
+  "name": "An open-ended offering says what it can do",
+  "note": "An open-ended offering takes any instruction and makes no claim about what it can do. This one carries a capability line (6.11, 9.5).",
+  "agentdoc": {
+    "agentdoc": "v1",
+    "subject": {
+      "id": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+      "handle": "patchwright@example.net",
+      "name": "Patchwright"
+    },
+    "assembled_at": "2026-11-02T18:30:00Z",
+    "assembled_by": "a directory, not the subject's operator; the assembly is not signed",
+    "stale_after": "2026-11-09T18:30:00Z",
+    "sources": [
+      {
+        "id": "card",
+        "kind": "a2a-card",
+        "url": "https://code.example.net/.well-known/agent-card.json",
+        "fetched_at": "2026-11-02T18:29:51Z",
+        "digest": "sha256:dba0856b3973ea3120af601293dabcfb450a08906894933302342dc7ad37a5cf",
+        "signature": "unsigned"
+      },
+      {
+        "id": "descriptor",
+        "kind": "agent-descriptor",
+        "url": "https://code.example.net/.well-known/agent-descriptor.json",
+        "fetched_at": "2026-11-02T18:29:52Z",
+        "digest": "sha256:d06e613c7e35e0a32fb47bc15100b13dc7542aacd831fefb9dd11e5d4eec0eac",
+        "agent_version": "4.2.0",
+        "signature": "verified"
+      },
+      {
+        "id": "iface-worker",
+        "kind": "interface-definition",
+        "url": "https://roles.example.org/worker.json",
+        "fetched_at": "2026-11-02T18:29:53Z",
+        "digest": "sha256:1543ed3ca20b077982b2987f84098daa45f441216fdff84573713e2a9196a7b5",
+        "signature": "unsigned"
+      },
+      {
+        "id": "role-code-writer",
+        "kind": "roles-declaration",
+        "url": "https://roles.example.org/code-writer.json",
+        "fetched_at": "2026-11-02T18:29:53Z",
+        "digest": "sha256:20c8b58482bb9cfe05ac890f94ba22d140f6806fe5f759e3cf6949be3f8b1f67",
+        "signature": "unsigned"
+      },
+      {
+        "id": "build",
+        "kind": "build-record",
+        "url": "https://hosting.example.com/records/build/7f3a.json",
+        "fetched_at": "2026-11-02T18:29:54Z",
+        "digest": "sha256:fb0d633df4cf5921340d55ff7f9760e7d99cbf509971e7b8074cbf59a96ef4c4",
+        "signature": "verified"
+      },
+      {
+        "id": "deployment",
+        "kind": "deployment-record",
+        "url": "https://hosting.example.com/records/deploy/91c2.json",
+        "fetched_at": "2026-11-02T18:29:55Z",
+        "digest": "sha256:39d244a5199bbe15f9014186c788e74799fb3f72c5bae0b5342a921900e5ec2b",
+        "signature": "verified"
+      },
+      {
+        "id": "eval-1",
+        "kind": "eval-record",
+        "url": "https://evals.example.org/records/software-changes-3/patchwright.json",
+        "fetched_at": "2026-11-02T18:29:56Z",
+        "digest": "sha256:4eff688ddf518db05251fe9d5cdb88ab153dac66272a11129e571870898a9c42",
+        "signature": "verified"
+      },
+      {
+        "id": "report-1",
+        "kind": "reputation-report",
+        "url": "https://reviews.example.org/reports/patchwright-2026-10.json",
+        "fetched_at": "2026-11-02T18:29:57Z",
+        "digest": "sha256:35a1ce471696f0324bf4be99982da107e84085f9f1fce2f630f7d6da5f1cec89",
+        "signature": "verified"
+      },
+      {
+        "id": "probe",
+        "kind": "observation",
+        "at": "2026-11-02T18:29:59Z",
+        "what": "asked interface-worker/free and got a conforming answer"
+      }
+    ],
+    "sections": {
+      "identity": {
+        "from": [
+          "card",
+          "descriptor"
+        ],
+        "name": "Patchwright",
+        "name_from": "card",
+        "operator": "Example Software Ltd",
+        "operator_from": "card",
+        "acts_for": "organization",
+        "acts_for_from": "descriptor",
+        "organization_name": "Example Software Ltd",
+        "organization_name_from": "descriptor",
+        "fleet": false,
+        "fleet_from": "descriptor"
+      },
+      "shape": {
+        "from": [
+          "descriptor",
+          "build",
+          "deployment"
+        ],
+        "interaction": "service",
+        "interaction_from": "descriptor",
+        "visibility": "verifiable",
+        "visibility_why": "A party that is not the subject built and deployed it, and its build record and deployment record name the bytes that run."
+      },
+      "role": {
+        "from": [
+          "descriptor",
+          "role-code-writer"
+        ],
+        "name": "role-code-writer",
+        "declared_in": "descriptor",
+        "state": "declared"
+      },
+      "asked": {
+        "from": [
+          "card",
+          "iface-worker",
+          "probe"
+        ],
+        "interfaces": [
+          {
+            "name": "interface-worker",
+            "version": "v1",
+            "definition": "https://roles.example.org/worker.json",
+            "declared_in": "card",
+            "exchanges": [
+              {
+                "id": "free",
+                "asks": "are you free?",
+                "answer_carries": [
+                  "free",
+                  "reason when not",
+                  "job when not"
+                ],
+                "state": "confirmed",
+                "confirmed_at": "2026-11-02T18:29:59Z",
+                "confirmed_by": "probe"
+              },
+              {
+                "id": "estimate",
+                "asks": "what would this take?",
+                "answer_carries": [
+                  "can (CAN|CANNOT|UNSURE)",
+                  "commitment",
+                  "note"
+                ],
+                "state": "declared"
+              }
+            ]
+          }
+        ]
+      },
+      "sells": {
+        "from": [
+          "descriptor",
+          "deployment",
+          "eval-1"
+        ],
+        "scopes": [
+          "open-with-focus",
+          "open-ended"
+        ],
+        "offerings": [
+          {
+            "id": "change-a-repository",
+            "name": "Change a repository",
+            "scope": "open-with-focus",
+            "focus": "software",
+            "role": "role-code-writer",
+            "does": "Makes the change an instruction asks for in one code repository and opens it for review.",
+            "inputs": [
+              {
+                "name": "instruction",
+                "kind": "text",
+                "required": true
+              }
+            ],
+            "outputs": [
+              {
+                "name": "change",
+                "kind": "identifier",
+                "when": "per_task"
+              },
+              {
+                "name": "summary",
+                "kind": "text/markdown",
+                "when": "per_task"
+              }
+            ],
+            "workspace": [
+              {
+                "kind": "git",
+                "access": "read-write",
+                "for": "the repository the change is made in, on a branch of its own"
+              }
+            ],
+            "authority": [
+              "reads-files",
+              "writes-files",
+              "runs-commands"
+            ],
+            "authority_decided_by": "rule",
+            "ceilings": {
+              "job_seconds": {
+                "most": 3600,
+                "decided_by": "rule",
+                "enforced": true,
+                "enforced_from": "deployment"
+              },
+              "cost_per_job": {
+                "most": {
+                  "amount_micro": 20000000,
+                  "currency": "USD"
+                },
+                "decided_by": "rule",
+                "enforced": true,
+                "enforced_from": "deployment"
+              }
+            },
+            "evaluated_against": [
+              {
+                "set": {
+                  "name": "software-changes",
+                  "version": "3",
+                  "digest": "sha256:9b1af3ba3c94464e1802053003c585ac4dbb8c413ce8b5ebbfe31f782f0ac755"
+                },
+                "result": {
+                  "pass": 41,
+                  "fail": 7,
+                  "inconclusive": 2
+                },
+                "record": "eval-1"
+              }
+            ],
+            "state": "declared"
+          },
+          {
+            "id": "run-an-instruction",
+            "name": "Run an instruction",
+            "scope": "open-ended",
+            "inputs": [
+              {
+                "name": "instruction",
+                "kind": "text",
+                "required": true
+              }
+            ],
+            "outputs": [
+              {
+                "name": "report",
+                "kind": "text/markdown",
+                "when": "per_task"
+              }
+            ],
+            "workspace": [],
+            "authority": [
+              "reads-files",
+              "runs-commands"
+            ],
+            "authority_decided_by": "rule",
+            "ceilings": {
+              "job_seconds": {
+                "most": 900,
+                "decided_by": "rule",
+                "enforced": true,
+                "enforced_from": "deployment"
+              },
+              "cost_per_job": {
+                "most": {
+                  "amount_micro": 5000000,
+                  "currency": "USD"
+                },
+                "decided_by": "rule",
+                "enforced": true,
+                "enforced_from": "deployment"
+              }
+            },
+            "state": "declared",
+            "does": "Fixes any bug in any codebase."
+          }
+        ]
+      },
+      "access": {
+        "from": [
+          "card",
+          "descriptor"
+        ],
+        "address": "https://code.example.net/a2a",
+        "address_from": "card",
+        "protocol": "a2a",
+        "schemes": [
+          {
+            "id": "bearer",
+            "transport": "http",
+            "type": "http",
+            "scheme": "bearer"
+          }
+        ],
+        "schemes_from": "card",
+        "admission": "screened",
+        "admission_from": "descriptor"
+      },
+      "refuses": {
+        "from": [
+          "descriptor"
+        ],
+        "statement": "It does not push to a default branch and does not merge its own changes.",
+        "kind": "prose",
+        "hands_over": [
+          "A change that would delete more than a hundred files."
+        ]
+      },
+      "leaves": {
+        "from": [
+          "descriptor"
+        ],
+        "records": [
+          {
+            "name": "change-log",
+            "when": "per_task",
+            "file": "CHANGES.md"
+          }
+        ]
+      },
+      "handling": {
+        "from": [
+          "descriptor"
+        ],
+        "processed_in": [
+          "eu"
+        ],
+        "retention_days": 30,
+        "processors": [
+          "Example Model Hosting"
+        ],
+        "memory": "none"
+      },
+      "standing": {
+        "from": [
+          "report-1"
+        ],
+        "reports": [
+          {
+            "published_by": "Example Reviews Board",
+            "url": "https://reviews.example.org/reports/patchwright-2026-10.json",
+            "as_of": "2026-10-31"
+          }
+        ]
+      }
+    },
+    "not_stated": [
+      "reaches",
+      "configs",
+      "sells.offerings.price"
+    ],
+    "signatures": []
+  },
+  "expect": {
+    "ok": false,
+    "fail": [
+      "open-ended-no-claim"
+    ]
+  }
+}

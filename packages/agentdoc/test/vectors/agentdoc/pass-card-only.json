@@ -1,0 +1,105 @@
+{
+  "name": "A card-only AgentDoc passes",
+  "note": "An A2A agent that publishes an agent card and nothing else. The card is the one source. Every section the card cannot speak to is named in not_stated, and visibility is opaque because only the door was read. This is a valid, honest AgentDoc (9.5.1, 9.6, 9.9).",
+  "agentdoc": {
+    "agentdoc": "v1",
+    "subject": {
+      "id": "https://recipes.example.com/a2a",
+      "name": "Recipe Scaler"
+    },
+    "assembled_at": "2026-11-02T15:20:00Z",
+    "assembled_by": "common-agent-doc build, run by the agent's own operator; the assembly is not signed",
+    "sources": [
+      {
+        "id": "card",
+        "kind": "a2a-card",
+        "url": "https://recipes.example.com/.well-known/agent-card.json",
+        "fetched_at": "2026-11-02T15:19:58Z",
+        "digest": "sha256:2c98eb4a95bd2fe3dc79aa1ad85e09110b251360a0df7432b48586bf72aa1d01",
+        "signature": "unsigned"
+      }
+    ],
+    "sections": {
+      "identity": {
+        "from": [
+          "card"
+        ],
+        "name": "Recipe Scaler",
+        "operator": "Example Kitchen Co",
+        "url": "https://recipes.example.com",
+        "version": "0.3.1"
+      },
+      "shape": {
+        "from": [
+          "card"
+        ],
+        "visibility": "opaque",
+        "visibility_why": "Only the agent card was read: an address, and what the card says it offers. Nothing here says what stands behind it."
+      },
+      "sells": {
+        "from": [
+          "card"
+        ],
+        "scopes": [
+          "task-specific"
+        ],
+        "offerings": [
+          {
+            "id": "scale-recipe",
+            "name": "Scale a recipe",
+            "scope": "task-specific",
+            "does": "Rewrites a recipe for a different number of servings and converts the units.",
+            "input_modes": [
+              "text/plain"
+            ],
+            "output_modes": [
+              "text/plain",
+              "application/json"
+            ],
+            "state": "declared"
+          },
+          {
+            "id": "shopping-list",
+            "name": "Shopping list",
+            "scope": "task-specific",
+            "does": "Turns one or more recipes into a shopping list grouped by aisle.",
+            "input_modes": [
+              "text/plain"
+            ],
+            "output_modes": [
+              "text/markdown"
+            ],
+            "state": "declared"
+          }
+        ]
+      },
+      "access": {
+        "from": [
+          "card"
+        ],
+        "address": "https://recipes.example.com/a2a",
+        "protocol": "a2a"
+      }
+    },
+    "not_stated": [
+      "identity.acts_for",
+      "shape.interaction",
+      "asked",
+      "role",
+      "sells.offerings.price",
+      "access.schemes",
+      "access.admission",
+      "refuses",
+      "reaches",
+      "leaves",
+      "configs",
+      "handling",
+      "standing"
+    ],
+    "signatures": []
+  },
+  "expect": {
+    "ok": true,
+    "fail": []
+  }
+}

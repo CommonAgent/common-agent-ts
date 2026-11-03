@@ -15,7 +15,8 @@
     "packages/reputations",
     "packages/sow",
     "packages/rfp",
-    "packages/package"
+    "packages/package",
+    "packages/agentdoc"
   ],
   "engines": {
     "node": ">=20.10"

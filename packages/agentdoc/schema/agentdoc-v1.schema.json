@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentdoc.net/schema/agentdoc-v1.json",
+  "title": "AgentDoc v1",
+  "description": "The assembled view of an agent (Common Agent Specification, Chapter 9), or of a package before any agent exists (Section 13.4). This schema checks the document's shape. The rules that need more than a shape, such as every section citing listed sources and silence being named in not_stated, are the checks of Section 9.10, which @common-agent/agentdoc runs.",
+  "type": "object",
+  "required": ["agentdoc", "sources", "sections", "not_stated"],
+  "properties": {
+    "agentdoc": { "const": "v1" },
+    "subject": {
+      "description": "The agent described. id is its stable identifier, normally its public key, and is never absent (Section 9.4).",
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "handle": { "type": "string" },
+        "name": { "type": "string" }
+      }
+    },
+    "package": {
+      "description": "The package a package AgentDoc was assembled from, in place of subject (Section 13.4).",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "assembled_at": { "$ref": "#/$defs/time" },
+    "assembled_by": { "type": "string" },
+    "stale_after": { "$ref": "#/$defs/time" },
+    "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } },
+    "sections": {
+      "type": "object",
+      "properties": {
+        "identity": { "$ref": "#/$defs/identity" },
+        "shape": { "$ref": "#/$defs/shape" },
+        "asked": { "$ref": "#/$defs/asked" },
+        "role": { "$ref": "#/$defs/section" },
+        "sells": { "$ref": "#/$defs/sells" },
+        "access": { "$ref": "#/$defs/access" },
+        "refuses": { "$ref": "#/$defs/refuses" },
+        "reaches": { "$ref": "#/$defs/section" },
+        "leaves": { "$ref": "#/$defs/section" },
+        "configs": { "$ref": "#/$defs/section" },
+        "handling": { "$ref": "#/$defs/section" },
+        "standing": { "$ref": "#/$defs/section" }
+      },
+      "additionalProperties": { "$ref": "#/$defs/section" }
+    },
+    "not_stated": {
+      "description": "The section and member paths no source says anything about (Section 9.5).",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "signatures": {
+      "description": "The assembler's own signatures, agentdoc-assembly-v1 (Section 9.11). An entry with a tag a reader does not know is skipped.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tag"],
+        "properties": {
+          "tag": { "type": "string" },
+          "by": { "type": "string" },
+          "sig": { "type": "string" }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    { "required": ["subject"], "not": { "required": ["package"] } },
+    { "required": ["package"], "not": { "required": ["subject"] } }
+  ],
+  "$defs": {
+    "time": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$" },
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "signatureState": { "enum": ["verified", "unsigned", "failed", "not_checked"] },
+    "state": { "enum": ["declared", "confirmed", "failed"] },
+    "source": {
+      "description": "One thing the AgentDoc was built from (Section 9.4). An observation carries at and what in place of url.",
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "minLength": 1 },
+        "url": { "type": "string" },
+        "fetched_at": { "$ref": "#/$defs/time" },
+        "digest": { "type": "string" },
+        "signature": { "$ref": "#/$defs/signatureState" },
+        "at": { "$ref": "#/$defs/time" },
+        "what": { "type": "string" },
+        "agent_version": { "type": "string" },
+        "disagreements": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "section": {
+      "description": "Every section names the sources it was assembled from (Section 9.3).",
+      "type": "object",
+      "required": ["from"],
+      "properties": {
+        "from": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "identity": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "operator": { "type": "string" },
+        "acts_for": { "enum": ["person", "organization", "anyone"] },
+        "organization_name": { "type": "string" },
+        "fleet": { "type": "boolean" }
+      }
+    },
+    "shape": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "interaction": { "enum": ["interactive", "service"] },
+        "visibility": { "enum": ["verifiable", "observed", "opaque"] }
+      }
+    },
+    "asked": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "exchanges": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": { "state": { "$ref": "#/$defs/state" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "offering": {
+      "type": "object",
+      "required": ["scope"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "does": { "type": "string" },
+        "scope": { "type": "string", "minLength": 1 },
+        "focus": { "enum": ["software", "documents", "data", "research", "operations"] },
+        "inputs": { "type": "array" },
+        "outputs": { "type": "array" },
+        "workspace": { "type": "array" },
+        "authority": { "type": "array", "items": { "type": "string" } },
+        "authority_decided_by": { "enum": ["rule", "model"] },
+        "ceilings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["most"],
+            "properties": { "decided_by": { "enum": ["rule", "model"] } }
+          }
+        },
+        "steps": { "type": "array" },
+        "trial": {
+          "type": "object",
+          "required": ["offered"],
+          "properties": { "offered": { "type": "boolean" } }
+        },
+        "state": { "$ref": "#/$defs/state" }
+      }
+    },
+    "sells": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "scopes": { "type": "array", "items": { "type": "string" } },
+        "offerings": { "type": "array", "items": { "$ref": "#/$defs/offering" } }
+      }
+    },
+    "access": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "address": { "type": "string" },
+        "protocol": { "type": "string" },
+        "schemes": { "type": "array", "items": { "type": "object" } },
+        "admission": { "type": "string" }
+      }
+    },
+    "refuses": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "statement": { "type": "string" },
+        "kind": { "enum": ["prose", "clause", "role"] },
+        "hands_over": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

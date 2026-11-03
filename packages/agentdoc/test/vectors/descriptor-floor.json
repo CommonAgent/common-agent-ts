@@ -1,0 +1,855 @@
+{
+  "comment": "Descriptor floor conformance fixture (Common Agent 4.9, with 6.2's minimal Descriptor, 6.6's signature and 4.4's exchange 2). Every agent serves a bound, signed Descriptor that holds at least the minimal Descriptor's members. Pins which served Descriptors meet the floor, with signatures that really verify, and which answers to the entryway's descriptor exchange conform. Keys are spelled as Agent Messaging spells them, and the one seed is the published test seed its fixtures already use, so no new private-key-shaped string enters the repository; the second identity's seed is unpublished, which is why only the first identity signs. Signatures are Section 8.1's: Ed25519, base64, over the ASCII tag, one newline, and the JCS canonical JSON of the document without signatures. Check it with node conformance/lib/check-descriptor-floor.mjs. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation; change the fixture only with a spec change alongside.",
+  "version": 1,
+  "spec": "SPEC.md 4.9 (the Descriptor on the floor), 6.2 (the minimal Descriptor), 6.6 (the signature), 6.8 (checking a Descriptor), 4.4 (exchange 2), 8.1 (the signature convention)",
+  "identities": {
+    "comment": "TEST VECTORS. They control nothing.",
+    "seed": "SUAEGDPNTWXACIF45CA23BUY36RIMWZXW5LEHSEOK2ONS5JWJ7PBC2EWBA",
+    "subject": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+    "other": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A"
+  },
+  "minimal_members": [
+    "format",
+    "agent_version",
+    "subject",
+    "does",
+    "acts_for",
+    "offerings",
+    "signatures"
+  ],
+  "offering_members": [
+    "id",
+    "name",
+    "inputs",
+    "outputs"
+  ],
+  "offering_should": [
+    "does"
+  ],
+  "tag": "descriptor-statement-v1",
+  "descriptors": {
+    "valid": [
+      {
+        "case": "minimal_one_offering",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "w2uH++xYyBDWtoXHbuPj/awoOk0VAvyEnt5QpTUWkqGFM5cLABZabfz8RdzZYIVxwLQLdcD1gvEnA6iIq9MRAQ==",
+              "alg": "ed25519"
+            }
+          ]
+        }
+      },
+      {
+        "case": "minimal_no_work",
+        "note": "a guest or a bare agent with nothing to offer: an empty offerings[] is a statement that it takes no work",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "0.1.0",
+          "does": "Buys on behalf of its person during a trial.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP"
+          },
+          "acts_for": "person",
+          "offerings": [],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "mgX0KwJLaylhHLCMUojc2iGJc506g7lpwgehY6EzpBQseglNyxOH9V9gA3vpzCBgaickyMrjaZyEjHHKomUoBg==",
+              "alg": "ed25519"
+            }
+          ]
+        }
+      },
+      {
+        "case": "organization_named",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "organization",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "organization_name": "Example Co",
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "Xzs0Jzc7TMOh6YxkFgpL6o41Pkx9clcRq288oSh8TPW5eRQF8oBTqRUjucyCyNsfMpXoCArvWKLwo9vd5QRiAg==",
+              "alg": "ed25519"
+            }
+          ]
+        }
+      },
+      {
+        "case": "offering_without_does",
+        "note": "an offering SHOULD carry does; without it the Descriptor still meets the floor",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "wAt3kgiaabUOQqQloS2o7fWBGtssn+KdeQDmELtCONnO46g7Y9qxt7FlVIVDco6Eqjbh4jdIgHIrrbqdYzpWBA==",
+              "alg": "ed25519"
+            }
+          ]
+        }
+      },
+      {
+        "case": "with_optional_members",
+        "note": "members beyond the minimum are allowed and do not change the check",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "interaction": "service",
+          "fleet": false,
+          "refusals": "Gives no forecasts beyond ten days.",
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "oX6QRkTtpxJYYi8qvWqHM9K4lLLq6RKIhI3nn3u1dcpqZNgxYqdo9n+ANosx+ySBMQLyBqMQ6GVbQFHsiXkKCQ==",
+              "alg": "ed25519"
+            }
+          ]
+        }
+      }
+    ],
+    "invalid": [
+      {
+        "case": "unsigned",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": []
+        },
+        "why": "a bound Descriptor carries the subject's descriptor-statement-v1 signature"
+      },
+      {
+        "case": "no_signatures_member",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ]
+        },
+        "why": "a bound Descriptor carries the subject's descriptor-statement-v1 signature"
+      },
+      {
+        "case": "draft_served",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ]
+        },
+        "why": "a draft has no subject and is never served as an agent's Descriptor"
+      },
+      {
+        "case": "no_acts_for",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "dxTJltn3OIPXVTta/xsq5+dsLKU+wQSudcwIxxW5kxlmXK2WTSD1fD1bMjivq2apzN8D5ere7DzXgLqbtF1eBg==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "acts_for is a member of the minimal Descriptor"
+      },
+      {
+        "case": "no_offerings_member",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "J9p+UrISGQqQ2zOdOL0B6k2iZ4atBehIJE1XGbDWttAWEp5SYHqVOBmry1LuW9zCXinyDIHxGl+uejmO3U+vDQ==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "offerings[] is a member of the minimal Descriptor; an empty list is the way to say the agent takes no work"
+      },
+      {
+        "case": "no_does",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "NguYbyBCRl6c4dQD8qQ1Mus7u8pVCX9HyUE0cL0TSFO5spkeRvG15ADBX0DJ7Arq7UwF2YrKPJ+X7Wrg/eBgAw==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "does is a member of the minimal Descriptor"
+      },
+      {
+        "case": "no_agent_version",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "DMVctBpKSYrDw9GN3IQjdSJ1IMnsYokzaW5woAP0qT7o/DIn/B4vWTtrOO4JrLjCuiQdV0cfWotekeE5faMOBg==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "agent_version is a member of the minimal Descriptor"
+      },
+      {
+        "case": "no_format",
+        "descriptor": {
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "OL9JeCDwCLwPp9gTMykCWWOYDsMYxYcPf243OT0cLKVFlh03N0mISLkScHIdlYZ/ASUUpib6wmUWcYCEU8jdCw==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "format is a member of the minimal Descriptor"
+      },
+      {
+        "case": "acts_for_unknown",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "everyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "8wEMolWrP491jXwYcXtfIwoJ6PzQaVf22WtyVzKPb9ZLfRIAxOGzE12CQXS/XkbOt1MPR9EPZcoIQ/kiaPZsCA==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "acts_for is person, organization or anyone"
+      },
+      {
+        "case": "offering_without_outputs",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "x",
+              "inputs": []
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "MMkv9HbialUh2FZYf7l5vYOFGkAEZ2TutuzEXFG7d/vx76sIXOGDXC34SSU5eIb77vhb+rCvI81m3hsro9U9CA==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "each offering carries id, name, inputs and outputs"
+      },
+      {
+        "case": "signed_then_changed",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about anything.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "w2uH++xYyBDWtoXHbuPj/awoOk0VAvyEnt5QpTUWkqGFM5cLABZabfz8RdzZYIVxwLQLdcD1gvEnA6iIq9MRAQ==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "the signature does not verify over the bytes served"
+      },
+      {
+        "case": "signed_by_another_key",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A",
+              "sig": "J6i4NcQfiicJ2WGzsCCbUwyqUlnpO5iW/TllauYxtBIBzFheUo2TLuGxtjgGUn4Y+Bkyfuge8I5hQsoBCJAXAA==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "the signature is made with a key other than subject.id's, so it does not verify against subject.id"
+      },
+      {
+        "case": "signer_is_not_the_subject",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "J6i4NcQfiicJ2WGzsCCbUwyqUlnpO5iW/TllauYxtBIBzFheUo2TLuGxtjgGUn4Y+Bkyfuge8I5hQsoBCJAXAA==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "by MUST be the subject's own key"
+      },
+      {
+        "case": "wrong_tag",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "signatures": [
+            {
+              "tag": "agentdoc-assembly-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "tm1zqBd95ZwkgdsnZIwaI/b2m5s6k897V6xkCO9lc3F2Zre3uU28D1Papr5ADY0oW/G0fTDlOroQxC07BuJHAg==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "the signature that binds is descriptor-statement-v1"
+      },
+      {
+        "case": "carries_shape",
+        "descriptor": {
+          "format": "agent-descriptor-v1",
+          "agent_version": "1.0.0",
+          "does": "Answers questions about the weather.",
+          "subject": {
+            "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+            "handle": "weather@example.org"
+          },
+          "acts_for": "anyone",
+          "offerings": [
+            {
+              "id": "chat",
+              "name": "Chat",
+              "does": "Answers questions about the weather in words.",
+              "inputs": [
+                {
+                  "name": "text",
+                  "kind": "text",
+                  "required": true
+                }
+              ],
+              "outputs": [
+                {
+                  "name": "answer",
+                  "kind": "text",
+                  "when": "per_task"
+                }
+              ]
+            }
+          ],
+          "shape": {
+            "memory": "keeps"
+          },
+          "signatures": [
+            {
+              "tag": "descriptor-statement-v1",
+              "by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+              "sig": "F8zOGklpl/qvyUVyWJ+fzwRaTaVzGZDIXMVOgICGFRMtYxnduIgw+rZBscVYG1KBxjj/9VsYdWkHEc/d0/d1Cw==",
+              "alg": "ed25519"
+            }
+          ]
+        },
+        "why": "shape was removed in 0.28.0-draft; a checker reports it, and a consumer ignores it"
+      }
+    ]
+  },
+  "entryway": {
+    "comment": "Answers to exchange 2, 'show me your descriptor'. digest is sha256 over the exact bytes served. Only an answer carrying the bound, signed document conforms.",
+    "cases": [
+      {
+        "case": "the_document",
+        "answer": {
+          "descriptor": "<the exact bytes of minimal_one_offering>",
+          "digest": "sha256:<over those bytes>"
+        },
+        "conforms": true
+      },
+      {
+        "case": "none_published",
+        "answer": {
+          "descriptor": null,
+          "published": false
+        },
+        "conforms": false,
+        "why": "every agent has a Descriptor; this answer stopped being valid in 0.28.0-draft"
+      },
+      {
+        "case": "silence",
+        "answer": null,
+        "conforms": false,
+        "why": "a refusal is an answer and silence is not"
+      },
+      {
+        "case": "error",
+        "answer": {
+          "error": "NOT_FOUND"
+        },
+        "conforms": false,
+        "why": "every agent has a Descriptor to serve"
+      },
+      {
+        "case": "a_draft",
+        "answer": {
+          "descriptor": "<a document without subject>"
+        },
+        "conforms": false,
+        "why": "a draft is never served as an agent's Descriptor"
+      }
+    ]
+  }
+}
