@@ -3,8 +3,7 @@
   "version": 1,
   "spec": "SPEC.md 4.9 (the Descriptor on the floor), 6.2 (the minimal Descriptor), 6.6 (the signature), 6.8 (checking a Descriptor), 4.4 (exchange 2), 8.1 (the signature convention)",
   "identities": {
-    "comment": "TEST VECTORS. They control nothing.",
-    "seed": "SUAEGDPNTWXACIF45CA23BUY36RIMWZXW5LEHSEOK2ONS5JWJ7PBC2EWBA",
+    "comment": "TEST VECTORS. They control nothing. The seed is left out of this copy; the public keys are enough to check the signatures.",
     "subject": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
     "other": "UAKQRYZBYFOC65OQZVJ3QPCIERDTRNNZPMOJUYXC3DGPRCDWSKD4HV5A"
   },

@@ -11,7 +11,7 @@ describe("render", () => {
     const html = render(await assemble({ card: card(), descriptor: signedDescriptorText(), now: NOW }));
     expect(html.startsWith("<!doctype html>")).toBe(true);
     expect(html).not.toMatch(/<script|<link |@import|onclick=/i);
-    expect(html).not.toMatch(/agentmesh/i);
+    expect(html).not.toMatch(/agent ?mesh/i);
     expect(html.replace("It carries no score and no badge.", "")).not.toMatch(/\bscore\b|\bbadge\b|trust mark/i);
     expect(html).toContain("2026-11-03 12:00:00 UTC");
   });

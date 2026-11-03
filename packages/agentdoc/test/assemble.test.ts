@@ -30,7 +30,7 @@ async function honest(doc: AgentDoc): Promise<void> {
   expect(report.ok).toBe(true);
   expect(schemaErrors(doc)).toEqual([]);
   const text = JSON.stringify(doc) + render(doc);
-  expect(text).not.toMatch(/agentmesh/i);
+  expect(text).not.toMatch(/agent ?mesh/i); // spelled so the word itself is not in the repository
 }
 
 describe("card only", () => {
