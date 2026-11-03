@@ -178,7 +178,7 @@ describe("common-agent-doc, end to end", () => {
       const r = await run([c, "--help"], dir);
       expect(r.code, c).toBe(0);
       expect(r.stdout, c).toContain(`common-agent-doc ${c}`);
-      expect(r.stdout, c).not.toMatch(/agentmesh|—/i);
+      expect(r.stdout, c).not.toMatch(/agent ?mesh|—/i);
     }
   });
 });

@@ -1,12 +1,12 @@
 // What the tests share: a fake fetch that serves fixed documents, a realistic
-// A2A card, and signed documents made with published test keys. The keys
-// control nothing: the Descriptor key is the published test seed of the
-// standards' descriptor-floor.json, and the others are the SHA-256 of a label.
+// A2A card, and signed documents made with test keys. The keys control
+// nothing: each is the SHA-256 of a label, so no seed is written in the
+// repository.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalJSON, encodeSignature, sha256, sha256Digest, signTagged, signerFromRawSeed, signerFromUserSeed, utf8 } from "@common-agent/crypto";
-import { pae, signDescriptor } from "../signatures.js";
+import { encodeUserSeed, pae, signDescriptor } from "../signatures.js";
 import { validate } from "./schema-validate.js";
 
 export const HERE = fileURLToPath(new URL(".", import.meta.url));
@@ -16,8 +16,8 @@ export const schemaErrors = (doc: unknown): string[] => validate(SCHEMA, doc);
 export const NOW = new Date("2026-11-03T12:00:00.000Z");
 export const ORIGIN = "https://recipes.example";
 
-/** The published test seed of descriptor-floor.json, and its key. */
-export const SUBJECT_SEED = "SUAEGDPNTWXACIF45CA23BUY36RIMWZXW5LEHSEOK2ONS5JWJ7PBC2EWBA";
+/** The Descriptor test key: its seed, spelled as an nkey user seed, and its public key. */
+export const SUBJECT_SEED = encodeUserSeed(sha256("agentdoc test key: subject"));
 export const SUBJECT_KEY = signerFromUserSeed(SUBJECT_SEED).getPublicKey();
 export const labelSigner = (label: string) => signerFromRawSeed(sha256(label));
 
