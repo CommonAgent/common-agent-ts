@@ -1,0 +1,62 @@
+{
+  "name": "@common-agent/agentdoc",
+  "version": "0.1.0",
+  "description": "Make, publish and check an AgentDoc: one document that says what an agent is, what it offers and what it refuses, assembled from its A2A card and signed Descriptor, with a small command line tool.",
+  "keywords": [
+    "common-agent",
+    "agentdoc",
+    "a2a",
+    "agent-card",
+    "agent-descriptor"
+  ],
+  "homepage": "https://agentdoc.net",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CommonAgent/common-agent-ts.git",
+    "directory": "packages/agentdoc"
+  },
+  "bugs": {
+    "url": "https://github.com/CommonAgent/common-agent-ts/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/cli.js"
+    },
+    "./schema/agentdoc-v1.schema.json": "./schema/agentdoc-v1.schema.json",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "common-agent-doc": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "schema",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "sideEffects": [
+    "./dist/bin.js"
+  ],
+  "engines": {
+    "node": ">=20.10"
+  },
+  "dependencies": {
+    "@common-agent/crypto": "0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "name": "A member named as not stated is given a value",
+  "note": "handling is named in not_stated and still carries a retention of zero days. An agent that has said nothing about retention has not promised to delete anything (9.6).",
+  "agentdoc": {
+    "agentdoc": "v1",
+    "subject": {
+      "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+      "handle": "weather@example.org",
+      "name": "Weather"
+    },
+    "assembled_at": "2026-11-02T16:05:00Z",
+    "assembled_by": "common-agent-doc build, run by the agent's own operator; the assembly is not signed",
+    "stale_after": "2026-11-09T16:05:00Z",
+    "sources": [
+      {
+        "id": "card",
+        "kind": "a2a-card",
+        "url": "https://weather.example.org/.well-known/agent-card.json",
+        "fetched_at": "2026-11-02T16:04:57Z",
+        "digest": "sha256:6f4277234791e717459e855cf40dce66852fd70d81242ba6daec83b650f1cccf",
+        "signature": "unsigned"
+      },
+      {
+        "id": "descriptor",
+        "kind": "agent-descriptor",
+        "url": "https://weather.example.org/.well-known/agent-descriptor.json",
+        "fetched_at": "2026-11-02T16:04:58Z",
+        "digest": "sha256:e596a4688c8c04d04bed65e8945f1b64dd413ed4ff902c8a63bd380d45bfa805",
+        "agent_version": "1.0.0",
+        "signature": "verified"
+      }
+    ],
+    "sections": {
+      "identity": {
+        "from": [
+          "card",
+          "descriptor"
+        ],
+        "name": "Weather",
+        "name_from": "card",
+        "operator": "Example Weather Service",
+        "operator_from": "card",
+        "url": "https://weather.example.org",
+        "url_from": "card",
+        "does": "Answers questions about the weather.",
+        "does_from": "descriptor",
+        "acts_for": "anyone",
+        "acts_for_from": "descriptor",
+        "fleet": false,
+        "fleet_from": "descriptor",
+        "signed_by": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+        "signed_by_from": "descriptor"
+      },
+      "shape": {
+        "from": [
+          "descriptor"
+        ],
+        "interaction": "service"
+      },
+      "sells": {
+        "from": [
+          "descriptor"
+        ],
+        "scopes": [
+          "task-specific"
+        ],
+        "offerings": [
+          {
+            "id": "chat",
+            "name": "Chat",
+            "scope": "task-specific",
+            "does": "Answers questions about the weather in words.",
+            "inputs": [
+              {
+                "name": "text",
+                "kind": "text",
+                "required": true
+              }
+            ],
+            "outputs": [
+              {
+                "name": "answer",
+                "kind": "text",
+                "when": "per_task"
+              }
+            ],
+            "state": "declared"
+          }
+        ]
+      },
+      "access": {
+        "from": [
+          "card"
+        ],
+        "address": "https://weather.example.org/a2a",
+        "protocol": "a2a"
+      },
+      "refuses": {
+        "from": [
+          "descriptor"
+        ],
+        "statement": "Gives no forecasts beyond ten days.",
+        "kind": "prose"
+      },
+      "handling": {
+        "from": [
+          "descriptor"
+        ],
+        "retention_days": 0
+      }
+    },
+    "not_stated": [
+      "shape.visibility",
+      "asked",
+      "role",
+      "sells.offerings.price",
+      "access.schemes",
+      "access.admission",
+      "reaches",
+      "leaves",
+      "configs",
+      "handling",
+      "standing"
+    ],
+    "signatures": []
+  },
+  "expect": {
+    "ok": false,
+    "fail": [
+      "no-default"
+    ]
+  }
+}

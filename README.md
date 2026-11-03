@@ -12,7 +12,8 @@ standard and a shared crypto package:
 | `@common-agent/nda` | [Agent NDA](https://agentnda.net) | 0.2.0-draft |
 | `@common-agent/reputations` | [Agent Reputations](https://agentreputations.com) | 0.6.0-draft |
 | `@common-agent/package` | [Agent Package](https://commonagent.net/package.html), Section 12 of the Common Agent Specification, with the `common-agent-pack` command line tool | 0.30.0-draft |
-| `@common-agent/crypto` | Canonical JSON (RFC 8785), Ed25519 (RFC 8032), nkey keys and signature spellings, shared by all five | |
+| `@common-agent/agentdoc` | [AgentDoc](https://agentdoc.net), Chapter 9 of the Common Agent Specification, with the `common-agent-doc` command line tool | 0.40.3 |
+| `@common-agent/crypto` | Canonical JSON (RFC 8785), Ed25519 (RFC 8032), nkey keys and signature spellings, shared by all of them | |
 
 The standards themselves, and the conformance files that test them, are in
 [CommonAgent/common-agent-standards](https://github.com/CommonAgent/common-agent-standards).
@@ -35,8 +36,13 @@ behind an act. Every package uses `@common-agent/crypto`.
 `@common-agent/package` packs an agent's folder into an Agent
 Package and validates a package. Its library is pure in the same way, and it
 also uses `node:zlib` for the archive's gzip layer. Its command line tool,
-`common-agent-pack`, is the one place in this repository that reads and
-writes a disk.
+`common-agent-pack`, reads and writes a disk.
+
+`@common-agent/agentdoc` assembles, checks and renders an AgentDoc. It is the
+one package that makes network calls: given an agent's address, it fetches the
+agent's A2A card, its Descriptor and the documents the card points to,
+through a `fetch` the caller may supply. Its command line tool,
+`common-agent-doc`, reads and writes a disk.
 
 ## Running the conformance vectors
 

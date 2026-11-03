@@ -17,6 +17,7 @@ export default defineConfig({
       { find: "@common-agent/rfp/ports", replacement: here("./packages/rfp/ports.ts") },
       { find: "@common-agent/mandate", replacement: here("./packages/mandate/index.ts") },
       { find: "@common-agent/package", replacement: here("./packages/package/index.ts") },
+      { find: "@common-agent/agentdoc", replacement: here("./packages/agentdoc/index.ts") },
       { find: "@common-agent/crypto", replacement: here("./packages/crypto/index.ts") },
       { find: "@common-agent/nda", replacement: here("./packages/nda/index.ts") },
       { find: "@common-agent/sow", replacement: here("./packages/sow/index.ts") },

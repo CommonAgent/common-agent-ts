@@ -41,6 +41,9 @@
       ],
       "@common-agent/package/ports": [
         "./packages/package/ports.ts"
+      ],
+      "@common-agent/agentdoc": [
+        "./packages/agentdoc/index.ts"
       ]
     }
   },
