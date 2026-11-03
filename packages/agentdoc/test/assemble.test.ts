@@ -234,7 +234,7 @@ describe("signed terms, evaluation records and attestations", () => {
     expect(doc.sources.find((s) => s.id === "terms")).toMatchObject({ kind: "sow-standing-proposal", url, signature: "verified", committed_by: "card" });
     const [first] = doc.sections.sells!.offerings as Array<Record<string, unknown>>;
     expect(first).toMatchObject({ arrangement: "fixed_fee", price_from: "terms", arrangement_from: "terms" });
-    expect(first!.price).toEqual({ arrangement: "fixed_fee", currency: "USD", rates: [{ offering: "suggest-recipes", amount_micro: 250000 }], enforcement: "enforced" });
+    expect(first!.price).toEqual({ arrangement: "fixed_fee", currency: "USD", rates: [{ offering: "suggest-recipes", amount_micro: 250000 }], grade: "enforced" });
     expect(doc.sections.sells!.from).toEqual(["descriptor", "terms"]);
     expect(doc.sections.handling).toMatchObject({ processed_in: ["eu"], retention_max_days: 30, processed_in_from: "terms", hosted_in_from: "descriptor" });
     expect(doc.not_stated).not.toContain("handling.retention_max_days");

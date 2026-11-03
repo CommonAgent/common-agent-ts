@@ -52,16 +52,16 @@ const TRIAL_COUNTS = ["per_requester_per_day", "per_day", "per_requester_ever"];
 export const OPEN_ENDED_CLAIMS = ["does", "focus", "role", "can_do", "capabilities", "skills", "examples", "tags"];
 
 /**
- * A clause quoted from Agent SoW. Its enforcement grade is carried as
- * `enforcement`, because an AgentDoc carries no member named as a grade
- * (Section 9.3), and the word would read as one. Nothing else changes.
+ * A clause quoted from Agent SoW, unchanged. Its `grade` (enforced, evidence or
+ * recorded, Agent SoW Section 3) grades the clause, not the agent, so the
+ * summary-grade rule allows it, and Agent SoW requires it shown with the clause.
  */
 function quoteClause(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(quoteClause);
   if (!isObj(v)) return v;
   const out: Rec = {};
   for (const [k, x] of Object.entries(v)) {
-    const key = k === "grade" ? "enforcement" : k.endsWith("_grade") ? `${k.slice(0, -6)}_enforcement` : k;
+    const key = k;
     out[key] = quoteClause(x);
   }
   return out;

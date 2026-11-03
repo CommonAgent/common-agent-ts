@@ -23,6 +23,8 @@ import { ReadError, arr, isObj, parseBytes, str, type Rec } from "./util.js";
 /** The keys that are a summary grade wherever they appear (Section 9.3), and the endings that make one. */
 export const GRADE_KEYS = ["score", "rating", "grade", "badge", "badges", "tier", "rank", "stars", "trust", "trust_label", "trust_level", "trust_mark"];
 export const GRADE_ENDINGS = ["_score", "_rating", "_grade", "_badge", "_tier", "_rank", "_stars"];
+/** The grades an Agent SoW clause carries (Agent SoW Section 3). A `grade` with one of these values grades a quoted clause, not the agent, and is allowed. */
+export const CLAUSE_GRADES = ["enforced", "evidence", "recorded"];
 /** The keys that are a statement of what an open-ended offering can do (Section 9.5). */
 export const CLAIM_KEYS = ["does", "focus", "role", "can_do", "capabilities", "skills", "examples"];
 /** What a package AgentDoc always names in `not_stated` (Section 13.4, rule 2). */
@@ -93,6 +95,7 @@ export function staticFindings(doc: unknown): Finding[] {
   for (const [o, path] of objects(doc, "")) {
     for (const k of Object.keys(o)) {
       const key = k.toLowerCase();
+      if (key === "grade" && CLAUSE_GRADES.includes(String(o[k]))) continue; // an Agent SoW clause grade grades the clause, not the agent
       if (GRADE_KEYS.includes(key) || GRADE_ENDINGS.some((e) => key.endsWith(e))) {
         add("no-summary-grade", `${path}.${k}`.replace(/^\./, ""), `${k} is a summary grade, and an AgentDoc carries none`);
       }
@@ -221,7 +224,7 @@ function factsOf(v: unknown, path: string, out: Array<[string, string]>): Array<
   if (Array.isArray(v)) v.forEach((x, i) => factsOf(x, `${path}[${i}]`, out));
   else if (isObj(v)) {
     for (const [k, x] of Object.entries(v)) {
-      if (CONSTRUCTION.has(k) || k.endsWith("_from") || k === "enforcement") continue;
+      if (CONSTRUCTION.has(k) || k.endsWith("_from")) continue;
       factsOf(x, `${path}.${k}`, out);
     }
   } else if (typeof v === "string" && v.length) out.push([path, v]);
