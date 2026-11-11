@@ -1,6 +1,6 @@
 {
   "name": "@common-agent/package",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Reference implementation of the Agent Package of the Common Agent Specification: pack an agent's spec and folder into a package, and validate a package, with a small command line tool.",
   "keywords": [
     "common-agent",
