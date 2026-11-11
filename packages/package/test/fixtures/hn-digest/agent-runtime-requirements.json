@@ -1,0 +1,78 @@
+{
+  "format": "agent-runtime-requirements-v1",
+  "runtimes": [
+    {
+      "name": "node"
+    }
+  ],
+  "binaries": [],
+  "dependencies": [],
+  "systems": [
+    {
+      "name": "hacker-news",
+      "kind": "service",
+      "settings": [
+        {
+          "env": "HACKER_NEWS_ADDRESS",
+          "purpose": "where Hacker News API answers, its base address"
+        }
+      ]
+    },
+    {
+      "name": "text-reasoning",
+      "kind": "model",
+      "protocols": [
+        "anthropic-messages",
+        "openai-chat",
+        "gemini"
+      ],
+      "spends": {
+        "unit": "USD"
+      }
+    }
+  ],
+  "ceilings": [
+    {
+      "system": "text-reasoning",
+      "per": "day",
+      "enforced_by": "runtime",
+      "suggested": 1
+    }
+  ],
+  "directories": [
+    {
+      "name": "records",
+      "purpose": "every record the descriptor names"
+    },
+    {
+      "name": "work",
+      "purpose": "inputs and drafts in progress"
+    }
+  ],
+  "price": {
+    "sku": "default",
+    "covers": {
+      "agent": true
+    },
+    "price": {
+      "model": "free"
+    }
+  },
+  "run": {
+    "topic-digest": {
+      "command": [
+        "node",
+        "{home}/{package}/skills/topic-digest/scripts/topic-digest.mjs",
+        "--job",
+        "{job_dir}",
+        "--records",
+        "{records}",
+        "--work",
+        "{work}",
+        "--text-file",
+        "{job_dir}/message.txt"
+      ],
+      "reply": "json:reply"
+    }
+  }
+}

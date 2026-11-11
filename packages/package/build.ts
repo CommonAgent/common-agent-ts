@@ -36,7 +36,9 @@ import { hasSkillFrontmatter, skillMd, type Copied } from "./skill.js";
 import { codepointName, dumps, hiddenInFile, sentence, sha256Hex, utf8Bytes, utf8Text } from "./text.js";
 import type { AgentSpec, CeilingSpec, DraftDescriptor, InstallFile, InstallSystem, JobSpec, Lockfile, Offering, PackageFiles, RecordEntry, SystemSpec } from "./types.js";
 import { generatedViews, systemName } from "./views.js";
-import { validatePackage } from "./validate.js";
+import { MODEL_PROTOCOLS, SYSTEM_KINDS, declaredFiles, isPackagePath, validatePackage } from "./validate.js";
+
+export { SYSTEM_KINDS };
 
 /** A refusal to pack: the spec is missing a part a builder must not invent, or it is malformed. `missing` names the part when it is one. */
 export class PackRefusal extends Error {
@@ -56,7 +58,6 @@ export const CREDENTIAL_RE = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 export const ENV_RE = /^[A-Z][A-Z0-9_]{0,63}$/;
 export const MEDIA_RE = /^[a-z]+\/[a-z0-9][a-z0-9.+-]*$/;
 export const ACCESS = Object.freeze(["read", "write", "trigger"] as const);
-export const SYSTEM_KINDS = Object.freeze(["directory", "mcp", "service"] as const);
 export const VALUE_KINDS = Object.freeze(["text", "identifier", "url", "document"] as const);
 export const WHEN = Object.freeze(["per_task", "standing"] as const);
 export const ENFORCED_BY = Object.freeze(["runtime", "platform"] as const);
@@ -153,6 +154,16 @@ export function installFile(spec: AgentSpec, systems: SystemSpec[], lockfiles: L
     const kind = s.kind ?? "directory";
     if (!inList(SYSTEM_KINDS, kind)) throw new PackRefusal(`system ${s.name}: kind must be one of ${SYSTEM_KINDS.join(", ")}`);
     const e: InstallSystem = { name: s.name as string, kind };
+    if (kind === "model") {
+      // The model system (12.4.1): one at most, with the formats its scripts
+      // speak. Its four settings have the same names in every agent, so the
+      // entry names no credential and no variable of its own.
+      if (entries.some((x) => x.kind === "model")) throw new PackRefusal(`system ${s.name}: an agent declares at most one system of kind model`);
+      const p = s.protocols as unknown;
+      if (!Array.isArray(p) || !p.length || !p.every((x) => inList(MODEL_PROTOCOLS, x))) throw new PackRefusal(`system ${s.name}: protocols is one or more of ${MODEL_PROTOCOLS.join(", ")}`);
+      for (const k of ["credential", "env", "settings"]) if (s[k] !== undefined && s[k] !== null) throw new PackRefusal(`system ${s.name}: a model system names no credential and no variable, so it takes no ${k}`);
+      e.protocols = [...p];
+    } else if (s.protocols !== undefined && s.protocols !== null) throw new PackRefusal(`system ${s.name}: only a system of kind model has protocols`);
     if (s.credential !== undefined && s.credential !== null) {
       if (kind === "directory") throw new PackRefusal(`system ${s.name}: a directory takes no credential`);
       if (typeof s.credential !== "string" || !CREDENTIAL_RE.test(s.credential)) throw new PackRefusal(`system ${s.name}: credential must be a NAME (lowercase, digits, . _ -), never a value`);
@@ -164,7 +175,7 @@ export function installFile(spec: AgentSpec, systems: SystemSpec[], lockfiles: L
     }
     if (s.spends !== undefined && s.spends !== null) {
       if (!s.spends || typeof s.spends.unit !== "string" || !s.spends.unit) throw new PackRefusal(`system ${s.name}: spends needs a unit, e.g. {"unit": "characters"}`);
-      if (kind !== "service") throw new PackRefusal(`system ${s.name}: only a service spends`);
+      if (kind !== "service" && kind !== "model") throw new PackRefusal(`system ${s.name}: only a service or a model spends`);
       e.spends = { unit: s.spends.unit };
     }
     if (s.settings !== undefined && s.settings !== null) {
@@ -193,12 +204,14 @@ export function installFile(spec: AgentSpec, systems: SystemSpec[], lockfiles: L
     // package reaches the system, never written into the spec: a system the
     // scripts call with the credential the runtime requirements name is capped by
     // the runtime that makes the call, and a system reached through something
-    // that is not the agent (kind mcp) by that party. With nothing to derive
-    // it from, the build stops, because a wrong word here reads to a buyer as
-    // somebody watching the spend.
+    // that is not the agent (kind mcp) by that party. A model is called by the
+    // scripts, with the key the install binds, so its ceiling is the runtime's
+    // (12.4.1); a spec cannot say that a host's gateway meters it instead.
+    // With nothing to derive it from, the build stops, because a wrong word
+    // here reads to a buyer as somebody watching the spend.
     if ("enforced_by" in c) throw new PackRefusal(`system ${c.system}: a ceiling's enforcing side is derived from how the package reaches the system, never written into the spec`);
     const reached = entries.find((e) => e.name === c.system) as InstallSystem;
-    const side = reached.credential ? "runtime" : reached.kind === "mcp" ? "platform" : null;
+    const side = reached.credential || reached.kind === "model" ? "runtime" : reached.kind === "mcp" ? "platform" : null;
     if (!side) {
       throw new PackRefusal(`system ${c.system}: cannot tell which side applies its ceiling; a spending service the scripts call names the credential they read`);
     }
@@ -264,7 +277,11 @@ export interface BuiltPackage {
 
 /** Options the host passes in. */
 export interface BuildOptions {
-  /** The time every archive entry carries, in seconds since 1970. Default 0. */
+  /**
+   * No longer read. Packing is deterministic (Section 12.6, rule 5): every
+   * archive entry carries one fixed time, and a caller cannot choose another.
+   * The member stays so that a caller written for 0.1.0 still compiles.
+   */
   mtime?: number;
 }
 
@@ -276,7 +293,7 @@ type Meta = Omit<BuiltPackage, "files" | "archive" | "sha256" | "descriptor_sha2
  * package has none, the hidden-character scan, the package's own validator,
  * and the archive.
  */
-function finish(files: PackageFiles, desc: DraftDescriptor, inst: InstallFile, manifestHead: Record<string, unknown>, extension: Record<string, unknown>, meta: Meta, opts: BuildOptions, writeReadme: boolean): BuiltPackage {
+function finish(files: PackageFiles, desc: DraftDescriptor, inst: InstallFile, manifestHead: Record<string, unknown>, extension: Record<string, unknown>, meta: Meta, writeReadme: boolean): BuiltPackage {
   const put = (path: string, data: string) => files.set(path, utf8Bytes(data));
   const descText = dumps(desc);
   const instText = dumps(inst);
@@ -313,13 +330,15 @@ function finish(files: PackageFiles, desc: DraftDescriptor, inst: InstallFile, m
     const hit = hiddenInFile(bytes);
     if (hit) throw new PackRefusal(`${rel} carries a hidden character ${codepointName(hit.codepoint)} at offset ${hit.offset}; a package must not`);
   }
-  // The packer never hands over a package its own validator refuses.
-  const problems = validatePackage(files).problems;
-  if (problems.length) throw new PackRefusal(`the package would not conform: ${problems.join("; ")}`);
+  // The packer never hands over a package its own validator refuses, and it
+  // passes on what the validator warns of: an address literal in a script.
+  const checked = validatePackage(files);
+  for (const w of checked.warnings) if (!meta.warnings.includes(w)) meta.warnings.push(w);
+  if (checked.problems.length) throw new PackRefusal(`the package would not conform: ${checked.problems.join("; ")}`);
 
   let archive: Uint8Array;
   try {
-    archive = writeArchive(files, name, opts.mtime ?? 0);
+    archive = writeArchive(files, name);
   } catch (e) {
     if (e instanceof ArchiveError) throw new PackRefusal(e.message);
     throw e;
@@ -340,7 +359,7 @@ export const SPEC_DEPRECATED =
  * copied whole, its SKILL.md kept as written, and only its missing pieces
  * are generated. The result always passes validatePackage.
  */
-export function buildPackage(specIn: unknown, source: SourceTree, opts: BuildOptions = {}): BuiltPackage {
+export function buildPackage(specIn: unknown, source: SourceTree, _opts: BuildOptions = {}): BuiltPackage {
   if (!specIn || typeof specIn !== "object" || Array.isArray(specIn)) throw new PackRefusal("the spec is a JSON object");
   // The spec is the caller's; nothing below changes it.
   const spec = structuredClone(specIn) as AgentSpec;
@@ -461,7 +480,7 @@ export function buildPackage(specIn: unknown, source: SourceTree, opts: BuildOpt
     lockfiles,
     shape: { skills: jobs.length, systems: systems.length, refuses: refuses.length, records: records.length },
     warnings: [SPEC_DEPRECATED],
-  }, opts, true);
+  }, true);
 }
 
 const readJsonFile = (source: SourceTree, path: string): Record<string, unknown> => {
@@ -496,17 +515,17 @@ export function isAgentFolder(source: SourceTree): boolean {
  * what the agent refuses or what records it leaves is refused, naming the
  * part. The result always passes validatePackage.
  */
-export function buildFromFolder(source: SourceTree, opts: BuildOptions = {}): BuiltPackage {
+export function buildFromFolder(source: SourceTree, _opts: BuildOptions = {}): BuiltPackage {
   const warnings: string[] = [];
   try {
-    return packFolder(source, opts, warnings);
+    return packFolder(source, warnings);
   } catch (e) {
     if (e instanceof PackRefusal) e.warnings = [...warnings];
     throw e;
   }
 }
 
-function packFolder(source: SourceTree, opts: BuildOptions, warnings: string[]): BuiltPackage {
+function packFolder(source: SourceTree, warnings: string[]): BuiltPackage {
   const has = (p: string) => source.kind(p) === "file";
   if (!has(MANIFEST_FILE)) throw new PackRefusal(`the agent's folder has no ${MANIFEST_FILE}`, MANIFEST_FILE);
   const located = { descriptor: "", runtime: "" };
@@ -546,11 +565,14 @@ function packFolder(source: SourceTree, opts: BuildOptions, warnings: string[]):
   const files: PackageFiles = new Map();
   for (const f of source.kind("skills") === "directory" ? source.list("skills") : []) files.set(`skills/${f}`, source.read(`skills/${f}`));
   for (const f of ["mcp.json", "README.md"]) if (has(f)) files.set(f, source.read(f));
+  // A view's file and an example's file (Sections 6.13.6 and 6.13.8) are named
+  // by a path inside the package, and are carried from that path in the folder.
+  for (const d of declaredFiles(desc)) if (isPackagePath(d.file) && has(d.file)) files.set(d.file, source.read(d.file));
   const carried = new Set([MANIFEST_FILE, ...Object.values(AUTHORED_FILES).flatMap((a) => [a.name, a.legacy]), "mcp.json", "README.md", "agent.json"]);
   for (const f of source.list(".")) {
     const top = f.split("/")[0];
-    if (top === "skills" || top === "dist" || top === "node_modules" || top === "net.agentdoc.package" || carried.has(f) || top.startsWith(".")) continue;
-    warnings.push(`${f} is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md and skills/`);
+    if (top === "skills" || top === "dist" || top === "node_modules" || top === "net.agentdoc.package" || carried.has(f) || files.has(f) || top.startsWith(".")) continue;
+    warnings.push(`${f} is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md, skills/ and each file the descriptor names for a view or an example`);
   }
 
   // A skill for every offering and every step: the developer's as written,
@@ -609,5 +631,5 @@ function packFolder(source: SourceTree, opts: BuildOptions, warnings: string[]):
     lockfiles,
     shape: { skills: ids.length, systems: systems.length, refuses: desc.refusals.split("\n").filter((l) => l.trim()).length, records: desc.records.length },
     warnings,
-  }, opts, false);
+  }, false);
 }

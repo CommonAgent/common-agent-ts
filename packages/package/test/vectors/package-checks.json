@@ -1,14 +1,18 @@
 {
-  "comment": "Agent Package checker fixture (Common Agent 12.10, with 12.2 to 12.6). Every case is a package: the base package below with the case's edits applied in order. A set edit writes a file's text, a delete edit removes a file, a move edit renames a file, and a json edit sets (or, with remove, deletes) the member at a JSON Pointer (RFC 6901) and writes the file back in the package's one spelling, two-space indented with a final newline. Where a case says rehash, the manifest's two digests are then recomputed over the two authored files, under whichever names the package uses; where it says regenerate, NOT.md, RECORDS.md and SYSTEMS.md are generated again from them. Both are done so that a case fails for its own reason and no other. The draft Descriptor is agent-descriptor.json; the runtime requirements are agent-runtime-requirements.json, pointed at under runtime_requirements, with format agent-runtime-requirements-v1. A checker reads each name used before 0.30.0-draft (descriptor.json, install.json, the pointer install, the format agent-install-v1) where the current one is absent, and prefers the current one where both are present (12.2); a valid case that says warnings gives the number of warnings a checker that reports each former name, and each pair, gives. A checker MUST accept every valid case and MUST refuse every invalid one, and the check each invalid case names is one that refuses it. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation.",
-  "version": 1,
-  "spec": "SPEC.md at Common Agent 0.30.0-draft: 12.10 (the checker), 12.2 (layout and the former names), 12.3 (the draft Descriptor), 12.4 (the runtime requirements), 12.5 (skills and the generated views), 12.6 (the rules)",
+  "comment": "Agent Package checker fixture (Common Agent 12.10, with 12.2 to 12.7 and the parts of Section 6 they cite). Every case is a package: the base package below with the case's edits applied in order. A set edit writes a file's text, a delete edit removes a file, a move edit renames a file, and a json edit sets (or, with remove, deletes) the member at a JSON Pointer (RFC 6901) and writes the file back in the package's one spelling, two-space indented with a final newline. Where a case says rehash, the manifest's two digests are then recomputed over the two authored files, under whichever names the package uses; where it says regenerate, NOT.md, RECORDS.md and SYSTEMS.md are generated again from them. Both are done so that a case fails for its own reason and no other. The digest of a named run config, of a view's file, of an example's file and of a lockfile is written out in the case, because it is part of what the case says. The draft Descriptor is agent-descriptor.json; the runtime requirements are agent-runtime-requirements.json, pointed at under runtime_requirements, with format agent-runtime-requirements-v1. A checker reads each name used before 0.30.0-draft (descriptor.json, install.json, the pointer install, the format agent-install-v1) where the current one is absent, and prefers the current one where both are present (12.2); a valid case that says warnings gives the number of warnings a checker gives when it reports each former name, each pair, and each address literal in a script (the address check of 12.10). A checker MUST accept every valid case and MUST refuse every invalid one, and the check each invalid case names is one that refuses it. THE FIXTURE IS THE AUTHORITY: when a test against it fails, fix the implementation.",
+  "version": 2,
+  "spec": "SPEC.md at Common Agent 0.41.0: 12.10 (the checker and its address check), 12.2 (layout and the former names), 12.3 (the draft Descriptor), 12.4 and 12.4.1 (the runtime requirements and the model system), 12.5 (skills and the generated views), 12.6 (the rules), 12.7 (named run configs), 6.2 and 5.8 (a named run config and its digest), 6.13.4 (a setting's range and multiple), 6.13.6, 6.13.8 and 6.13.10 (the files a view and an example name), 6.14.4 and 6.14.8 (can_use)",
   "checks": {
     "layout": "the files of 12.2 are present, under their names or their former names, and the JSON files parse",
     "manifest": "plugin.json validates against the pinned Agent Plugins 1.0.0 schema, points at the two authored files by path and digest, is a draft, and carries an address only in $schema, homepage, repository and each from entry's repository",
-    "descriptor": "the draft Descriptor carries no subject, acts_for or shape, says what the agent refuses and records, and carries no address outside a can_use entry's schema",
+    "descriptor": "the draft Descriptor carries no subject, acts_for or shape, says what the agent refuses and records, and carries no address but the schema of each entry of its own can_use, which is read structurally (Section 12.6, rule 3)",
+    "can-use": "can_use is a list, and each entry has a schema that is an absolute https URL and that no other entry names, a non-empty reads, a does and a without (Section 6.14.8)",
     "offering": "each offering passes the declaration checks of 6.11",
     "how-run": "no job or step declares a how that 12.3 refuses, and every run sits on a job whose how allows one and uses only the placeholders 12.3 lists",
-    "runtime-requirements": "the runtime requirements have their format and sections, no address of any kind, and well-formed job_seconds and answer",
+    "run-configs": "every named run config sets only declared settings, with values each setting allows, under a name used once and a digest that matches its entry (Section 12.7)",
+    "carried-files": "each view's file and each example's file is in the package under the digest the Descriptor gives, at a path inside the package, and a view's file names no address (Section 6.13.10)",
+    "runtime-requirements": "the runtime requirements have their format and sections, no address of any kind, a kind from the four of 12.4 on every system, and well-formed job_seconds and answer",
+    "model": "at most one system has the kind model, its protocols are one or more from the list of Section 12.4.1, and its entry names no credential and no variable",
     "systems": "the system names of the Descriptor and the runtime requirements are the same set, read through the role alias",
     "ceilings": "every spending system has a ceiling, every ceiling names the side that enforces it, and a ceiling over a system the scripts reach with a named credential says runtime",
     "dependencies": "every lockfile the runtime requirements name is in the package with the digest they give",
@@ -80,16 +84,69 @@
         {
           "op": "json",
           "path": "agent-descriptor.json",
-          "pointer": "/offerings/0/can_use",
+          "pointer": "/can_use",
           "value": [
             {
-              "schema": "https://schema.example.org/Report"
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
             }
           ]
         }
       ],
       "rehash": true,
-      "why": "a can_use entry's schema is the Descriptor's one excepted address"
+      "why": "the schema of a can_use entry is the Descriptor's one excepted address (Section 12.6, rule 3), and the entry has what Section 6.14.8 asks of it"
+    },
+    {
+      "case": "descriptor_can_use_two_kinds",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
+            },
+            {
+              "schema": "https://schema.example.org/style-guide/v1",
+              "reads": [
+                "voice.tone"
+              ],
+              "required": true,
+              "does": "Writes the brief in the guide's tone.",
+              "without": "Refuses the job."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "one entry for each kind the agent reads, each under its own schema"
+    },
+    {
+      "case": "descriptor_can_use_empty",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": []
+        }
+      ],
+      "rehash": true,
+      "why": "an empty list is a statement: the agent reads no standing asset (Section 6.14.4)"
     },
     {
       "case": "role_alias_in_install",
@@ -337,6 +394,378 @@
         }
       ],
       "why": "a server named for a declared system, with no address"
+    },
+    {
+      "case": "model_system",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-chat"
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "the entry of Section 12.4.1: a name, the kind model and the protocols the scripts can speak, with no credential and no variable"
+    },
+    {
+      "case": "model_system_runtime_ceiling",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-chat"
+            ],
+            "spends": {
+              "unit": "USD"
+            }
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/ceilings/1",
+          "value": {
+            "system": "reasoning",
+            "per": "day",
+            "enforced_by": "runtime"
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a model that spends has its ceiling in ceilings like any other spending system"
+    },
+    {
+      "case": "model_system_platform_ceiling",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "gemini"
+            ],
+            "spends": {
+              "unit": "USD"
+            }
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/ceilings/1",
+          "value": {
+            "system": "reasoning",
+            "per": "day",
+            "enforced_by": "platform"
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a model entry names no credential, so the spending may pass through a facility the host supplies, and the ceiling may say platform"
+    },
+    {
+      "case": "named_run_config",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:9b53fac3c6de19e9e12d220084ae91a22b460d980c7144238a9bc4d9c06c1f0a"
+              },
+              {
+                "name": "Long brief",
+                "settings": {
+                  "length": "two pages",
+                  "words": 400,
+                  "pace": 200,
+                  "sections": [
+                    "summary",
+                    "sources",
+                    "quotes"
+                  ]
+                },
+                "digest": "sha256:b9b2cbd58bc36f40fd16f1dfdb807dc6f512b7e48722f1ae02fd1cea0eaab737"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "named run configs that set only declared settings, each value allowed, under its ceiling and inside its range, with the digest of Section 5.8 over the entry"
+    },
+    {
+      "case": "view_and_example_files_carried",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/views",
+          "value": [
+            {
+              "id": "brief",
+              "for": {
+                "offering": "summarize",
+                "output": "brief"
+              },
+              "file": "views/brief.html",
+              "digest": "sha256:de36ac00160eca72ca828ec4c7919b67e9c3bb6a9d85a401257e13956785e698",
+              "requests": [
+                "resize"
+              ]
+            }
+          ]
+        },
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/example",
+          "value": {
+            "inputs": {
+              "document": {
+                "file": "examples/report.txt",
+                "digest": "sha256:f1c38f3e65c683c0602e6012b18cc100f4a9362a58f469a88d1ca9850bd69ab3",
+                "media_type": "text/plain"
+              }
+            },
+            "good_result": "A one-page brief of the report, with every claim sourced."
+          }
+        },
+        {
+          "op": "set",
+          "path": "views/brief.html",
+          "text": "<!doctype html>\n<html>\n<body>\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"8\" height=\"8\"><rect width=\"8\" height=\"8\"/></svg>\n<pre id=\"brief\"></pre>\n<script>\naddEventListener(\"message\", (e) => { document.getElementById(\"brief\").textContent = String(e.data.output); });\n</script>\n</body>\n</html>\n"
+        },
+        {
+          "op": "set",
+          "path": "examples/report.txt",
+          "text": "Quarterly report\n\nRevenue rose four percent. Costs were flat.\n"
+        }
+      ],
+      "rehash": true,
+      "why": "a view's file and an example's file are in the package under the digests the Descriptor gives, and the view names only a format's identifier"
+    },
+    {
+      "case": "script_address_literal_is_a_warning",
+      "edits": [
+        {
+          "op": "set",
+          "path": "skills/fetch/scripts/fetch.mjs",
+          "text": "// Fetches the document named in the request.\nconst reply = await fetch(\"https://api.example.com/v1/documents\");\nconsole.log(reply.status);\n"
+        }
+      ],
+      "warnings": 1,
+      "why": "an address literal in a script is reported against Section 12.6, rule 2 with its file, line and literal, as a warning and not as a failure"
+    },
+    {
+      "case": "script_metadata_address_is_a_warning",
+      "edits": [
+        {
+          "op": "set",
+          "path": "skills/fetch/scripts/fetch.mjs",
+          "text": "// Fetches the document named in the request.\nconst host = '169.254.169.254';\nconsole.log(host);\n"
+        }
+      ],
+      "warnings": 1,
+      "why": "an address in 169.254.0.0/16 is a literal with or without a scheme"
+    },
+    {
+      "case": "script_format_identifiers_pass",
+      "edits": [
+        {
+          "op": "set",
+          "path": "skills/fetch/scripts/fetch.mjs",
+          "text": "// Fetches the document named in the request.\nconst SVG = \"http://www.w3.org/2000/svg\";\nconst DRAFT = \"https://json-schema.org/draft/2020-12/schema\";\nconsole.log(SVG, DRAFT);\n"
+        }
+      ],
+      "why": "a literal that begins with an excepted prefix is the name of a format and is not reported"
+    },
+    {
+      "case": "script_scheme_the_check_does_not_name",
+      "edits": [
+        {
+          "op": "set",
+          "path": "skills/fetch/scripts/fetch.mjs",
+          "text": "// Fetches the document named in the request.\nconst from = \"file://\" + process.env.DOCUMENTS + \"/in\";\nconst note = \"see s3://\";\nconsole.log(from, note);\n"
+        }
+      ],
+      "why": "the address check names four schemes, each followed by a letter, a digit or a bracket, and reports no other"
+    },
+    {
+      "case": "script_address_built_at_run_time",
+      "edits": [
+        {
+          "op": "set",
+          "path": "skills/fetch/scripts/fetch.mjs",
+          "text": "// Fetches the document named in the request.\nconst base = `https://${process.env.SPEECH_HOST}/v1`;\nconst other = \"https://\" + process.env.SPEECH_HOST;\nconsole.log(base, other);\n"
+        }
+      ],
+      "why": "an address a script builds while it runs from a declared setting is not a literal, and the check passes it"
+    },
+    {
+      "case": "lockfile_addresses_pass",
+      "edits": [
+        {
+          "op": "set",
+          "path": "skills/fetch/scripts/package-lock.json",
+          "text": "{\"name\":\"fetch\",\"lockfileVersion\":3,\"packages\":{\"node_modules/left-pad\":{\"version\":\"1.3.0\",\"resolved\":\"https://registry.npmjs.org/left-pad/-/left-pad-1.3.0.tgz\",\"integrity\":\"sha512-XI5MPzVNApjAyhQzphX8BkmKsKUxD4LdyK24iZeQGinBN9yTQT3bzwZbxTaTaPsk4gOXsSLLOkVUMKsEiWbBXw==\"}}}\n"
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/dependencies/0/sha256",
+          "value": "f34e0203acc40366479f4c6222df92de57a8a382efa8eff103e0c3de56e743be"
+        }
+      ],
+      "rehash": true,
+      "why": "a lockfile's addresses are the provenance of bytes a hash already fixes (Section 12.6, rule 3), so the address check does not read it"
+    },
+    {
+      "case": "run_command_file_address_literal",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/how",
+          "value": {
+            "control": "script",
+            "intelligence": "called",
+            "cost": "metered",
+            "contract": "ends"
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/run",
+          "value": {
+            "command": [
+              "node",
+              "{package}/skills/summarize/run.mjs",
+              "{message_id}"
+            ],
+            "per_file": [
+              "--file",
+              "{file_path}"
+            ],
+            "reply": "json:brief"
+          }
+        },
+        {
+          "op": "set",
+          "path": "skills/summarize/run.mjs",
+          "text": "#!/usr/bin/env node\nconst reply = await fetch(\"wss://stream.example.com/briefs\");\nconsole.log(JSON.stringify({ brief: String(reply) }));\n"
+        }
+      ],
+      "rehash": true,
+      "warnings": 1,
+      "why": "the address check also reads every package file a job's run names in its command, wherever in the package it sits"
     }
   ],
   "invalid": [
@@ -490,6 +919,221 @@
       "why": "what records the agent must leave is never left out"
     },
     {
+      "case": "descriptor_can_use_inside_an_offering",
+      "check": "descriptor",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "the exception is the Descriptor's own can_use, read structurally; a member spelled the same anywhere else is held to the rule"
+    },
+    {
+      "case": "descriptor_can_use_address_beside_schema",
+      "check": "descriptor",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Fetches the palette from https://brand.example.org/palette.json.",
+              "without": "Uses black text on white."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "schema is the one excepted member of an entry, and every other member is held to the rule"
+    },
+    {
+      "case": "descriptor_example_address",
+      "check": "descriptor",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/example",
+          "value": {
+            "inputs": {
+              "document": {
+                "url": "https://example.org/report.pdf",
+                "media_type": "application/pdf"
+              }
+            },
+            "good_result": "A one-page brief of the report, with every claim sourced."
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "Section 6.13.8 lets an example name a file at a public address, and Section 12.6, rule 3 gives the Descriptor one excepted address and no other; this fixture holds the package to rule 3 until the specification settles the two"
+    },
+    {
+      "case": "can_use_schema_not_https",
+      "check": "can-use",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "http://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "the schema is an absolute https URL"
+    },
+    {
+      "case": "can_use_schema_named_twice",
+      "check": "can-use",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
+            },
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.paper"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "no two entries name one schema"
+    },
+    {
+      "case": "can_use_reads_empty",
+      "check": "can-use",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink.",
+              "without": "Uses black text on white."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "reads lists the members the agent reads, and is never empty"
+    },
+    {
+      "case": "can_use_no_does",
+      "check": "can-use",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "without": "Uses black text on white."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "an entry says what the agent does with what it reads"
+    },
+    {
+      "case": "can_use_no_without",
+      "check": "can-use",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": [
+            {
+              "schema": "https://schema.example.org/brand/v1",
+              "reads": [
+                "palette.ink",
+                "logo.mark.href"
+              ],
+              "required": false,
+              "does": "Colours the brief's headings with the brand's ink."
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "an entry says what the agent does when no version of the kind is given"
+    },
+    {
+      "case": "can_use_not_a_list",
+      "check": "can-use",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/can_use",
+          "value": "brand profiles"
+        }
+      ],
+      "rehash": true,
+      "why": "can_use is a list of entries"
+    },
+    {
       "case": "offering_open_ended_without_authority",
       "check": "offering",
       "edits": [
@@ -593,6 +1237,761 @@
       "why": "a placeholder 12.3 does not list"
     },
     {
+      "case": "run_config_name_used_twice",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:9b53fac3c6de19e9e12d220084ae91a22b460d980c7144238a9bc4d9c06c1f0a"
+              },
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 200,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:92a2482770a37800bc4e7ebab531a0b8123ff94bff37e1b62a00eb0c758e4b36"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "a named run config's name is unique in the block"
+    },
+    {
+      "case": "run_config_undeclared_setting",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ],
+                  "voice": "calm"
+                },
+                "digest": "sha256:1afac9cce21c5ad10900d84916c357489db0dbba9658a99f7fa2f40f60504fc5"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "a named run config sets only declared settings"
+    },
+    {
+      "case": "run_config_value_not_allowed",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "three pages",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:1c2217bc4279a2384f7db7ce773336757c01949c31daa3bbe057028533ac5e94"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "a value outside the setting's allowed list"
+    },
+    {
+      "case": "run_config_member_of_a_list_not_allowed",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "footnotes"
+                  ]
+                },
+                "digest": "sha256:73ddcb7a5a51c548d2f3ab4a54e1034be5b4c38b254e70ef2f21441bda0a97ed"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "each member of a value of a setting with multiple is one of its allowed values (Section 6.13.4)"
+    },
+    {
+      "case": "run_config_above_a_rule_ceiling",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 900,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:d127d9e1ecf4e4817c8e129114ea4f9b592dc37220e0cf2fa13f6857ffc800d0"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "a rule whose default is a number is a ceiling, and no layer sets a value above it (Section 6.2)"
+    },
+    {
+      "case": "run_config_outside_range",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 250,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:c31d62b4168b9f02e825f9ebc035e3577d139786faad13a527407954b6e4efd4"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "every value any layer sets lies within the setting's range (Section 6.13.4)"
+    },
+    {
+      "case": "run_config_digest_stale",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                },
+                "digest": "sha256:92a2482770a37800bc4e7ebab531a0b8123ff94bff37e1b62a00eb0c758e4b36"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "the digest is over the entry as it stands, without digest"
+    },
+    {
+      "case": "run_config_no_digest",
+      "check": "run-configs",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/run_config",
+          "value": {
+            "settings": [
+              {
+                "name": "length",
+                "kind": "preference",
+                "default": "one page",
+                "allowed": [
+                  "one page",
+                  "two pages"
+                ],
+                "job_may_set": true
+              },
+              {
+                "name": "words",
+                "kind": "rule",
+                "default": 400
+              },
+              {
+                "name": "pace",
+                "kind": "preference",
+                "default": 150,
+                "range": {
+                  "min": 100,
+                  "max": 200,
+                  "step": 10
+                }
+              },
+              {
+                "name": "sections",
+                "kind": "preference",
+                "multiple": true,
+                "allowed": [
+                  "summary",
+                  "sources",
+                  "quotes"
+                ],
+                "default": [
+                  "summary",
+                  "sources"
+                ]
+              }
+            ],
+            "named": [
+              {
+                "name": "Short brief",
+                "settings": {
+                  "length": "one page",
+                  "words": 300,
+                  "pace": 150,
+                  "sections": [
+                    "summary",
+                    "sources"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "a named run config carries its digest"
+    },
+    {
+      "case": "view_file_missing",
+      "check": "carried-files",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/views",
+          "value": [
+            {
+              "id": "brief",
+              "for": {
+                "offering": "summarize",
+                "output": "brief"
+              },
+              "file": "views/brief.html",
+              "digest": "sha256:de36ac00160eca72ca828ec4c7919b67e9c3bb6a9d85a401257e13956785e698",
+              "requests": [
+                "resize"
+              ]
+            }
+          ]
+        }
+      ],
+      "rehash": true,
+      "why": "a view's file is in the package"
+    },
+    {
+      "case": "view_digest_stale",
+      "check": "carried-files",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/views",
+          "value": [
+            {
+              "id": "brief",
+              "for": {
+                "offering": "summarize",
+                "output": "brief"
+              },
+              "file": "views/brief.html",
+              "digest": "sha256:de36ac00160eca72ca828ec4c7919b67e9c3bb6a9d85a401257e13956785e698",
+              "requests": [
+                "resize"
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "path": "views/brief.html",
+          "text": "<!doctype html>\n<html>\n<body>\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"8\" height=\"8\"><rect width=\"8\" height=\"8\"/></svg>\n<pre id=\"summary\"></pre>\n<script>\naddEventListener(\"message\", (e) => { document.getElementById(\"brief\").textContent = String(e.data.output); });\n</script>\n</body>\n</html>\n"
+        }
+      ],
+      "rehash": true,
+      "why": "a view's file hashes to the digest the Descriptor gives"
+    },
+    {
+      "case": "view_loads_from_an_address",
+      "check": "carried-files",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/views",
+          "value": [
+            {
+              "id": "brief",
+              "for": {
+                "offering": "summarize",
+                "output": "brief"
+              },
+              "file": "views/brief.html",
+              "digest": "sha256:34d73c227fa06416e83a6cda166986065fcf76ee01fa027585a38766f91f8c90",
+              "requests": [
+                "resize"
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "path": "views/brief.html",
+          "text": "<!doctype html>\n<html>\n<body>\n<pre id=\"brief\"></pre>\n<script src=\"https://cdn.example.com/chart.js\"></script>\n</body>\n</html>\n"
+        }
+      ],
+      "rehash": true,
+      "why": "a view is one self-contained file and loads nothing from anywhere (Section 6.13.6)"
+    },
+    {
+      "case": "view_file_outside_the_package",
+      "check": "carried-files",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/views",
+          "value": [
+            {
+              "id": "brief",
+              "for": {
+                "offering": "summarize",
+                "output": "brief"
+              },
+              "file": "../views/brief.html",
+              "digest": "sha256:de36ac00160eca72ca828ec4c7919b67e9c3bb6a9d85a401257e13956785e698",
+              "requests": [
+                "resize"
+              ]
+            }
+          ]
+        },
+        {
+          "op": "set",
+          "path": "views/brief.html",
+          "text": "<!doctype html>\n<html>\n<body>\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"8\" height=\"8\"><rect width=\"8\" height=\"8\"/></svg>\n<pre id=\"brief\"></pre>\n<script>\naddEventListener(\"message\", (e) => { document.getElementById(\"brief\").textContent = String(e.data.output); });\n</script>\n</body>\n</html>\n"
+        }
+      ],
+      "rehash": true,
+      "why": "file is a relative path with no .. segment"
+    },
+    {
+      "case": "example_file_missing",
+      "check": "carried-files",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/example",
+          "value": {
+            "inputs": {
+              "document": {
+                "file": "examples/report.txt",
+                "digest": "sha256:f1c38f3e65c683c0602e6012b18cc100f4a9362a58f469a88d1ca9850bd69ab3",
+                "media_type": "text/plain"
+              }
+            },
+            "good_result": "A one-page brief of the report, with every claim sourced."
+          }
+        }
+      ],
+      "rehash": true,
+      "why": "an example's file is in the package"
+    },
+    {
+      "case": "example_digest_stale",
+      "check": "carried-files",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/offerings/0/example",
+          "value": {
+            "inputs": {
+              "document": {
+                "file": "examples/report.txt",
+                "digest": "sha256:f1c38f3e65c683c0602e6012b18cc100f4a9362a58f469a88d1ca9850bd69ab3",
+                "media_type": "text/plain"
+              }
+            },
+            "good_result": "A one-page brief of the report, with every claim sourced."
+          }
+        },
+        {
+          "op": "set",
+          "path": "examples/report.txt",
+          "text": "Quarterly report\n\nRevenue rose four percent. Costs were flat.\nHeadcount fell.\n"
+        }
+      ],
+      "rehash": true,
+      "why": "an example's file hashes to the digest the Descriptor gives"
+    },
+    {
       "case": "install_address",
       "check": "runtime-requirements",
       "edits": [
@@ -619,6 +2018,226 @@
       ],
       "rehash": true,
       "why": "the five sections are each present, even empty"
+    },
+    {
+      "case": "system_kind_outside_the_four",
+      "check": "runtime-requirements",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "database"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a system's kind is directory, mcp, service or model"
+    },
+    {
+      "case": "model_two_systems",
+      "check": "model",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-chat"
+            ]
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/3",
+          "value": {
+            "name": "drafting",
+            "access": "trigger",
+            "needs": "to draft the brief"
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/3",
+          "value": {
+            "name": "drafting",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-chat"
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "an agent declares at most one system of kind model, because its four settings have the same names in every agent"
+    },
+    {
+      "case": "model_without_protocols",
+      "check": "model",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model"
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "the entry carries the formats the scripts can speak, one or more"
+    },
+    {
+      "case": "model_protocol_outside_the_list",
+      "check": "model",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-responses"
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "the list of Section 12.4.1 is closed"
+    },
+    {
+      "case": "model_names_a_credential",
+      "check": "model",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-chat"
+            ],
+            "credential": "reasoning-key",
+            "env": "REASONING_KEY",
+            "spends": {
+              "unit": "USD"
+            }
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/ceilings/1",
+          "value": {
+            "system": "reasoning",
+            "per": "day",
+            "enforced_by": "runtime"
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "the entry names no credential and no variable: the four settings are the same in every agent"
+    },
+    {
+      "case": "model_names_a_setting",
+      "check": "model",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "access": "trigger",
+            "needs": "to write the brief",
+            "leaves": true
+          }
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": {
+            "name": "reasoning",
+            "kind": "model",
+            "protocols": [
+              "anthropic-messages",
+              "openai-chat"
+            ],
+            "settings": [
+              {
+                "env": "REASONING_REGION",
+                "purpose": "the region the model is called in"
+              }
+            ]
+          }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a variable of the entry's own is a setting no installer binds by a name it already knows"
     },
     {
       "case": "systems_differ",

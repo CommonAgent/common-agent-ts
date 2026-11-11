@@ -27,10 +27,10 @@ afterAll(() => {
 
 const NOW = new Date("2026-10-24T12:00:00.123Z");
 
-function run(args: string[]) {
+function run(args: string[], now: Date = NOW) {
   const out: string[] = [];
   const err: string[] = [];
-  const io: Io = { out: (l) => out.push(l), err: (l) => err.push(l), now: () => NOW };
+  const io: Io = { out: (l) => out.push(l), err: (l) => err.push(l), now: () => now };
   const code = main(args, io);
   const stdout = out.join("\n");
   let json: Record<string, any> | null = null;
@@ -216,10 +216,12 @@ describe("pack: the happy path", () => {
     expect(archiveCheck.code, archiveCheck.stderr).toBe(0);
   });
 
-  it("gives the same bytes for the same spec at the same time", () => {
-    const again = pack(folder());
+  it("gives the same bytes for the same spec, whenever it is packed", () => {
+    const again = run([folder(), "--json"], new Date("2031-03-09T04:05:06Z"));
     expect(again.out?.sha256).toBe(r.out?.sha256);
     expect(again.out?.descriptor_sha256).toBe(r.out?.descriptor_sha256);
+    // The time of the build is in the build record, and nowhere in the package.
+    expect(JSON.parse(readFileSync(again.out?.record, "utf8")).produced_at).toBe("2031-03-09T04:05:06Z");
   });
 });
 
@@ -316,6 +318,71 @@ describe("pack: a value never gets in", () => {
     const r = pack(folder(bad));
     expect(r.code).toBe(1);
     expect(r.out?.refused).toMatch(/cannot tell which side applies its ceiling/);
+  });
+});
+
+describe("pack: the model system (Section 12.4.1)", () => {
+  const MODEL = { name: "text-reasoning", access: "trigger", kind: "model", protocols: ["anthropic-messages", "openai-chat"], spends: { unit: "USD" } };
+  const withModel = (model: Record<string, unknown> = MODEL) => {
+    const spec = clone(SPEC) as typeof SPEC & { systems: Record<string, unknown>[] };
+    spec.systems.push(model);
+    return spec;
+  };
+
+  it("declares the model by kind and protocols, with no credential and no variable, and the runtime applies its ceiling", () => {
+    const r = pack(folder(withModel()));
+    expect(r.code, r.stderr + r.stdout).toBe(0);
+    const inst = JSON.parse(readFileSync(join(r.out?.package_dir, "agent-runtime-requirements.json"), "utf8"));
+    expect(inst.systems[2]).toEqual({ name: "text-reasoning", kind: "model", protocols: ["anthropic-messages", "openai-chat"], spends: { unit: "USD" } });
+    expect(inst.ceilings).toEqual([
+      { system: "text-to-speech", per: "task", enforced_by: "runtime" },
+      { system: "text-reasoning", per: "task", enforced_by: "runtime" },
+    ]);
+    expect(readFileSync(join(r.out?.package_dir, "net.agentdoc.package", "SYSTEMS.md"), "utf8")).toContain("| text-reasoning | model | trigger |");
+    expect(run(["validate", r.out?.tarball, "--json"]).out?.issues).toEqual([]);
+  });
+
+  it("packs a model that says nothing of what it spends, with no ceiling for it", () => {
+    const { spends: _s, ...quiet } = MODEL;
+    const r = pack(folder(withModel(quiet)));
+    expect(r.code, r.stderr + r.stdout).toBe(0);
+    const inst = JSON.parse(readFileSync(join(r.out?.package_dir, "agent-runtime-requirements.json"), "utf8"));
+    expect(inst.systems[2]).toEqual({ name: "text-reasoning", kind: "model", protocols: ["anthropic-messages", "openai-chat"] });
+    expect(inst.ceilings).toEqual([{ system: "text-to-speech", per: "task", enforced_by: "runtime" }]);
+  });
+
+  it("refuses a second model, since an agent declares at most one", () => {
+    const spec = withModel();
+    spec.systems.push({ ...MODEL, name: "second-opinion" });
+    const r = pack(folder(spec));
+    expect(r.code).toBe(1);
+    expect(r.out?.refused).toBe("system second-opinion: an agent declares at most one system of kind model");
+  });
+
+  it("refuses a model without protocols, or with one outside the list", () => {
+    const { protocols: _p, ...bare } = MODEL;
+    for (const model of [bare, { ...MODEL, protocols: [] }, { ...MODEL, protocols: ["anthropic-messages", "bedrock-converse"] }]) {
+      const r = pack(folder(withModel(model)));
+      expect(r.code).toBe(1);
+      expect(r.out?.refused).toBe("system text-reasoning: protocols is one or more of anthropic-messages, openai-chat, gemini");
+    }
+  });
+
+  it("refuses a model that names a credential, a variable or a setting", () => {
+    for (const [k, v] of [["credential", "model-key"], ["env", "MODEL_KEY"], ["settings", [{ env: "MODEL_REGION" }]]] as const) {
+      const r = pack(folder(withModel({ ...MODEL, [k]: v })));
+      expect(r.code, k).toBe(1);
+      expect(r.out?.refused, k).toBe(`system text-reasoning: a model system names no credential and no variable, so it takes no ${k}`);
+    }
+  });
+
+  it("refuses protocols on a system that is not the model, and spending on a directory", () => {
+    const service = clone(SPEC) as typeof SPEC & { systems: Record<string, unknown>[] };
+    service.systems[0].protocols = ["openai-chat"];
+    expect(pack(folder(service)).out?.refused).toBe("system text-to-speech: only a system of kind model has protocols");
+    const directory = clone(SPEC) as typeof SPEC & { systems: Record<string, unknown>[] };
+    directory.systems[1].spends = { unit: "USD" };
+    expect(pack(folder(directory)).out?.refused).toBe("system brand-assets: only a service or a model spends");
   });
 });
 
