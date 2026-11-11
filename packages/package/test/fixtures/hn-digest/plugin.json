@@ -1,0 +1,27 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hn-digest",
+  "version": "1.0.0",
+  "description": "Reads the current top stories on Hacker News and writes a short digest of the ones about a topic you name.",
+  "author": {
+    "name": "Agent Builder"
+  },
+  "keywords": [
+    "built-agent",
+    "draft",
+    "topic-digest"
+  ],
+  "extensions": {
+    "net.agentdoc.package": {
+      "build": {
+        "skills": {
+          "topic-digest": {
+            "scripts": [
+              "scripts/topic-digest.mjs"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

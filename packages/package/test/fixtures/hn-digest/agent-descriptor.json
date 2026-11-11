@@ -1,0 +1,107 @@
+{
+  "format": "agent-descriptor-v1",
+  "agent_version": "1.0.0",
+  "does": "Reads the current top stories on Hacker News and writes a short digest of the ones about a topic you name.",
+  "offerings": [
+    {
+      "id": "topic-digest",
+      "name": "Topic digest",
+      "does": "Reads top stories from Hacker News and generates a short digest matching a caller-named topic.",
+      "inputs": [
+        {
+          "name": "topic",
+          "kind": "text",
+          "required": true,
+          "given_by": "either",
+          "about": "The subject to filter the Hacker News stories by."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "digest",
+          "kind": "text/markdown",
+          "when": "per_task",
+          "about": "Markdown: a header `topic, read_at`, then `## Stories` with each story's title, link, points, and one plain sentence on why it matters."
+        }
+      ],
+      "how": {
+        "control": "script",
+        "intelligence": "called",
+        "cost": "metered",
+        "contract": "full"
+      }
+    }
+  ],
+  "refusals": "Writing about stories it did not read from Hacker News. It relies entirely on the fetched data for factual accuracy, so it outputs nothing if the top stories cannot be retrieved.\nInventing points, links or comments. It strictly reports the exact metadata retrieved from the source, so the digest always reflects real community metrics rather than fabricated numbers.\nPosting, voting or commenting on Hacker News. It operates with strictly read-only access to the public API, so it never interacts with or alters the community platform on your behalf.\nSummarizing stories outside the provided topic. It filters the top stories strictly by the subject handed to it, so irrelevant items are dropped entirely from the final output.",
+  "records": [
+    {
+      "name": "the signed job manifest of each delivery",
+      "when": "per_task"
+    }
+  ],
+  "systems": [
+    {
+      "name": "hacker-news",
+      "access": "read",
+      "needs": "reads the current top stories and item details from the official public API at hacker-news.firebaseio.com"
+    },
+    {
+      "name": "text-reasoning",
+      "access": "trigger",
+      "needs": "judges which fetched stories match the requested topic and writes the single plain sentence explaining why each story matters"
+    }
+  ],
+  "can_use": [
+    {
+      "schema": "https://schemas.example.org/brand/v1",
+      "reads": [
+        "name",
+        "legal.first_mention",
+        "words.instead_of",
+        "words.never_say"
+      ],
+      "required": false,
+      "does": "writes the organization's name as the brand writes it, uses its first-mention form the first time, and keeps out the words the brand never says",
+      "without": "writes the organization's name as the person gave it, and says that no brand profile was given"
+    },
+    {
+      "schema": "https://schemas.example.org/style-guide/v1",
+      "reads": [
+        "voice",
+        "tone",
+        "spelling",
+        "words.prefer",
+        "words.avoid"
+      ],
+      "required": false,
+      "does": "writes in the organization's voice, tone and spelling, and uses the words it prefers in place of the ones it avoids",
+      "without": "writes in a plain, neutral voice in the spelling of the words it was given, and says that no style guide was given"
+    }
+  ],
+  "run_config": {
+    "settings": [
+      {
+        "name": "top_stories_to_read",
+        "kind": "preference",
+        "default": 30,
+        "label": "Top stories to read",
+        "about": "How many top stories to read from Hacker News.",
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "job_may_set": true
+      },
+      {
+        "name": "stories_in_digest",
+        "kind": "preference",
+        "default": 5,
+        "label": "Stories in digest",
+        "about": "How many stories to put in the digest.",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "job_may_set": true
+      }
+    ]
+  }
+}

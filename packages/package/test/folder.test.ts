@@ -2,9 +2,12 @@
 // agent-descriptor.json, agent-runtime-requirements.json and plugin.json
 // directly, with its skills. The old file names are read with a warning, and
 // the spec input still works, with a warning that it is deprecated.
+import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { gunzipSync } from "node:zlib";
 import { afterAll, describe, expect, it } from "vitest";
 import { main, type Io } from "../cli.js";
 
@@ -33,6 +36,8 @@ const tmp = (prefix: string) => {
   return d;
 };
 const readJson = (p: string) => JSON.parse(readFileSync(p, "utf8"));
+/** The digest a Descriptor gives for a file it names (Section 5.8). */
+const digestOf = (text: string) => `sha256:${createHash("sha256").update(text).digest("hex")}`;
 
 const SPEC = {
   name: "brief-summarizer",
@@ -227,6 +232,109 @@ describe("packing a folder written by hand", () => {
     const r = run([join(dir, "agent-descriptor.json")]);
     expect(r.code).toBe(1);
     expect(r.stderr).toMatch(/pack the folder that holds it/);
+  });
+
+  it("carries the file a view names and the file an example names, each from its path in the folder", () => {
+    const dir = handWritten();
+    const view = '<!doctype html>\n<html>\n<body>\n<pre id="notes"></pre>\n</body>\n</html>\n';
+    const sample = "Ana: the launch moves to May.\nBen: agreed.\n";
+    mkdirSync(join(dir, "views"));
+    mkdirSync(join(dir, "examples"));
+    writeFileSync(join(dir, "views", "notes.html"), view);
+    writeFileSync(join(dir, "examples", "transcript.txt"), sample);
+    writeFileSync(join(dir, "examples", "unused.txt"), "nothing names this file\n");
+    const p = join(dir, "agent-descriptor.json");
+    const d = readJson(p);
+    d.offerings[0].outputs = [{ name: "notes", kind: "text/markdown", when: "per_task" }];
+    d.offerings[0].example = { inputs: { transcript: { file: "examples/transcript.txt", digest: digestOf(sample), media_type: "text/plain" } }, good_result: "Notes that say the launch moves to May." };
+    d.views = [{ id: "notes", for: { offering: "take-notes", output: "notes" }, file: "views/notes.html", digest: digestOf(view), requests: [] }];
+    writeFileSync(p, JSON.stringify(d));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code, r.stdout).toBe(0);
+    expect(r.out?.warnings).toEqual(["examples/unused.txt is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md, skills/ and each file the descriptor names for a view or an example"]);
+    expect(readFileSync(join(r.out?.package_dir, "views", "notes.html"), "utf8")).toBe(view);
+    expect(readFileSync(join(r.out?.package_dir, "examples", "transcript.txt"), "utf8")).toBe(sample);
+    expect(existsSync(join(r.out?.package_dir, "examples", "unused.txt"))).toBe(false);
+    const tar = gunzipSync(readFileSync(r.out?.tarball)).toString("latin1");
+    expect(tar).toContain("notes-taker/views/notes.html");
+    expect(tar).toContain("notes-taker/examples/transcript.txt");
+    expect(run(["validate", r.out?.tarball, "--json"]).out?.issues).toEqual([]);
+  });
+
+  it("refuses a view whose file the folder does not hold, or holds under another digest", () => {
+    const dir = handWritten();
+    const p = join(dir, "agent-descriptor.json");
+    const d = readJson(p);
+    d.views = [{ id: "notes", for: { offering: "take-notes", output: "notes" }, file: "views/notes.html", digest: digestOf("<p>notes</p>\n"), requests: [] }];
+    writeFileSync(p, JSON.stringify(d));
+    const missing = run([dir, "--json", "--out", tmp("out-")]);
+    expect(missing.code).toBe(1);
+    expect(missing.out?.refused).toBe("the package would not conform: agent-descriptor.json view notes names views/notes.html, which the package does not carry");
+    mkdirSync(join(dir, "views"));
+    writeFileSync(join(dir, "views", "notes.html"), "<p>other notes</p>\n");
+    const stale = run([dir, "--json", "--out", tmp("out-")]);
+    expect(stale.code).toBe(1);
+    expect(stale.out?.refused).toBe(`the package would not conform: agent-descriptor.json view notes names views/notes.html by a digest the file does not have; it is ${digestOf("<p>other notes</p>\n")}`);
+  });
+
+  it("warns of an address literal in a script, with its file, line and literal, and still packs", () => {
+    const dir = handWritten();
+    mkdirSync(join(dir, "skills", "take-notes", "scripts"));
+    writeFileSync(join(dir, "skills", "take-notes", "scripts", "notes.mjs"), '// Takes the notes.\nconst reply = await fetch("https://api.example.com/v1/notes");\nconst svg = "http://www.w3.org/2000/svg";\n');
+    const warning = "skills/take-notes/scripts/notes.mjs, line 2, carries the address literal https://api.example.com/v1/notes; a script reaches a system through its declaration and carries no address of its own (Section 12.6, rule 2)";
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code, r.stdout).toBe(0);
+    expect(r.out?.warnings).toEqual([warning]);
+    const words = run([dir, "--out", tmp("out-")]);
+    expect(words.code).toBe(0);
+    expect(words.stderr).toContain(`warning: ${warning}`);
+    const v = run(["validate", r.out?.tarball, "--json"]);
+    expect(v.code, v.stdout).toBe(0);
+    expect(v.out?.issues).toEqual([]);
+    expect(v.out?.warnings).toEqual([warning]);
+  });
+});
+
+// A folder an agent builder wrote to Common Agent 0.41.0, copied here as it
+// was written: a model system (Section 12.4.1), two kinds of standing asset
+// under can_use (Section 6.14.4), and a script that names those two kinds by
+// the address that is their schema.
+describe("replaying a folder written to Common Agent 0.41.0", () => {
+  const FIXTURE = fileURLToPath(new URL("./fixtures/hn-digest", import.meta.url));
+  const SCRIPT = "skills/topic-digest/scripts/topic-digest.mjs";
+  const WARNINGS = [
+    `${SCRIPT}, line 127, carries the address literal https://schemas.example.org/brand/v1; a script reaches a system through its declaration and carries no address of its own (Section 12.6, rule 2)`,
+    `${SCRIPT}, line 128, carries the address literal https://schemas.example.org/style-guide/v1; a script reaches a system through its declaration and carries no address of its own (Section 12.6, rule 2)`,
+  ];
+  const dir = join(tmp("replay-"), "hn-digest");
+  cpSync(FIXTURE, dir, { recursive: true });
+  const r = run([dir, "--json", "--out", tmp("out-")]);
+
+  it("packs it", () => {
+    expect(r.code, r.stderr + r.stdout).toBe(0);
+    expect(r.out?.ok).toBe(true);
+    expect(r.out?.name).toBe("hn-digest");
+    expect(r.out?.version).toBe("1.0.0");
+    expect(r.out?.skills).toEqual(["topic-digest"]);
+  });
+
+  it("warns of the two address literals in its script, and of nothing else", () => {
+    expect(r.out?.warnings).toEqual(WARNINGS);
+  });
+
+  it("carries the two authored files saying what they said, and the skill as it was written", () => {
+    for (const f of ["agent-descriptor.json", "agent-runtime-requirements.json"]) expect(readJson(join(r.out?.package_dir, f)), f).toEqual(readJson(join(FIXTURE, f)));
+    for (const f of [SCRIPT, "skills/topic-digest/SKILL.md"]) expect(readFileSync(join(r.out?.package_dir, f)).equals(readFileSync(join(FIXTURE, f))), f).toBe(true);
+  });
+
+  it("finds no problem in the archive, or in the folder it unpacks to", () => {
+    for (const target of [r.out?.tarball, r.out?.package_dir]) {
+      const v = run(["validate", target, "--json"]);
+      expect(v.code, v.stdout).toBe(0);
+      expect(v.out?.ok).toBe(true);
+      expect(v.out?.issues).toEqual([]);
+      expect(v.out?.warnings).toEqual(WARNINGS);
+    }
   });
 });
 
