@@ -161,8 +161,8 @@ function cmdPack(target: string, f: Flags, io: Io): number {
 
   let built;
   try {
-    const opts = { mtime: Math.floor(now.getTime() / 1000) };
-    built = specPath ? buildPackage(spec, diskSource(srcBase), opts) : buildFromFolder(diskSource(srcBase), opts);
+    // The clock is for the build record alone: the same folder packs to the same bytes at any time (12.6 rule 5).
+    built = specPath ? buildPackage(spec, diskSource(srcBase)) : buildFromFolder(diskSource(srcBase));
   } catch (e) {
     if (!(e instanceof PackRefusal)) throw e;
     if (f.json) {

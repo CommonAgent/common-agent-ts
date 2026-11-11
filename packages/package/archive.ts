@@ -1,8 +1,10 @@
 /**
- * The package archive (Common Agent 12.6 rule 5): a gzipped ustar archive of
- * the package's folder under `<name>/`. Its SHA-256 over the archive bytes is
- * the package's digest. Written here rather than pulled in, because the shape
- * is small and a dependency would be the heavier thing.
+ * The package archive (Common Agent Section 12.6, rule 5): a gzipped ustar
+ * archive of the package's folder under `<name>/`. Its SHA-256 over the
+ * archive bytes is the package's digest, so packing is deterministic: the
+ * same files give the same bytes on any machine at any time. Written here
+ * rather than pulled in, because the shape is small and a dependency would be
+ * the heavier thing.
  *
  * node:zlib is used for the gzip layer; it computes and touches nothing else.
  */
@@ -12,38 +14,23 @@ import type { PackageFiles } from "./types.js";
 /** A problem with a path or an archive, in words. */
 export class ArchiveError extends Error {}
 
+/** The one modification time every entry carries, in seconds since 1970. */
+const ENTRY_TIME = 0;
+/** The one compression setting. */
+const GZIP_LEVEL = 6;
+
+/** Two paths by their UTF-8 bytes, which no machine's locale changes. */
+const byBytes = (a: string, b: string): number => Buffer.compare(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
+
 /**
- * Every file path in the map, in the order a walk of the folder gives: each
- * directory's entries sorted by name with `localeCompare`, and a directory's
- * contents where the directory falls in that order.
+ * Every file path in the map, in the order the archive carries them: the
+ * byte order of the paths (Section 12.6, rule 5).
  */
 export function walkOrder(files: Iterable<string>): string[] {
-  interface Node { files: Set<string>; dirs: Map<string, Node> }
-  const root: Node = { files: new Set(), dirs: new Map() };
-  for (const p of files) {
-    const parts = p.split("/");
-    let n = root;
-    for (let i = 0; i < parts.length - 1; i++) {
-      let next = n.dirs.get(parts[i]);
-      if (!next) n.dirs.set(parts[i], (next = { files: new Set(), dirs: new Map() }));
-      n = next;
-    }
-    n.files.add(parts[parts.length - 1]);
-  }
-  const out: string[] = [];
-  const visit = (n: Node, prefix: string) => {
-    const names = [...new Set([...n.files, ...n.dirs.keys()])].sort((a, b) => a.localeCompare(b, "en"));
-    for (const name of names) {
-      const sub = n.dirs.get(name);
-      if (sub) visit(sub, `${prefix}${name}/`);
-      if (n.files.has(name)) out.push(`${prefix}${name}`);
-    }
-  };
-  visit(root, "");
-  return out;
+  return [...new Set(files)].sort(byBytes);
 }
 
-function header(nameIn: string, size: number, type: string, mode: number, mtime: number): Buffer {
+function header(nameIn: string, size: number, type: string, mode: number): Buffer {
   const h = Buffer.alloc(512);
   let name = nameIn;
   let prefix = "";
@@ -58,7 +45,7 @@ function header(nameIn: string, size: number, type: string, mode: number, mtime:
   h.write("0000000\0", 108, "utf8");
   h.write("0000000\0", 116, "utf8");
   h.write(`${size.toString(8).padStart(11, "0")}\0`, 124, "utf8");
-  h.write(`${Math.floor(mtime).toString(8).padStart(11, "0")}\0`, 136, "utf8");
+  h.write(`${ENTRY_TIME.toString(8).padStart(11, "0")}\0`, 136, "utf8");
   h.write("        ", 148, "utf8");
   h.write(type, 156, "utf8");
   h.write("ustar\0", 257, "utf8");
@@ -71,28 +58,39 @@ function header(nameIn: string, size: number, type: string, mode: number, mtime:
 }
 
 /**
- * The archive of a package's files under `arcname/`, gzipped. `mtime` is the
- * time every entry carries, in seconds since 1970; the caller passes it,
- * because the library reads no clock. A script under a skill's `scripts/`
- * folder is mode 755 and every other file 644.
+ * The archive of a package's files under `arcname/`, gzipped. What Section
+ * 12.6, rule 5 fixes is fixed here, and a caller chooses none of it: the
+ * entries, folders included, are in the byte order of their paths; every
+ * entry carries the same time; no entry names an owner or a group; a script
+ * under a skill's `scripts/` folder is mode 755 and every other file 644; and
+ * the gzip layer has one level, no time and no operating system in its header.
  */
-export function writeArchive(files: PackageFiles, arcname: string, mtime = 0): Uint8Array {
-  const blocks: Buffer[] = [];
-  const order = walkOrder(files.keys());
-  const dirs = new Set([arcname]);
-  for (const rel of order) {
+export function writeArchive(files: PackageFiles, arcname: string): Uint8Array {
+  const entries = new Map<string, string | null>([[`${arcname}/`, null]]);
+  for (const rel of files.keys()) {
     const parts = rel.split("/");
-    for (let i = 1; i < parts.length; i++) dirs.add(`${arcname}/${parts.slice(0, i).join("/")}`);
+    for (let i = 1; i < parts.length; i++) entries.set(`${arcname}/${parts.slice(0, i).join("/")}/`, null);
+    entries.set(`${arcname}/${rel}`, rel);
   }
-  for (const d of [...dirs].sort()) blocks.push(header(`${d}/`, 0, "5", 0o755, mtime));
-  for (const rel of order) {
+  const blocks: Buffer[] = [];
+  for (const name of [...entries.keys()].sort(byBytes)) {
+    const rel = entries.get(name);
+    if (rel === null || rel === undefined) {
+      blocks.push(header(name, 0, "5", 0o755));
+      continue;
+    }
     const body = Buffer.from(files.get(rel) as Uint8Array);
-    blocks.push(header(`${arcname}/${rel}`, body.length, "0", rel.startsWith("skills/") && rel.includes("/scripts/") ? 0o755 : 0o644, mtime), body);
+    blocks.push(header(name, body.length, "0", rel.startsWith("skills/") && rel.includes("/scripts/") ? 0o755 : 0o644), body);
     const pad = Math.ceil(body.length / 512) * 512 - body.length;
     if (pad) blocks.push(Buffer.alloc(pad));
   }
   blocks.push(Buffer.alloc(1024));
-  return new Uint8Array(gzipSync(Buffer.concat(blocks)));
+  const gz = gzipSync(Buffer.concat(blocks), { level: GZIP_LEVEL });
+  // The gzip header's time and flags are zero, and its last byte, which would
+  // name the operating system that packed, says "unknown" on every one.
+  gz.fill(0, 4, 9);
+  gz[9] = 255;
+  return new Uint8Array(gz);
 }
 
 const field = (b: Buffer, at: number, len: number): string => {

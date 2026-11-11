@@ -212,7 +212,7 @@ describe("packing a folder written by hand", () => {
     const dir = handWritten();
     writeFileSync(join(dir, "notes.txt"), "scratch\n");
     const ok = run([dir, "--json", "--out", tmp("out-")]);
-    expect(ok.out?.warnings).toEqual(["notes.txt is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md and skills/"]);
+    expect(ok.out?.warnings).toEqual(["notes.txt is not packed; a package carries plugin.json, the two authored files, mcp.json, README.md, skills/ and each file the descriptor names for a view or an example"]);
     renameSync(join(dir, "agent-descriptor.json"), join(dir, "descriptor.json"));
     const p = join(dir, "descriptor.json");
     writeFileSync(p, JSON.stringify({ ...readJson(p), records: [] }));

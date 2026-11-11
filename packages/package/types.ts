@@ -53,6 +53,8 @@ export interface SystemSpec {
   needs?: string;
   leaves?: boolean;
   kind?: string;
+  /** On a system of kind `model` only: the formats its scripts can speak (Common Agent 12.4.1). */
+  protocols?: string[];
   credential?: string;
   env?: string;
   spends?: { unit: string };
@@ -126,7 +128,10 @@ export interface DraftDescriptor {
 /** One system entry in the runtime requirements. */
 export interface InstallSystem {
   name: string;
+  /** `directory`, `mcp`, `service` or `model`. */
   kind: string;
+  /** On a system of kind `model` only: one or more of `anthropic-messages`, `openai-chat` and `gemini` (Common Agent 12.4.1). */
+  protocols?: string[];
   credential?: string;
   env?: string;
   spends?: { unit: string };

@@ -9,8 +9,9 @@ import type { PackageFiles } from "./types.js";
 import { validatePackage, type Validation } from "./validate.js";
 
 /** The standard this package implements, and the version of it. */
-export const PACKAGE_SPEC = Object.freeze({ standard: "Common Agent Specification, Section 12", version: "0.30.0-draft" });
+export const PACKAGE_SPEC = Object.freeze({ standard: "Common Agent Specification, Section 12", version: "0.41.0" });
 
+export { EXCEPTED_ADDRESS_PREFIXES, addressLiterals, type AddressLiteral } from "./addresses.js";
 export { ArchiveError, readArchive, walkOrder, writeArchive, type ReadArchive } from "./archive.js";
 export {
   ACCESS,
@@ -62,7 +63,7 @@ export { BUILD_RECORD_TAG, UNSIGNED_NOTE, buildRecord, recordInstant, verifyBuil
 export { hasSkillFrontmatter, skillMd, type Copied } from "./skill.js";
 export { codepointName, dumps, hiddenCharacter, hiddenInFile, sha256Hex, type HiddenCharacter } from "./text.js";
 export type * from "./types.js";
-export { HOW_VALUES, PER_FILE_PLACEHOLDERS, RUN_PLACEHOLDERS, validatePackage, type Issue, type Validation } from "./validate.js";
+export { HOW_VALUES, MODEL_PROTOCOLS, PER_FILE_PLACEHOLDERS, RUN_PLACEHOLDERS, declaredFiles, isPackagePath, validatePackage, type DeclaredFile, type Issue, type Validation } from "./validate.js";
 export { generatedViews, notMd, recordsMd, systemName, systemsMd } from "./views.js";
 
 /** A validation with one more layout problem in front. */
