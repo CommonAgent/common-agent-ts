@@ -40,7 +40,7 @@ describe("an address literal (Section 12.10, the address check)", () => {
     expect(literals("curl 169.254.169.254/latest/meta-data")).toEqual(["169.254.169.254"]);
     expect(literals('const host = "169.254.0.1";')).toEqual(["169.254.0.1"]);
     expect(literals("http://169.254.169.254/latest/meta-data")).toEqual(["http://169.254.169.254/latest/meta-data"]);
-    expect(literals("169.254.169.254 and 169.253.1.1 and 10.169.254.1.1 and 169.254.300.1 and 1169.254.1.1")).toEqual(["169.254.169.254"]);
+    expect(literals("169.254.169.254 and 192.0.2.1 and 10.169.254.1.1 and 169.254.300.1 and 1169.254.1.1")).toEqual(["169.254.169.254"]);
   });
 
   it("does not report a literal that begins with an excepted prefix", () => {
