@@ -15,7 +15,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { sha256Digest } from "@common-agent/crypto";
-import { AssembleError, assemble, assembleWithNotes } from "../assemble.js";
+import { AssembleError, assemble, assembleWithNotes, notStatedOf } from "../assemble.js";
+import { signingProblems } from "../descriptor.js";
 import { check } from "../check.js";
 import { render } from "../render.js";
 import type { AgentDoc } from "../types.js";
@@ -58,7 +59,7 @@ describe("card only", () => {
     expect(offerings.map((o) => [o.id, o.scope, o.state])).toEqual([["suggest-recipes", "task-specific", "declared"], ["shopping-list", "task-specific", "declared"]]);
     expect(offerings[1]!.output_modes).toEqual(["application/json"]);
     // Silence, printed: nothing here is filled with a flattering default.
-    for (const p of ["shape", "role", "asked", "refuses", "reaches", "leaves", "configs", "handling", "standing", "identity.acts_for", "access.admission", "sells.offerings.inputs", "sells.offerings.outputs", "sells.offerings.price", "sells.samples"]) {
+    for (const p of ["shape", "role", "asked", "refuses", "reaches", "leaves", "configs", "triggers", "handling", "standing", "identity.acts_for", "access.admission", "sells.offerings.inputs", "sells.offerings.outputs", "sells.offerings.price", "sells.samples"]) {
       expect(doc.not_stated, p).toContain(p);
     }
     expect(doc.not_stated).not.toContain("access.schemes");
@@ -145,9 +146,58 @@ describe("card and signed Descriptor", () => {
     expect(doc.sections.leaves!.records).toEqual([{ name: "the ingredients as received", when: "per_task" }]);
     expect(doc.sections.configs).toEqual({ from: ["descriptor"], settings: [] });
     expect(doc.sections.handling).toEqual({ from: ["descriptor"], hosted_in: ["eu"] });
-    for (const p of ["handling.processed_in", "handling.retention_max_days", "handling.memory", "sells.offerings.price", "standing", "access.admission"]) expect(doc.not_stated, p).toContain(p);
+    for (const p of ["handling.processed_in", "handling.retention_max_days", "handling.memory", "triggers", "sells.offerings.price", "standing", "access.admission"]) expect(doc.not_stated, p).toContain(p);
     for (const p of ["refuses", "reaches", "leaves", "configs", "shape", "identity.acts_for", "sells.offerings.inputs"]) expect(doc.not_stated, p).not.toContain(p);
     await honest(doc);
+  });
+
+  it("quotes the Descriptor's triggers at declared, reads an unlisted value as not stated, and names what it leaves out", async () => {
+    const descText = signedDescriptorText({
+      triggers: {
+        events: [{ system: "recipe-index", kind: "recipe-added", does: "Tells its owner when a new recipe uses a pantry staple." }],
+        schedules: [{ every: "week", does: "Sends its owner the week's most asked-for recipes." }, { every: "fortnight", does: "Tidies its notes." }],
+        contacts: ["owner", "everyone"],
+      },
+    });
+    const f = fakeFetch({ [CARD_URL]: card(), [DESC_URL]: descText });
+    const doc = await assemble({ address: ORIGIN, fetch: f, now: NOW });
+    expect(doc.sections.triggers).toEqual({
+      from: ["descriptor"],
+      events: [{ system: "recipe-index", kind: "recipe-added", does: "Tells its owner when a new recipe uses a pantry staple.", state: "declared" }],
+      schedules: [{ every: "week", does: "Sends its owner the week's most asked-for recipes.", state: "declared" }, { does: "Tidies its notes.", state: "declared" }],
+      contacts: ["owner"],
+    });
+    expect(doc.not_stated).toContain("triggers.sets_own");
+    expect(doc.not_stated).not.toContain("triggers");
+    const page = render(doc);
+    expect(page).toContain("When it acts on its own");
+    expect(page).toContain("Events it watches");
+    expect(page).toContain("When it acts on its own, it contacts its owner.");
+    await honest(doc);
+  });
+
+  it("shows an agent that says it acts only when asked, and keeps silence about triggers apart from that", async () => {
+    const quiet = await assemble({ address: ORIGIN, fetch: fakeFetch({ [CARD_URL]: card(), [DESC_URL]: signedDescriptorText({ triggers: { events: [], schedules: [], sets_own: false, contacts: [] } }) }), now: NOW });
+    expect(quiet.sections.triggers).toEqual({ from: ["descriptor"], events: [], schedules: [], sets_own: false, contacts: [] });
+    expect(render(quiet)).toContain("It acts only when it is sent a request.");
+    await honest(quiet);
+    const silent = await assemble({ address: ORIGIN, fetch: fakeFetch({ [CARD_URL]: card(), [DESC_URL]: signedDescriptorText() }), now: NOW });
+    expect(silent.sections.triggers).toBeUndefined();
+    expect(silent.not_stated).toContain("triggers");
+    expect(render(silent)).not.toContain("It acts only when it is sent a request.");
+  });
+
+  it("asks whose jobs an agent learns from only where it remembers across jobs", () => {
+    const remembers = { handling: { from: ["d"], memory: "remembers-across-jobs" } };
+    expect(notStatedOf(remembers, { pkg: false, card: false })).toContain("handling.memory_pool");
+    expect(notStatedOf({ handling: { from: ["d"], memory: "remembers-across-jobs", memory_pool: "each-caller" } }, { pkg: false, card: false })).not.toContain("handling.memory_pool");
+    expect(notStatedOf({ handling: { from: ["d"], memory: "starts-clean-each-job" } }, { pkg: false, card: false })).not.toContain("handling.memory_pool");
+  });
+
+  it("will not sign a Descriptor whose trigger event comes from a system it does not declare", () => {
+    const d = { ...draftDescriptor(), subject: { id: SUBJECT_KEY }, triggers: { events: [{ system: "orders", kind: "order-placed", does: "Suggests a recipe." }] } };
+    expect(signingProblems(d)).toContain("trigger event 1 comes from orders, which systems does not declare");
+    expect(signingProblems({ ...d, triggers: { events: [{ system: "recipe-index", kind: "recipe-added", does: "x" }] } }).filter((x) => x.startsWith("trigger"))).toEqual([]);
   });
 
   it("reports a card that disagrees with the Descriptor, and carries the Descriptor's value", async () => {

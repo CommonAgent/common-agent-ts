@@ -351,6 +351,7 @@
     "not_stated": [
       "reaches",
       "configs",
+      "triggers",
       "sells.offerings.price"
     ],
     "signatures": []

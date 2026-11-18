@@ -48,6 +48,7 @@ export function draftFromCard(card: Rec): Rec {
   if (!offerings.length) fillIn.push("offerings: the card lists no skills; an empty list says the agent takes no work");
   fillIn.push(`acts_for: whom the agent acts for, one of ${ACTS_FOR.join(", ")} (add organization_name beside organization)`);
   fillIn.push("refusals: what the agent will not do, in your own words");
+  fillIn.push('triggers: what makes the agent act when nobody has asked: the events it watches, the schedules it keeps, whether it may set its own (sets_own) and whom it contacts; an agent that acts only when asked says { "events": [], "schedules": [], "sets_own": false }');
   return {
     [DRAFT_MARK]: {
       note: "A draft written from your agent's card by common-agent-doc init. Check every guess, fill in each missing member, then delete this _draft member and sign it with common-agent-doc sign.",
@@ -83,5 +84,14 @@ export function signingProblems(d: unknown): string[] {
     if (!Array.isArray(o.outputs)) out.push(`offering ${str(o.id) || i + 1} has no outputs list (it may be empty)`);
   });
   if (d.shape !== undefined) out.push("shape was removed from the format; take it out (Section 6.12)");
+  // every event names a system the Descriptor declares, because watching a system is reaching it (Section 6.2)
+  if (isObj(d.triggers) && Array.isArray(d.triggers.events)) {
+    const systems = arr(d.systems).filter(isObj).map((s) => str(s.name ?? s.role));
+    d.triggers.events.forEach((e, i) => {
+      const sys = isObj(e) ? str(e.system) : "";
+      if (!sys) out.push(`trigger event ${i + 1} names no system`);
+      else if (!systems.includes(sys)) out.push(`trigger event ${i + 1} comes from ${sys}, which systems does not declare`);
+    });
+  }
   return out;
 }

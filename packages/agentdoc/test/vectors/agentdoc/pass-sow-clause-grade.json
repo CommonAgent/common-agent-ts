@@ -134,6 +134,7 @@
       "reaches",
       "leaves",
       "configs",
+      "triggers",
       "standing"
     ],
     "signatures": []
