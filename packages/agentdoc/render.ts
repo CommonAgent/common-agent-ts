@@ -6,10 +6,10 @@
  * from; `not_stated` is shown as plainly as what was stated; the assembly time
  * is shown, and `stale_after` where there is one; nothing is added that the
  * document does not hold, so there is no badge, score or trust mark. And the
- * four differences that vanish once lost: an absent `reaches` is not an empty
+ * five differences that vanish once lost: an absent `reaches` is not an empty
  * reach, a grant is shown apart from a file, an absent `access` is not an open
- * door, and an open offering is shown with its scope in words, never as a
- * list of work it can do.
+ * door, an open offering is shown with its scope in words, never as a list of
+ * work it can do, and an absent `triggers` is no promise to wait to be asked.
  *
  * Nothing is presented above what `shape.visibility` supports (Section
  * 9.5.1). A ceiling decided by rule is shown as the operator's word that a
@@ -76,11 +76,17 @@ function notStatedWords(p: string): [string, string] {
     leaves: ["what records a job leaves", "no records are declared"],
     configs: ["what a job may set", "nothing says which settings a job may choose"],
     "configs.tested_models": ["which models were tested", "settings are declared, and no tested models are listed, so treat every model as untested"],
+    triggers: ["what makes it act when nobody asks", "it has not said. That is no promise that it waits to be asked."],
+    "triggers.events": ["which events it watches", "it has not said which events make it act"],
+    "triggers.schedules": ["which schedules it keeps", "it has not said whether it acts on a schedule"],
+    "triggers.sets_own": ["whether it sets schedules of its own", "it has not said whether it may set reminders for itself"],
+    "triggers.contacts": ["whom it contacts when it acts", "it has not said whom it contacts when it acts on its own"],
     handling: ["where your content goes and how long it is kept", "nothing says where content is processed or kept. It has promised to delete nothing."],
     "handling.processed_in": ["where your content is processed", "no place is named, so it may be anywhere"],
     "handling.retention_max_days": ["how long it keeps what you send", "it has promised to delete nothing"],
     "handling.processors": ["which services see your content", "no processors are named"],
     "handling.memory": ["whether it remembers one job in the next", "it has not said, so do not assume each job starts clean"],
+    "handling.memory_pool": ["whose jobs it learns from", "it remembers across jobs and has not said whether what it keeps from one caller's jobs is used for another's"],
     standing: ["what others have published about it", "no attestation, evaluation or report was read"],
     subject: ["which agent this is", "a package describes no running agent until someone installs it"],
   };
@@ -103,6 +109,21 @@ const AUTHORITY_WORDS: Record<string, string> = {
   "reaches-network": "reaches network addresses no declared system names",
   "sends-messages": "sends messages to parties other than you",
   "spends-money": "commits money on your or its owner's behalf",
+};
+const EVERY_WORDS: Record<string, string> = { hour: "every hour", day: "every day", week: "every week", month: "every month" };
+const CONTACT_WORDS: Record<string, string> = {
+  owner: "its owner",
+  callers: "the parties it holds work for",
+  named: "parties its owner names",
+  anyone: "parties it has not dealt with before",
+};
+const MEMORY_WORDS: Record<string, string> = {
+  "remembers-across-jobs": "it keeps what a job was given or learned for later jobs",
+  "starts-clean-each-job": "every job starts with nothing from an earlier one",
+};
+const POOL_WORDS: Record<string, string> = {
+  "each-caller": "what it keeps from your jobs is used only in your later jobs",
+  "every-caller": "what it keeps from every caller's jobs is used in every caller's later jobs, yours included",
 };
 const CEILING_WORDS: Record<string, string> = {
   job_seconds: "seconds one job runs",
@@ -275,12 +296,26 @@ export function render(doc: AgentDoc): string {
       + (arr(s.configs?.named).length ? `<h4>Named run configs</h4><ul>${arr(s.configs?.named).filter(isObj).map((n) => `<li>${esc(n.name)} <code>${esc(shortDigest(n.digest))}</code></li>`).join("")}</ul>` : "")
     : p("It takes no settings.");
 
+  const trig = s.triggers ?? {};
+  const events = arr(trig.events).filter(isObj);
+  const schedules = arr(trig.schedules).filter(isObj);
+  const onlyAsked = trig.events !== undefined && trig.schedules !== undefined && !events.length && !schedules.length && trig.sets_own === false;
+  const triggersBody = (onlyAsked
+    ? p("It acts only when it is sent a request.")
+    : (events.length ? `<h4>Events it watches</h4>${table(["System", "Event", "What it does"], events.map((e) => [esc(str(e.system) || "not stated"), `<code>${esc(e.kind)}</code>`, esc(e.does)]))}` : trig.events !== undefined ? p("It watches no events.") : "")
+      + (schedules.length ? `<h4>Schedules it keeps</h4>${table(["How often", "What it does"], schedules.map((x) => [esc(EVERY_WORDS[str(x.every)] ?? "not stated"), esc(x.does)]))}` : trig.schedules !== undefined ? p("It keeps no schedules.") : "")
+      + (typeof trig.sets_own === "boolean" ? p(trig.sets_own ? "It may set schedules and reminders of its own while it works." : "It does not set schedules of its own.") : ""))
+    + (Array.isArray(trig.contacts) ? p(trig.contacts.length ? `When it acts on its own, it contacts ${esc(joinWords(trig.contacts.map((c) => CONTACT_WORDS[str(c)] ?? str(c))))}.` : "When it acts on its own, it contacts nobody.") : "")
+    + note("The operator's own word. Nothing here has seen it act.");
+
   const handling = s.handling ?? {};
   const handlingRows: string[][] = [];
   if (handling.hosted_in) handlingRows.push(["Runs in", esc(words(handling.hosted_in))]);
   handlingRows.push(["Processed in", handling.processed_in ? esc(words(handling.processed_in)) : `<span class="tag">not stated</span> so it may be anywhere`]);
   handlingRows.push(["Kept for", typeof handling.retention_max_days === "number" ? `at most ${esc(handling.retention_max_days)} days` : `<span class="tag">not stated</span> it has promised to delete nothing`]);
   if (Array.isArray(handling.processors)) handlingRows.push(["Seen by", esc(joinWords(handling.processors.map((x) => (isObj(x) ? [str(x.service), str(x.purpose)].filter(Boolean).join(", for ") : String(x)))) || "no other service")]);
+  if (MEMORY_WORDS[str(handling.memory)]) handlingRows.push(["Between jobs", esc(MEMORY_WORDS[str(handling.memory)]!)]);
+  if (POOL_WORDS[str(handling.memory_pool)]) handlingRows.push(["Whose jobs it learns from", esc(POOL_WORDS[str(handling.memory_pool)]!)]);
   if (isObj(handling.promises)) handlingRows.push(["It promises", esc(Object.entries(handling.promises).filter(([k, v]) => k !== "grade" && v === true).map(([k]) => k.replace(/_/g, " ")).join("; ") + (typeof handling.promises.grade === "string" ? ` (graded ${handling.promises.grade})` : ""))]);
   const handlingBody = `<table><tbody>${handlingRows.map((r) => `<tr><th>${esc(r[0])}</th><td>${r[1]}</td></tr>`).join("")}</tbody></table>`;
 
@@ -362,6 +397,7 @@ ${band("refuses", "What it refuses", s.refuses, refusesBody)}
 ${band("reaches", "What it reaches", s.reaches, reachesBody)}
 ${band("leaves", "Records a job leaves", s.leaves, recordsBody)}
 ${band("configs", "What a job may set", s.configs, configsBody)}
+${band("triggers", "When it acts on its own", s.triggers, triggersBody)}
 ${isPackage ? "" : band("handling", "Where your content goes", s.handling, handlingBody)}
 ${isPackage ? "" : band("standing", "Checked by others", s.standing, standingBody)}
 <details open id="not-stated" class="band"><summary><h2>Not stated</h2><span class="from">${notStated.length} question${notStated.length === 1 ? "" : "s"} the sources leave open</span></summary><div class="body">${notStatedBody}</div></details>

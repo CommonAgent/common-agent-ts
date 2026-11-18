@@ -48,6 +48,10 @@ const AUTHORITY = ["reads-files", "writes-files", "reads-systems", "updates-syst
 const CEILINGS = ["job_seconds", "cost_per_job", "spend_per_job", "messages_per_job"];
 const TRIAL_WHO = ["anyone", "signed_in", "verified"];
 const TRIAL_COUNTS = ["per_requester_per_day", "per_day", "per_requester_ever"];
+/** The values of a schedule's `every` and of `contacts` (Section 6.2); any other value is read as not stated. */
+const EVERY = ["hour", "day", "week", "month"];
+const CONTACTS = ["owner", "callers", "named", "anyone"];
+
 /** What an open-ended offering never carries: any statement of what it can do (Section 9.5). */
 export const OPEN_ENDED_CLAIMS = ["does", "focus", "role", "can_do", "capabilities", "skills", "examples", "tags"];
 
@@ -532,7 +536,7 @@ function buildSells(ctx: Context, c: Rec, cardId: string, d: Rec | null, descId:
   return { list: [], src: "" };
 }
 
-/** The sections only a Descriptor fills: role, refuses, reaches, leaves and configs. */
+/** The sections only a Descriptor fills: role, refuses, reaches, leaves, configs and triggers. */
 function descriptorSections(sections: Record<string, AgentDocSection>, d: Rec, descId: string): void {
   if (text(d.role)) {
     const role = new Section();
@@ -580,6 +584,26 @@ function descriptorSections(sections: Record<string, AgentDocSection>, d: Rec, d
   if (rc && Array.isArray(rc.named)) configs.put("named", rc.named.filter(isObj).map((n) => ({ ...(n.name !== undefined ? { name: n.name } : {}), ...(n.digest !== undefined ? { digest: n.digest } : {}) })), descId);
   if (rc && typeof rc.replay === "boolean") configs.put("replay", rc.replay, descId);
   setSection(sections, "configs", configs);
+
+  // triggers: what makes it act when nobody has asked (Section 6.2), quoted, each event and schedule at declared. An
+  // `every` or a contact this version does not list is read as not stated, never as the nearest value it does list.
+  if (isObj(d.triggers)) {
+    const t = d.triggers;
+    const triggers = new Section();
+    if (Array.isArray(t.events)) triggers.put("events", t.events.filter(isObj).map((e) => ({ ...e, state: "declared" })), descId);
+    if (Array.isArray(t.schedules)) {
+      triggers.put("schedules", t.schedules.filter(isObj).map((x) => {
+        const { every, ...rest } = x;
+        return { ...(EVERY.includes(str(every)) ? { every } : {}), ...rest, state: "declared" };
+      }), descId);
+    }
+    if (typeof t.sets_own === "boolean") triggers.put("sets_own", t.sets_own, descId);
+    if (Array.isArray(t.contacts)) {
+      const known = t.contacts.filter((c) => CONTACTS.includes(str(c)));
+      if (known.length || !t.contacts.length) triggers.put("contacts", known, descId);
+    }
+    setSection(sections, "triggers", triggers);
+  }
 }
 
 /** The `asked` section: every declared interface, each with the exchanges its definition publishes, each at `declared`. */
@@ -809,9 +833,13 @@ export function notStatedOf(sections: Record<string, AgentDocSection>, opts: { p
   for (const i of arr(sections.asked?.interfaces).filter(isObj)) if (!arr(i.exchanges).length) add(`asked.${str(i.name)}`);
   const configs = sections.configs;
   if (configs && arr(configs.settings).length && configs.tested_models === undefined) add("configs.tested_models");
+  const triggers = sections.triggers;
+  if (triggers) for (const m of ["events", "schedules", "sets_own", "contacts"]) if (triggers[m] === undefined) add(`triggers.${m}`);
 
   const handling = sections.handling;
   if (handling) for (const m of ["processed_in", "retention_max_days", "processors", "memory"]) if (handling[m] === undefined) add(`handling.${m}`);
+  // whose jobs it learns from is asked only of an agent that remembers across jobs (Section 6.9)
+  if (handling && handling.memory === "remembers-across-jobs" && handling.memory_pool === undefined) add("handling.memory_pool");
   return out;
 }
 

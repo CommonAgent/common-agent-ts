@@ -176,6 +176,10 @@ export function staticFindings(doc: unknown): Finding[] {
     need("access.schemes", isObj(sections.access) && sections.access.schemes !== undefined);
     need("access.admission", isObj(sections.access) && sections.access.admission !== undefined);
   }
+  // a triggers section names each member the Descriptor left out (Section 9.5)
+  if (isObj(sections.triggers)) for (const m of ["events", "schedules", "sets_own", "contacts"]) need(`triggers.${m}`, sections.triggers[m] !== undefined);
+  // whose jobs it learns from, where it remembers across jobs (Sections 6.9 and 9.5)
+  if (isObj(sections.handling) && sections.handling.memory === "remembers-across-jobs") need("handling.memory_pool", sections.handling.memory_pool !== undefined);
   const interfaces = isObj(sections.asked) ? arr<unknown>(sections.asked.interfaces) : [];
   for (const iface of interfaces) {
     if (isObj(iface) && isStr(iface.name)) need(`asked.${iface.name}`, Array.isArray(iface.exchanges) && iface.exchanges.length > 0);

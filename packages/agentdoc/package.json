@@ -1,6 +1,6 @@
 {
   "name": "@common-agent/agentdoc",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Make, publish and check an AgentDoc: one document that says what an agent is, what it offers and what it refuses, assembled from its A2A card and signed Descriptor, with a small command line tool.",
   "keywords": [
     "common-agent",

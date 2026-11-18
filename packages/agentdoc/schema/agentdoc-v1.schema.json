@@ -42,6 +42,7 @@
         "reaches": { "$ref": "#/$defs/section" },
         "leaves": { "$ref": "#/$defs/section" },
         "configs": { "$ref": "#/$defs/section" },
+        "triggers": { "$ref": "#/$defs/section" },
         "handling": { "$ref": "#/$defs/section" },
         "standing": { "$ref": "#/$defs/section" }
       },

@@ -1,0 +1,137 @@
+{
+  "name": "Memory across jobs without memory_pool, not named, fails not-stated-complete",
+  "note": "pass-triggers.json with memory_pool taken out of handling and not named in not_stated. Where memory is remembers-across-jobs, an AgentDoc that does not say whose jobs the agent learns from names handling.memory_pool (6.9 and 9.5).",
+  "agentdoc": {
+    "agentdoc": "v1",
+    "subject": {
+      "id": "UBMBH4BK6EIHQFVMHLSABFSQXB3JXUFZOXVZQTIERO33AD4HHAI3D7QP",
+      "handle": "tickets@example.org",
+      "name": "Ticket helper"
+    },
+    "assembled_at": "2026-11-18T16:00:00Z",
+    "assembled_by": "common-agent-doc build, run by the agent's own operator; the assembly is not signed",
+    "sources": [
+      {
+        "id": "descriptor",
+        "kind": "agent-descriptor",
+        "url": "https://tickets.example.org/.well-known/agent-descriptor.json",
+        "fetched_at": "2026-11-18T15:59:58Z",
+        "digest": "sha256:3f1c0a9e2b7d4c6f8a1e5b3d7c9f0a2e4b6d8f1a3c5e7b9d0f2a4c6e8b1d3f5a",
+        "agent_version": "1.0.0",
+        "signature": "not_checked"
+      }
+    ],
+    "sections": {
+      "identity": {
+        "from": [
+          "descriptor"
+        ],
+        "does": "Answers support tickets for one organization.",
+        "acts_for": "organization"
+      },
+      "shape": {
+        "from": [
+          "descriptor"
+        ],
+        "interaction": "service"
+      },
+      "sells": {
+        "from": [
+          "descriptor"
+        ],
+        "scopes": [
+          "task-specific"
+        ],
+        "offerings": [
+          {
+            "id": "reply",
+            "name": "Reply to a ticket",
+            "scope": "task-specific",
+            "does": "Drafts a reply to one support ticket.",
+            "inputs": [
+              {
+                "name": "ticket",
+                "kind": "identifier",
+                "required": true
+              }
+            ],
+            "outputs": [
+              {
+                "name": "reply",
+                "kind": "text/markdown",
+                "when": "per_task"
+              }
+            ],
+            "state": "declared"
+          }
+        ]
+      },
+      "reaches": {
+        "from": [
+          "descriptor"
+        ],
+        "systems": [
+          {
+            "name": "tickets",
+            "access": "write",
+            "needs": "to reply to the tickets it is sent"
+          }
+        ]
+      },
+      "triggers": {
+        "from": [
+          "descriptor"
+        ],
+        "events": [
+          {
+            "system": "tickets",
+            "kind": "ticket-opened",
+            "does": "Reads the new ticket and drafts a first reply for a person to send.",
+            "state": "declared"
+          }
+        ],
+        "schedules": [
+          {
+            "every": "week",
+            "does": "Sends its owner a summary of the week's open tickets.",
+            "state": "declared"
+          }
+        ],
+        "sets_own": false,
+        "contacts": [
+          "owner"
+        ]
+      },
+      "handling": {
+        "from": [
+          "descriptor"
+        ],
+        "memory": "remembers-across-jobs"
+      }
+    },
+    "not_stated": [
+      "identity.name",
+      "identity.operator",
+      "shape.visibility",
+      "asked",
+      "role",
+      "sells.offerings.price",
+      "sells.samples",
+      "access",
+      "refuses",
+      "leaves",
+      "configs",
+      "handling.processed_in",
+      "handling.retention_max_days",
+      "handling.processors",
+      "standing"
+    ],
+    "signatures": []
+  },
+  "expect": {
+    "ok": false,
+    "fail": [
+      "not-stated-complete"
+    ]
+  }
+}

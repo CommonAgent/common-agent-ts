@@ -13,7 +13,7 @@
 import { isObj, type Rec } from "./util.js";
 
 /** The sections of Section 9.5, in the order a reader meets them. */
-export const KNOWN_SECTIONS = ["identity", "shape", "asked", "role", "sells", "access", "refuses", "reaches", "leaves", "configs", "handling", "standing"] as const;
+export const KNOWN_SECTIONS = ["identity", "shape", "asked", "role", "sells", "access", "refuses", "reaches", "leaves", "configs", "triggers", "handling", "standing"] as const;
 
 const isSection = (doc: Rec, word: string): boolean =>
   (KNOWN_SECTIONS as readonly string[]).includes(word) || (isObj(doc.sections) && Object.prototype.hasOwnProperty.call(doc.sections, word));
