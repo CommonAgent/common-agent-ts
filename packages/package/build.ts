@@ -15,7 +15,7 @@
  * the files; it writes nothing and reads no clock.
  */
 import { writeArchive, ArchiveError } from "./archive.js";
-import { PACKAGE_NS, PLUGIN_SCHEMA_URL, manifestProblem } from "./manifest.js";
+import { PACKAGE_NS, PLUGIN_SCHEMA_URL, descriptionProblem, manifestProblem } from "./manifest.js";
 import {
   AUTHORED_FILES,
   DESCRIPTOR_FILE,
@@ -314,7 +314,7 @@ function finish(files: PackageFiles, desc: DraftDescriptor, inst: InstallFile, m
       },
     },
   };
-  const bad = manifestProblem(manifest);
+  const bad = manifestProblem(manifest, meta.skills);
   if (bad) throw new PackRefusal(bad);
   const name = manifestHead.name as string;
   const version = manifestHead.version as string;
@@ -367,6 +367,8 @@ export function buildPackage(specIn: unknown, source: SourceTree, _opts: BuildOp
   if (typeof name !== "string" || !NAME_RE.test(name)) throw new PackRefusal(`the name "${String(name)}" must be lowercase letters, digits and hyphens`, "name");
   const version = String(spec.version ?? "1.0.0");
   if (typeof spec.description !== "string" || !spec.description.trim()) throw new PackRefusal("the description needs one sentence on what the agent does", "description");
+  const longDescription = descriptionProblem(spec.description.trim());
+  if (longDescription) throw new PackRefusal(longDescription, "description");
   const jobs = needList(spec, "jobs", "what the agent does, as jobs") as JobSpec[];
   const systems = (spec.systems ?? []) as SystemSpec[];
   const refuses = needList(spec, "refuses", "what the agent refuses") as string[];
@@ -471,7 +473,9 @@ export function buildPackage(specIn: unknown, source: SourceTree, _opts: BuildOp
     ...(spec.license ? { license: spec.license } : {}),
     ...(spec.homepage ? { homepage: spec.homepage } : {}),
     ...(spec.repository ? { repository: spec.repository } : {}),
-    keywords: ["built-agent", "draft", ...jobs.map((j) => j.slug)],
+    // Search tags for the work, the jobs by slug. How the package was made is
+    // the namespace's `built`, never a keyword.
+    keywords: jobs.map((j) => j.slug),
   };
   return finish(files, desc, inst, manifestHead, {}, {
     skills: jobs.map((j) => j.slug),
@@ -550,6 +554,8 @@ function packFolder(source: SourceTree, warnings: string[]): BuiltPackage {
   const name = manifestIn.name;
   if (typeof name !== "string" || !NAME_RE.test(name)) throw new PackRefusal(`${MANIFEST_FILE} name "${String(name)}" must be lowercase letters, digits and hyphens`, "name");
   if (typeof manifestIn.description !== "string" || !manifestIn.description.trim()) throw new PackRefusal(`${MANIFEST_FILE} needs a description, one sentence on what the agent does`, "description");
+  const longDescription = descriptionProblem(manifestIn.description);
+  if (longDescription) throw new PackRefusal(longDescription, "description");
   if (typeof desc.refusals !== "string" || !desc.refusals.trim()) {
     throw new PackRefusal(`${located.descriptor} does not say what the agent refuses; a package must carry it and it is not something to invent`, "refusals");
   }
