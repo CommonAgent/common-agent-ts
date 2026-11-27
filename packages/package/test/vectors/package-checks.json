@@ -2539,7 +2539,7 @@
         {
           "op": "set",
           "path": "mcp.json",
-          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"stdio\", \"command\": \"node\", \"args\": [\"/opt/documents/server.js\"], \"env\": { \"DOCUMENTS_TOKEN\": \"x\" } }\n  }\n}\n"
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"stdio\", \"command\": \"node\", \"args\": [\"/srv/documents/server.js\"], \"env\": { \"DOCUMENTS_TOKEN\": \"x\" } }\n  }\n}\n"
         }
       ],
       "rehash": true,

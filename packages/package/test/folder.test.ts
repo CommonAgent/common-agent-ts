@@ -97,7 +97,7 @@ describe("an agent's folder with an mcp.json (Common Agent 0.44.0, 12.4)", () =>
       [{ mcpServers: { "the-ledger": { type: "streamable-http", url: "https://ledger.example.com/mcp" } } }, /must declare/],
       [{ $schema: MCP, mcpServers: { "the-ledger": { type: "streamable-http", url: "http://ledger.example.com/mcp" } } }, /reached over https/],
       [{ $schema: MCP, mcpServers: { "the-ledger": { type: "streamable-http", url: "https://ledger.example.com/mcp", headers: { Authorization: "Bearer x" } } } }, /carries a credential/],
-      [{ $schema: MCP, mcpServers: { "the-ledger": { type: "stdio", command: "node", args: ["/opt/ledger.js"] } } }, /not spelled from/],
+      [{ $schema: MCP, mcpServers: { "the-ledger": { type: "stdio", command: "node", args: ["/srv/ledger.js"] } } }, /not spelled from/],
       [{ $schema: MCP, mcpServers: { "the-ledger": { type: "stdio", command: "node", env: { LEDGER_TOKEN: "x" } } } }, /named for a credential/],
       [{ $schema: MCP, mcpServers: { speech: { type: "streamable-http", url: "https://speech.example.com/mcp" } } }, /of kind mcp/],
     ];
