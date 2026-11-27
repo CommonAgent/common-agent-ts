@@ -4,7 +4,7 @@
   "spec": "SPEC.md at Common Agent 0.41.0: 12.10 (the checker and its address check), 12.2 (layout and the former names), 12.3 (the draft Descriptor), 12.4 and 12.4.1 (the runtime requirements and the model system), 12.5 (skills and the generated views), 12.6 (the rules), 12.7 (named run configs), 6.2 and 5.8 (a named run config and its digest), 6.13.4 (a setting's range and multiple), 6.13.6, 6.13.8 and 6.13.10 (the files a view and an example name), 6.14.4 and 6.14.8 (can_use)",
   "checks": {
     "layout": "the files of 12.2 are present, under their names or their former names, and the JSON files parse",
-    "manifest": "plugin.json validates against the pinned Agent Plugins 1.0.0 schema, points at the two authored files by path and digest, is a draft, and carries an address only in $schema, homepage, repository and each from entry's repository",
+    "manifest": "plugin.json validates against the pinned Agent Plugins 1.0.0 schema, points at the two authored files by path and digest, is a draft, carries an address only in $schema, homepage, repository and each from entry's repository, has a description of one line of at most 300 characters, and has no keyword that says how the package was made (built-agent, draft, system-agent, demo-agent)",
     "descriptor": "the draft Descriptor carries no subject, acts_for or shape, says what the agent refuses and records, and carries no address but the schema of each entry of its own can_use, which is read structurally (Section 12.6, rule 3)",
     "can-use": "can_use is a list, and each entry has a schema that is an absolute https URL and that no other entry names, a non-empty reads, a does and a without (Section 6.14.8)",
     "offering": "each offering passes the declaration checks of 6.11",
@@ -17,7 +17,7 @@
     "ceilings": "every spending system has a ceiling, every ceiling names the side that enforces it, and a ceiling over a system the scripts reach with a named credential says runtime",
     "dependencies": "every lockfile the runtime requirements name is in the package with the digest they give",
     "skills": "one skill per offering and per step, no skill without one, and each SKILL.md carries name and description in its frontmatter",
-    "mcp": "every mcp.json server is a declared system, and mcp.json carries no address",
+    "mcp": "every mcp.json server is a declared system of kind mcp that names no credential and does not spend, and each entry is one Agent Plugins 1.0.0 accepts: a remote server over https (http only to loopback) with no user information, fragment or credential header, or a stdio command that is one token inside the package with its paths spelled from ${PLUGIN_ROOT} or ${PLUGIN_DATA} and no credential in env (Common Agent 0.44.0, 12.4)",
     "views": "NOT.md, RECORDS.md and SYSTEMS.md match a fresh generation byte for byte",
     "hidden": "no text file carries a zero-width character, a bidirectional control or a tag-block character"
   },
@@ -29,7 +29,7 @@
       "skills/fetch/scripts/fetch.mjs": "// Fetches the document named in the request.\nconsole.log('fetched');\n",
       "agent-descriptor.json": "{\n  \"format\": \"agent-descriptor-v1\",\n  \"agent_version\": \"1.0.0\",\n  \"does\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"offerings\": [\n    {\n      \"id\": \"summarize\",\n      \"name\": \"Summarize a document\",\n      \"inputs\": [\n        {\n          \"name\": \"document\",\n          \"kind\": \"document\",\n          \"required\": true\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"brief\",\n          \"kind\": \"text/markdown\",\n          \"when\": \"per_task\"\n        }\n      ],\n      \"steps\": [\n        {\n          \"id\": \"fetch\",\n          \"name\": \"Fetch the document\"\n        }\n      ]\n    }\n  ],\n  \"refusals\": \"summarizing a document it could not read.\\nadding a claim the document does not make.\",\n  \"escalates\": [\n    \"a document marked confidential.\"\n  ],\n  \"records\": [\n    {\n      \"name\": \"the document as received\",\n      \"when\": \"per_task\",\n      \"file\": \"*/document\"\n    },\n    {\n      \"name\": \"the brief as sent\",\n      \"when\": \"per_task\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"access\": \"trigger\",\n      \"needs\": \"to read the brief aloud\",\n      \"leaves\": true\n    },\n    {\n      \"name\": \"documents\",\n      \"access\": \"read\",\n      \"needs\": \"to read the document\"\n    }\n  ]\n}\n",
       "agent-runtime-requirements.json": "{\n  \"format\": \"agent-runtime-requirements-v1\",\n  \"runtimes\": [\n    {\n      \"name\": \"node\",\n      \"version\": \">=20\"\n    }\n  ],\n  \"binaries\": [],\n  \"dependencies\": [\n    {\n      \"skill\": \"fetch\",\n      \"lockfile\": \"skills/fetch/scripts/package-lock.json\",\n      \"sha256\": \"d5e0209440bfcfcf1af3422aaab2db36d6c41c4e455c1aec3cec9b652ef15aed\"\n    }\n  ],\n  \"systems\": [\n    {\n      \"name\": \"speech\",\n      \"kind\": \"service\",\n      \"credential\": \"speech-key\",\n      \"env\": \"SPEECH_TOKEN\",\n      \"spends\": {\n        \"unit\": \"characters\"\n      }\n    },\n    {\n      \"name\": \"documents\",\n      \"kind\": \"directory\"\n    }\n  ],\n  \"ceilings\": [\n    {\n      \"system\": \"speech\",\n      \"per\": \"task\",\n      \"enforced_by\": \"runtime\"\n    }\n  ],\n  \"directories\": [\n    {\n      \"name\": \"records\",\n      \"purpose\": \"every record the descriptor names\"\n    },\n    {\n      \"name\": \"work\",\n      \"purpose\": \"inputs and drafts in progress\"\n    }\n  ]\n}\n",
-      "plugin.json": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/plugin.schema.json\",\n  \"name\": \"brief-summarizer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"keywords\": [\n    \"built-agent\",\n    \"draft\",\n    \"summarize\",\n    \"fetch\"\n  ],\n  \"extensions\": {\n    \"net.agentdoc.package\": {\n      \"descriptor\": {\n        \"path\": \"agent-descriptor.json\",\n        \"sha256\": \"e7c39971a875fe9e0aadc1269bfc8024275082a2f5746369207ae6b37d289bea\"\n      },\n      \"runtime_requirements\": {\n        \"path\": \"agent-runtime-requirements.json\",\n        \"sha256\": \"707f9b5e11583901965c09522dfa170bd4c7dbb136f4e470f957f834442562a1\"\n      },\n      \"built\": true,\n      \"draft\": true\n    }\n  }\n}\n",
+      "plugin.json": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/plugin.schema.json\",\n  \"name\": \"brief-summarizer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Summarizes a document into a one-page brief, read aloud.\",\n  \"keywords\": [\n    \"summarize\",\n    \"fetch\"\n  ],\n  \"extensions\": {\n    \"net.agentdoc.package\": {\n      \"descriptor\": {\n        \"path\": \"agent-descriptor.json\",\n        \"sha256\": \"e7c39971a875fe9e0aadc1269bfc8024275082a2f5746369207ae6b37d289bea\"\n      },\n      \"runtime_requirements\": {\n        \"path\": \"agent-runtime-requirements.json\",\n        \"sha256\": \"707f9b5e11583901965c09522dfa170bd4c7dbb136f4e470f957f834442562a1\"\n      },\n      \"built\": true,\n      \"draft\": true\n    }\n  }\n}\n",
       "net.agentdoc.package/NOT.md": "# Where this agent stops\n\nsummarizing a document it could not read.\nadding a claim the document does not make.\n\n## What always goes to a person\n\n- a document marked confidential.\n",
       "net.agentdoc.package/RECORDS.md": "# The records this agent must leave\n\nThis is the contract. The agent leaves the following behind, on\nevery run.\n\n- the document as received — at `*/document`\n- the brief as sent\n\nAn agent that leaves less than this does not do this job,\nwhatever else it does well.\n",
       "net.agentdoc.package/SYSTEMS.md": "# The systems this agent needs\n\nNamed by what the work needs rather than by product. The access level\nis the most this work needs; a deployment that grants more is granting\nmore than the job requires.\n\n| System | Kind | Access | What the access is for |\n|---|---|---|---|\n| speech | service | trigger | to read the brief aloud; credential `speech-key`, spends per characters, the caller's material is sent to it |\n| documents | directory | read | to read the document |\n\nWhoever deploys this agent binds these systems to their own,\nand places any named credential. Nothing here names a product.\n",
@@ -385,15 +385,68 @@
       "why": "where both pointers are present the current one is read"
     },
     {
-      "case": "mcp_server_declared",
+      "case": "mcp_server_bound_at_install",
       "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "an MCP server the organization binds at install has no mcp.json entry; the runtime requirements carry it"
+    },
+    {
+      "case": "mcp_remote_server_fixed_in_the_package",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
         {
           "op": "set",
           "path": "mcp.json",
-          "text": "{\n  \"mcpServers\": {\n    \"documents\": {}\n  }\n}\n"
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": {\n      \"type\": \"streamable-http\",\n      \"url\": \"https://mcp.example.com/documents\",\n      \"headers\": { \"X-Tenant\": \"public\" }\n    }\n  }\n}\n"
         }
       ],
-      "why": "a server named for a declared system, with no address"
+      "rehash": true,
+      "regenerate": true,
+      "why": "a public server fixed in the package, over https, under the system's name (Agent Plugins 1.0.0, 7.2)"
+    },
+    {
+      "case": "mcp_stdio_server_fixed_in_the_package",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": {\n      \"type\": \"stdio\",\n      \"command\": \"node\",\n      \"args\": [\"${PLUGIN_ROOT}/skills/fetch/scripts/fetch.mjs\", \"--data\", \"${PLUGIN_DATA}/documents\"],\n      \"cwd\": \"${PLUGIN_DATA}\"\n    },\n    \"loopback\": {\n      \"type\": \"sse\",\n      \"url\": \"http://127.0.0.1:8080/sse\"\n    }\n  }\n}\n"
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/2",
+          "value": { "name": "loopback", "kind": "mcp" }
+        },
+        {
+          "op": "json",
+          "path": "agent-descriptor.json",
+          "pointer": "/systems/2",
+          "value": { "name": "loopback", "access": "read", "needs": "to read what the local server holds" }
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a program the package ships, its paths spelled from the plugin variables, and a server on this machine over http"
     },
     {
       "case": "model_system",
@@ -769,6 +822,32 @@
     }
   ],
   "invalid": [
+    {
+      "case": "manifest_internal_keyword",
+      "check": "manifest",
+      "edits": [
+        {
+          "op": "json",
+          "path": "plugin.json",
+          "pointer": "/keywords",
+          "value": ["built-agent", "draft", "summarize", "fetch"]
+        }
+      ],
+      "why": "a keyword says what the agent does, never how the package was made"
+    },
+    {
+      "case": "manifest_description_too_long",
+      "check": "manifest",
+      "edits": [
+        {
+          "op": "json",
+          "path": "plugin.json",
+          "pointer": "/description",
+          "value": "Summarizes a document into a one-page brief, read aloud. It fetches the document the request names, reads it whole, keeps every claim it makes attributed to the page it came from, leaves out anything the document does not say, sends the brief to the speech service to be read aloud, and keeps the document as received and the brief as sent in its records."
+        }
+      ],
+      "why": "the description is the line a harness shows, one line of at most 300 characters"
+    },
     {
       "case": "manifest_points_at_old_name",
       "check": "manifest",
@@ -2350,22 +2429,160 @@
         {
           "op": "set",
           "path": "mcp.json",
-          "text": "{\n  \"mcpServers\": {\n    \"crm\": {}\n  }\n}\n"
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"crm\": { \"type\": \"streamable-http\", \"url\": \"https://mcp.example.com/crm\" }\n  }\n}\n"
         }
       ],
       "why": "every server is a declared system"
     },
     {
-      "case": "mcp_address",
+      "case": "mcp_server_not_kind_mcp",
       "check": "mcp",
       "edits": [
         {
           "op": "set",
           "path": "mcp.json",
-          "text": "{\n  \"mcpServers\": {\n    \"documents\": { \"url\": \"https://mcp.example.com\" }\n  }\n}\n"
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"streamable-http\", \"url\": \"https://mcp.example.com/documents\" }\n  }\n}\n"
         }
       ],
-      "why": "the install binds the server's address"
+      "why": "a server mcp.json names is a system of kind mcp"
+    },
+    {
+      "case": "mcp_entry_with_no_address",
+      "check": "mcp",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": {}\n  }\n}\n"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "Agent Plugins 1.0.0 accepts no entry without a type and a url or command; a server bound at install has no entry"
+    },
+    {
+      "case": "mcp_no_schema",
+      "check": "mcp",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"streamable-http\", \"url\": \"https://mcp.example.com/documents\" }\n  }\n}\n"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "mcp.json declares the Agent Plugins version plugin.json declares"
+    },
+    {
+      "case": "mcp_http_off_loopback",
+      "check": "mcp",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"streamable-http\", \"url\": \"http://mcp.example.com/documents\" }\n  }\n}\n"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a server off this machine is reached over https"
+    },
+    {
+      "case": "mcp_credential_header",
+      "check": "mcp",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"streamable-http\", \"url\": \"https://mcp.example.com/documents\", \"headers\": { \"Authorization\": \"Bearer abc\" } }\n  }\n}\n"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "headers are visible package data and carry no credential"
+    },
+    {
+      "case": "mcp_stdio_path_outside_the_plugin_variables",
+      "check": "mcp",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/1/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"documents\": { \"type\": \"stdio\", \"command\": \"node\", \"args\": [\"/opt/documents/server.js\"], \"env\": { \"DOCUMENTS_TOKEN\": \"x\" } }\n  }\n}\n"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "a stdio server's paths are spelled from ${PLUGIN_ROOT} or ${PLUGIN_DATA}, and its env carries no credential"
+    },
+    {
+      "case": "mcp_spending_system",
+      "check": "mcp",
+      "edits": [
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/0/kind",
+          "value": "mcp"
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/0/credential",
+          "remove": true
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/systems/0/env",
+          "remove": true
+        },
+        {
+          "op": "json",
+          "path": "agent-runtime-requirements.json",
+          "pointer": "/ceilings/0/enforced_by",
+          "value": "platform"
+        },
+        {
+          "op": "set",
+          "path": "mcp.json",
+          "text": "{\n  \"$schema\": \"https://agent-plugins.org/schemas/1.0.0/mcp.schema.json\",\n  \"mcpServers\": {\n    \"speech\": { \"type\": \"streamable-http\", \"url\": \"https://mcp.example.com/speech\" }\n  }\n}\n"
+        }
+      ],
+      "rehash": true,
+      "regenerate": true,
+      "why": "nothing in the path can hold a ceiling on a server mcp.json names, so its system does not spend"
     },
     {
       "case": "view_edited",

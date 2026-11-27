@@ -13,10 +13,25 @@ export interface Copied {
   assets: string[];
 }
 
+const YAML_INDICATORS = "-?:,[]{}#&*!|>'\"%@`";
+const YAML_NOT_A_STRING = /^(?:true|false|yes|no|on|off|null|~|[-+]?(?:\.?[0-9][0-9_.:eE+-]*|\.inf|\.nan))$/i;
+
+/**
+ * A one-line frontmatter value: plain where YAML reads it back as the same
+ * string, else double-quoted (JSON's string form). `on a reply: say so`
+ * unquoted is a mapping error to every strict reader of the Agent Skills
+ * format, as is a value that starts with an indicator or reads as a boolean.
+ */
+export function yamlScalar(t: string): string {
+  const plain = !!t && t === t.trim() && !t.includes("\n") && !(YAML_INDICATORS.includes(t[0]!)
+    || t.includes(": ") || t.includes(" #") || t.includes("\t") || t.endsWith(":") || YAML_NOT_A_STRING.test(t));
+  return plain ? t : JSON.stringify(t);
+}
+
 /** A generated SKILL.md for a job, from its `when`, `good` and `empty` lines, its inputs and outputs, and what was copied. */
 export function skillMd(job: JobSpec, agentName: string, copied: Copied, instructions?: string): string {
   const when = String(job.when ?? "When the request matches this job.").trim();
-  const lines = ["---", `name: ${job.slug}`, `description: ${when.slice(0, 1024)}`, "---", "", `# ${job.title}`, "", `Part of ${agentName}. ${when}`, "", "## When to use this", "", when, ""];
+  const lines = ["---", `name: ${job.slug}`, `description: ${yamlScalar(when.slice(0, 1024))}`, "---", "", `# ${job.title}`, "", `Part of ${agentName}. ${when}`, "", "## When to use this", "", when, ""];
   if (job.inputs?.length) {
     lines.push("## What this needs", "");
     for (const i of job.inputs) lines.push(`- ${i.name} (${i.kind}, ${i.required ? "required" : "optional"})`);

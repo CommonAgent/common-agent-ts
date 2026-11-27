@@ -7,6 +7,7 @@
 import { jcs } from "@common-agent/crypto";
 import { addressLiterals } from "./addresses.js";
 import { PACKAGE_NS, manifestProblem } from "./manifest.js";
+import { mcpProblems } from "./mcp.js";
 import {
   AUTHORED_FILES,
   DESCRIPTOR_FILE,
@@ -280,7 +281,9 @@ export function validatePackage(files: PackageFiles): Validation {
   let name: string | null = null;
   let version: string | null = null;
   if (manifest !== undefined) {
-    const bad = manifestProblem(manifest);
+    // The package's own jobs, by their skill folders: each is a keyword whatever its slug.
+    const jobs = [...new Set([...files.keys()].map((p) => /^skills\/([^/]+)\//.exec(p)?.[1]).filter((s): s is string => !!s))];
+    const bad = manifestProblem(manifest, jobs);
     if (bad) problem(bad);
     if (isObj(manifest)) {
       name = typeof manifest.name === "string" ? manifest.name : null;
@@ -453,15 +456,16 @@ export function validatePackage(files: PackageFiles): Validation {
   }
 
   section = "mcp";
-  // mcp.json: every server is a declared system, with no address (12.6 rule 2).
+  // mcp.json (Common Agent 0.44.0, 12.4 and 12.10): only the servers whose
+  // address is fixed in the package, each a declared system of kind mcp, in
+  // the format of Agent Plugins 1.0.0, Section 7.2. A server the organization
+  // binds at install has no entry; the runtime requirements carry it.
   if (files.has("mcp.json")) {
     const mcp = parseJson(files, "mcp.json", add);
-    if (isObj(mcp)) {
-      const servers = isObj(mcp.mcpServers) ? mcp.mcpServers : mcp;
-      const declared = new Set(descSystems.map(systemName));
-      for (const k of Object.keys(servers)) if (!declared.has(k)) problem(`mcp.json names the server "${k}", which is no declared system`);
-      if (addresses(mcp).length) problem("mcp.json carries an address; the install binds each server");
-    } else if (mcp !== undefined) problem("mcp.json is a JSON object");
+    if (mcp !== undefined) {
+      const instSystems = isObj(inst) && Array.isArray(inst.systems) ? (inst.systems as unknown as Record<string, unknown>[]) : [];
+      for (const p of mcpProblems(mcp, instSystems)) problem(p);
+    }
   }
 
   section = "views";

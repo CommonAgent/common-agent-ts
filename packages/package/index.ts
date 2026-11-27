@@ -56,11 +56,12 @@ export {
   type AuthoredKind,
   type ResolvedName,
 } from "./names.js";
-export { PACKAGE_NS, PLUGIN_SCHEMA, PLUGIN_SCHEMA_URL, manifestProblem } from "./manifest.js";
+export { DESCRIPTION_MAX, INTERNAL_KEYWORDS, MCP_SCHEMA_URL, PACKAGE_NS, PLUGIN_SCHEMA, PLUGIN_SCHEMA_URL, descriptionProblem, manifestProblem } from "./manifest.js";
+export { MCP_VARIANTS, mcpProblems } from "./mcp.js";
 export { AUTHORITY_VALUES, CEILING_KEYS, FOCUS_VALUES, SCOPE_VALUES, isDataUseProblem, offeringScopeProblems, type DataUse, type SystemRef } from "./offering.js";
 export type { KeyedSigner, SourceTree } from "./ports.js";
 export { BUILD_RECORD_TAG, UNSIGNED_NOTE, buildRecord, recordInstant, verifyBuildRecord, type BuildRecord } from "./record.js";
-export { hasSkillFrontmatter, skillMd, type Copied } from "./skill.js";
+export { hasSkillFrontmatter, skillMd, yamlScalar, type Copied } from "./skill.js";
 export { codepointName, dumps, hiddenCharacter, hiddenInFile, sha256Hex, type HiddenCharacter } from "./text.js";
 export type * from "./types.js";
 export { HOW_VALUES, MODEL_PROTOCOLS, PER_FILE_PLACEHOLDERS, RUN_PLACEHOLDERS, declaredFiles, isPackagePath, validatePackage, type DeclaredFile, type Issue, type Validation } from "./validate.js";

@@ -403,6 +403,40 @@ describe("pack: hidden characters and skill frontmatter", () => {
   });
 });
 
+describe("pack: what an Agent Plugins reader shows (Agent Plugins 1.0.0)", () => {
+  it("writes the jobs as keywords and nothing about how the package was made", () => {
+    const r = pack(folder());
+    expect(r.code, r.stdout).toBe(0);
+    const manifest = JSON.parse(readFileSync(join(r.out?.package_dir as string, "plugin.json"), "utf8"));
+    expect(manifest.keywords).toEqual(["write-the-story", "check-the-fit"]);
+  });
+  it("keeps a job whose slug is draft as a keyword", () => {
+    const spec = clone(SPEC);
+    spec.jobs[0].slug = "draft";
+    const r = pack(folder(spec));
+    expect(r.code, r.stdout).toBe(0);
+    expect(JSON.parse(readFileSync(join(r.out?.package_dir as string, "plugin.json"), "utf8")).keywords).toEqual(["draft", "check-the-fit"]);
+  });
+  it("refuses a description longer than the line a harness shows", () => {
+    const spec = clone(SPEC);
+    spec.description = "Turns a brief into a narrated interactive explainer, scene by scene, ".repeat(5).trim();
+    const r = pack(folder(spec));
+    expect(r.code).toBe(1);
+    expect(r.out?.refused).toMatch(/at most 300 characters/);
+    const lines = clone(SPEC);
+    lines.description = "Turns a brief into an explainer.\nThen checks it.";
+    expect(pack(folder(lines)).out?.refused).toMatch(/more than one line/);
+  });
+  it("quotes a generated skill description that YAML would misread", () => {
+    const spec = clone(SPEC);
+    spec.jobs[0].when = "when a brief arrives: a topic and an audience";
+    const r = pack(folder(spec));
+    expect(r.code, r.stdout).toBe(0);
+    const gen = readFileSync(join(r.out?.package_dir as string, "skills", "write-the-story", "SKILL.md"), "utf8");
+    expect(gen.startsWith('---\nname: write-the-story\ndescription: "when a brief arrives: a topic and an audience"\n---')).toBe(true);
+  });
+});
+
 describe("the command line", () => {
   it("prints its usage on --help and refuses no target", () => {
     expect(run(["--help"]).stdout).toMatch(/^usage: common-agent-pack/);

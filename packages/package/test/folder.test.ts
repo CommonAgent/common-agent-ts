@@ -63,6 +63,54 @@ function agentFolder(): { dir: string; first: Record<string, any> } {
   return { dir, first: r.out as Record<string, any> };
 }
 
+describe("an agent's folder with an mcp.json (Common Agent 0.44.0, 12.4)", () => {
+  const MCP = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json";
+  /** The folder of an agent with one more system, of kind mcp. */
+  function mcpFolder(): string {
+    const src = tmp("spec-src-");
+    writeFileSync(join(src, "agent.json"), JSON.stringify({ ...SPEC, systems: [...SPEC.systems, { name: "the-ledger", access: "read", needs: "to look up the account", kind: "mcp" }] }));
+    const r = run([src, "--json"]);
+    expect(r.code, r.stderr).toBe(0);
+    const dir = join(tmp("agent-"), "brief-summarizer");
+    cpSync(r.out?.package_dir, dir, { recursive: true });
+    return dir;
+  }
+
+  it("packs a server whose address is fixed in the package, as Agent Plugins 1.0.0 writes it", () => {
+    const dir = mcpFolder();
+    const doc = { $schema: MCP, mcpServers: { "the-ledger": { type: "streamable-http", url: "https://ledger.example.com/mcp" } } };
+    writeFileSync(join(dir, "mcp.json"), JSON.stringify(doc, null, 2));
+    const r = run([dir, "--json", "--out", tmp("out-")]);
+    expect(r.code, r.stdout).toBe(0);
+    expect(readJson(join(r.out?.package_dir, "mcp.json"))).toEqual(doc);
+  });
+
+  it("packs a server the organization binds at install with no mcp.json at all", () => {
+    const r = run([mcpFolder(), "--json", "--out", tmp("out-")]);
+    expect(r.code, r.stdout).toBe(0);
+    expect(existsSync(join(r.out?.package_dir, "mcp.json"))).toBe(false);
+  });
+
+  it("refuses an entry Agent Plugins 1.0.0 does not accept, or one that carries a credential", () => {
+    const cases: [unknown, RegExp][] = [
+      [{ $schema: MCP, mcpServers: { "the-ledger": {} } }, /type is one of stdio, streamable-http, sse/],
+      [{ mcpServers: { "the-ledger": { type: "streamable-http", url: "https://ledger.example.com/mcp" } } }, /must declare/],
+      [{ $schema: MCP, mcpServers: { "the-ledger": { type: "streamable-http", url: "http://ledger.example.com/mcp" } } }, /reached over https/],
+      [{ $schema: MCP, mcpServers: { "the-ledger": { type: "streamable-http", url: "https://ledger.example.com/mcp", headers: { Authorization: "Bearer x" } } } }, /carries a credential/],
+      [{ $schema: MCP, mcpServers: { "the-ledger": { type: "stdio", command: "node", args: ["/opt/ledger.js"] } } }, /not spelled from/],
+      [{ $schema: MCP, mcpServers: { "the-ledger": { type: "stdio", command: "node", env: { LEDGER_TOKEN: "x" } } } }, /named for a credential/],
+      [{ $schema: MCP, mcpServers: { speech: { type: "streamable-http", url: "https://speech.example.com/mcp" } } }, /of kind mcp/],
+    ];
+    for (const [doc, want] of cases) {
+      const dir = mcpFolder();
+      writeFileSync(join(dir, "mcp.json"), JSON.stringify(doc));
+      const r = run([dir, "--json", "--out", tmp("out-")]);
+      expect(r.code, JSON.stringify(doc)).toBe(1);
+      expect(r.out?.refused, JSON.stringify(doc)).toMatch(want);
+    }
+  });
+});
+
 describe("packing an agent's folder", () => {
   it("packs the three files and the skills, and gives the same package the spec gave", () => {
     const { dir, first } = agentFolder();

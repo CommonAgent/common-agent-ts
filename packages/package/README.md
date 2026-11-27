@@ -54,6 +54,23 @@ digest is absent or wrong; the refusal gives the digest. A draft that does
 not say what the agent refuses or what records it leaves is refused, and the
 refusal names the part.
 
+What an Agent Plugins reader shows is held to Agent Plugins 1.0.0
+(https://agent-plugins.org/specification). The manifest's description is the
+line a harness shows a person picking a plugin, so it is one line of at most
+300 characters; the whole account of what the agent does is the Descriptor's
+`does`. Keywords are search tags for the work: the packer writes the jobs'
+slugs, and refuses `built-agent`, `draft`, `system-agent` and `demo-agent`
+unless one of them is a job's own slug. A generated SKILL.md description that
+YAML would misread, such as one with `: ` inside it, is written in double
+quotes. An `mcp.json` in the folder is carried and checked as Common Agent
+0.44.0, Section 12.4, says: it names only the MCP servers whose address is
+fixed in the package, each a declared system of kind `mcp` that names no
+credential and does not spend, as an entry Agent Plugins 1.0.0 accepts (a
+remote server over HTTPS, or a stdio command inside the package whose paths
+are spelled from `${PLUGIN_ROOT}` and `${PLUGIN_DATA}`), with no credential
+in `env` or `headers`. A server the organization binds at install has no
+entry; the runtime requirements carry it.
+
 It writes `<out>/<name>/`, the archive `<out>/<name>-<version>.tar.gz` and
 the build record `<out>/<name>-build.json`. The output folder defaults to
 `<folder>/dist`. The record is signed when `--seed-file` names a file that
